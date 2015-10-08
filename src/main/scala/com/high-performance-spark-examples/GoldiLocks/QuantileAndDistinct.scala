@@ -1,5 +1,4 @@
-
-
+package com.highperformancespark.examples.goldilocks
 
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable
@@ -228,4 +227,3 @@ object PartitionProcessingUtil extends Serializable {
     newIt.toIterator
   }
 }
-
