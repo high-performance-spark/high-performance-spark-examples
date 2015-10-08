@@ -1,3 +1,4 @@
+package com.highperformancespark.examples.goldilocks
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row}
