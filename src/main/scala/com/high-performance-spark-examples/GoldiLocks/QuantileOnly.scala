@@ -8,6 +8,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.runtime.{universe => ru}
 
+/**
+ * valPairs is an K/V RDD of ((Value, ColumnIndex), OccurenceCount)
+ * colIndexList is the list of column indexes we wish to extract ranks for
+ */
 class QuantileWithHashMap(val valPairs: RDD[((Double, Int), Long)], val colIndexList: List[Int], targetRanks: List[Long]) {
   /*
    * n is value of the last column index in the valPairs. It represents the width of the part of the dataset
