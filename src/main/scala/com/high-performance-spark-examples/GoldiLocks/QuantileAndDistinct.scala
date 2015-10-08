@@ -14,7 +14,7 @@ import scala.reflect.runtime.{universe => ru}
  * @param colIndexList
  */
 class RankStats(valPairs : RDD[((Double, Int), Long )],
-                val colIndexList : List[Int]) {
+  val colIndexList : List[Int]) {
   private var reduced : RDD[((Double, Int), Long )]  = _
   private var sorted  : RDD[((Double, Int), Long )]  = _
   val n = colIndexList.last+1
@@ -75,7 +75,7 @@ class RankStats(valPairs : RDD[((Double, Int), Long )],
    *         2. a array of (index) -> total values
    */
   protected def getDistinctAndTotal(totalForEachPart :
-                          Array[(Int, (Array[Long], Array[Long]))] ) = {
+      Array[(Int, (Array[Long], Array[Long]))] ) = {
     val runningCounts = Array.fill[Long](n)(0L)
     val runningSums = Array.fill[Long](n)(0L)
     var i = 0
@@ -98,8 +98,8 @@ class RankStats(valPairs : RDD[((Double, Int), Long )],
    *         in that partition value pairs that correspond to one of the target rank statistics for that col
    */
   def getLocationsOfRanksWithinEachPart(
-                                         partitionMap : Array[(Int, Array[Long])],
-                                         targetRanks : List[Long ]) : Array[(Int, List[(Int, Long)])]  = {
+    partitionMap : Array[(Int, Array[Long])],
+    targetRanks : List[Long ]) : Array[(Int, List[(Int, Long)])]  = {
     val runningTotal = Array.fill[Long](n)(0)
     partitionMap.sortBy(_._1).map { case (partitionIndex, totals)=> {
       val relevantIndexList = new  scala.collection.mutable.MutableList[(Int, Long)]()
@@ -143,7 +143,7 @@ class RankStats(valPairs : RDD[((Double, Int), Long )],
    *         3. the last value on that partition
    */
   def getDistinctForeachPart() :
-  Array[ Array[Long]] = {
+      Array[ Array[Long]] = {
     val zero = Array.fill[Long](n)(0)
     reduced.mapPartitionsWithIndex((index : Int, it : Iterator[((Double, Int), Long)]) => {
 
@@ -163,7 +163,7 @@ class RankStats(valPairs : RDD[((Double, Int), Long )],
   }
 
   def getTotalDistinct(totalForEachPart :
-                       (Array[Array[Long]]) ) = {
+      (Array[Array[Long]]) ) = {
 
     val runningTotal = totalForEachPart(0)
     var i = 1

@@ -6,7 +6,7 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 
 class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
-                        colIndexList : List[Int]){
+  colIndexList : List[Int]){
   val n = colIndexList.last+1
   private var reduced : RDD[((Double, (Int, String)), Long)] = _
   private var sorted : RDD[((Double, (Int, String)), Long)] = _
@@ -18,8 +18,8 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
    *         2. Hashmap of (index, group) -> # distinct values
    */
   def getMedianAndDistinct () = {
-     reduced = valPairs.reduceByKey((a, b) => a + b)
-     sorted = reduced.sortByKey()
+    reduced = valPairs.reduceByKey((a, b) => a + b)
+    sorted = reduced.sortByKey()
     val countAndSumByPart = calculateDistinctAndTotalForeachPart()
     val (distinct, total) = getTotalAndDistinct(countAndSumByPart)
     val half : Long = total.get(valPairs.first()._1._2).get / 2
@@ -29,7 +29,7 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
   }
 
   def getDistinct() = {
-     reduced = valPairs.reduceByKey((a, b) => a + b)
+    reduced = valPairs.reduceByKey((a, b) => a + b)
     val countsByPartition = calculateDistinctForEachPart()
     val distinct = getTotalDistinct(countsByPartition)
     distinct
@@ -46,13 +46,13 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
    *    (this is used in the 'getLocationsOfRanksWithinEachPart' method to calculate the medians)
    */
   protected def calculateDistinctAndTotalForeachPart() :
-  Array[ (Int, HashMap[(Int, String ), Long], HashMap[(Int, String ), Long])] = {
+      Array[ (Int, HashMap[(Int, String ), Long], HashMap[(Int, String ), Long])] = {
     sorted.mapPartitionsWithIndex(
       (index : Int, it : Iterator[((Double, (Int , String ) ), Long)]) => {
-      // val count = n.toLong.toInt
-      val (countArray, sumArray) = GroupedPartitionProcessingUtil.totalAndDistinctByGroup(it)
-      Iterator((index, countArray, sumArray))
-    }).collect()
+        // val count = n.toLong.toInt
+        val (countArray, sumArray) = GroupedPartitionProcessingUtil.totalAndDistinctByGroup(it)
+        Iterator((index, countArray, sumArray))
+      }).collect()
   }
 
   /**
@@ -72,20 +72,20 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
    *         2. a hashmap of (index, group) -> total values
    */
   protected def getTotalAndDistinct(
-                totalForEachPart : Array[(Int, HashMap[(Int,String ), Long ],
-    HashMap[(Int,String ), Long ])]) : (HashMap[(Int,String ), Long ],
-    HashMap[(Int,String ), Long ])  = {
+    totalForEachPart : Array[(Int, HashMap[(Int,String ), Long ],
+      HashMap[(Int,String ), Long ])]) : (HashMap[(Int,String ), Long ],
+        HashMap[(Int,String ), Long ])  = {
     totalForEachPart.map(
       t => (t._2, t._3)).reduce(
-        (hashMap1, hashMap2) => {
-          val ( count1, sum1 ) = hashMap1
-          val ( count2, sum2) = hashMap2
-          val sumFunction = (a: Long , b: Long ) => a + b
-          val mergedCounts =  HashMapUtil.mergeMaps(count1, count2, sumFunction)
-          val mergedSums = HashMapUtil.mergeMaps(sum1, sum2, sumFunction)
+      (hashMap1, hashMap2) => {
+        val ( count1, sum1 ) = hashMap1
+        val ( count2, sum2) = hashMap2
+        val sumFunction = (a: Long , b: Long ) => a + b
+        val mergedCounts =  HashMapUtil.mergeMaps(count1, count2, sumFunction)
+        val mergedSums = HashMapUtil.mergeMaps(sum1, sum2, sumFunction)
 
-      (mergedCounts, mergedSums)
-    } )
+        (mergedCounts, mergedSums)
+      } )
   }
 
   /**
@@ -99,37 +99,37 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
    *         the rank statics that we are looking for.
    */
   protected def getLocationsOfRanksWithinEachPart(
-                partitionMap : Array[(Int, HashMap[(Int, String), Long], HashMap[(Int, String ), Long])],
-                targetRanks : List[Long]
-                ) :  Array[ HashMap[(Int, String ), List[Long] ]]   = {
+    partitionMap : Array[(Int, HashMap[(Int, String), Long], HashMap[(Int, String ), Long])],
+    targetRanks : List[Long]
+  ) :  Array[ HashMap[(Int, String ), List[Long] ]]   = {
     //as we go through the data linearly, keep track of the number of elements we have seen for
     //each partition
     var runningTotal = HashMap[(Int, String ), Long]()
     //sort by partition number
     val sortedParts = partitionMap.sortBy(_._1).map( t => (t._2, t._3))
-      sortedParts.map {
+    sortedParts.map {
 
-        case (( countMap, sumsMap )) =>
-          var relevantIndexMap = HashMap[(Int, String), List[Long] ]()
-          sumsMap.foreach{
-            case (((colIndex, group), colCount )) =>
+      case (( countMap, sumsMap )) =>
+        var relevantIndexMap = HashMap[(Int, String), List[Long] ]()
+        sumsMap.foreach{
+          case (((colIndex, group), colCount )) =>
             //the running totals for this column/group. If we haven't seen it yet, 0L
             val runningTotalCol = runningTotal.getOrElse((colIndex, group), 0L)
             runningTotal = runningTotal.updated((colIndex, group), runningTotalCol + colCount )
-        //if the count for this column/ and group is in the right range, add it to the map
-        val ranksHere = targetRanks.filter(rank =>
-          runningTotalCol <= rank && runningTotalCol + colCount >= rank )
+            //if the count for this column/ and group is in the right range, add it to the map
+            val ranksHere = targetRanks.filter(rank =>
+              runningTotalCol <= rank && runningTotalCol + colCount >= rank )
 
-        //add ranksHere to the relevant index map
-        ranksHere.foreach(
-          rank => {
-            val location = rank - runningTotalCol
-            val indicesForThisKey = relevantIndexMap.getOrElse((colIndex, group ), List[Long]())
-            relevantIndexMap = relevantIndexMap.updated(
-              (colIndex, group),  location :: indicesForThisKey)
-        })
-      }//end sums map for each
-      relevantIndexMap
+            //add ranksHere to the relevant index map
+            ranksHere.foreach(
+              rank => {
+                val location = rank - runningTotalCol
+                val indicesForThisKey = relevantIndexMap.getOrElse((colIndex, group ), List[Long]())
+                relevantIndexMap = relevantIndexMap.updated(
+                  (colIndex, group),  location :: indicesForThisKey)
+              })
+        }//end sums map for each
+        relevantIndexMap
     }
   }
 
@@ -144,10 +144,10 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
     sorted.mapPartitionsWithIndex((index, iter) => {
       val targetsInThisPart = locations(index)
       val len = targetsInThisPart.keys.size
-        if(len >0 ) {
+      if(len >0 ) {
         val newIt = GroupedPartitionProcessingUtil.getValuesFromRanks(iter, targetsInThisPart)
         newIt
-        }
+      }
       else Iterator.empty
     } )
   }
@@ -157,21 +157,21 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
    * The per partition counts are important for the distinct median finding
    */
   protected def calculateDistinctForEachPart() :
-  Array[HashMap[(Int,String ), Long ]] = {
+      Array[HashMap[(Int,String ), Long ]] = {
     val zero = new HashMap[(Int, String), Long]()
 
     reduced.mapPartitionsWithIndex((index : Int,
-                                   it : Iterator[((Double, (Int, String)), Long)]) => {
+      it : Iterator[((Double, (Int, String)), Long)]) => {
       val hashMap : HashMap[(Int, String ), Long ] = it.aggregate(zero)(
         (map : HashMap[(Int, String), Long ], v : ((Double, (Int, String)), Long) ) => {
           val ((value, (colIndex, group)) , count) = v
           val prevCount = map.getOrElse( (colIndex, group), 0L )
           //don't add the count, just as one, because we are looking for the distinct values
-           map.updated((colIndex, group), prevCount + 1  )
+          map.updated((colIndex, group), prevCount + 1  )
         },
         (a , b ) => {
           val mergeFunction = (a : Long, b : Long  ) => a + b
-         val h : HashMap[(Int, String ), Long ] =  HashMapUtil.mergeMaps[(Int, String ), Long](a, b , mergeFunction)
+          val h : HashMap[(Int, String ), Long ] =  HashMapUtil.mergeMaps[(Int, String ), Long](a, b , mergeFunction)
           h
         })
       Iterator(hashMap)
@@ -179,7 +179,7 @@ class RankStatsByGroup( valPairs : RDD[((Double, (Int, String)), Long)],
   }
 
   protected def getTotalDistinct(totalForEachPart : Array[HashMap[(Int,String ), Long ]]
-                        )  = {
+  )  = {
     totalForEachPart.reduce((hashMap1, hashMap2) => HashMapUtil.mergeMaps(hashMap1,
       hashMap2, (a: Long , b: Long ) => a + b))
   }
@@ -196,27 +196,27 @@ object GroupedPartitionProcessingUtil extends Serializable{
    * Calculates counts an sums per group and partition
    */
   def totalAndDistinctByGroup(it : Iterator[((Double, (Int, String)), Long)] )
-  :  ( HashMap[(Int, String), Long],  HashMap[(Int, String), Long]) = {
+      :  ( HashMap[(Int, String), Long],  HashMap[(Int, String), Long]) = {
 
     val keyPair : ( HashMap[(Int, String), Long],  HashMap[(Int, String), Long]) =
       it.aggregate(( new HashMap[(Int, String), Long](), new HashMap[(Int, String), Long]()))(
-      (acc , v : ((Double ,(Int, String )), Long)) => {
-        val (countMap, sumMap ) = acc
-        val ((_, (colIndex, group )) , count) = v
-        val prevCount = countMap.getOrElse( (colIndex, group), 0L )
-        val prevSum = sumMap.getOrElse((colIndex, group), 0L)
-        //don't add the count, just as one, because we are looking for the distinct values
-        val nextCounts = countMap.updated((colIndex, group), prevCount + 1  )
-        val nextSums = sumMap.updated((colIndex, group), prevSum + count)
-        ( nextCounts, nextSums) } ,
-      (a , b ) => {
-        val (aCounts, aSums) = a
-        val (bCounts, bSums) = b
+        (acc , v : ((Double ,(Int, String )), Long)) => {
+          val (countMap, sumMap ) = acc
+          val ((_, (colIndex, group )) , count) = v
+          val prevCount = countMap.getOrElse( (colIndex, group), 0L )
+          val prevSum = sumMap.getOrElse((colIndex, group), 0L)
+          //don't add the count, just as one, because we are looking for the distinct values
+          val nextCounts = countMap.updated((colIndex, group), prevCount + 1  )
+          val nextSums = sumMap.updated((colIndex, group), prevSum + count)
+          ( nextCounts, nextSums) } ,
+        (a , b ) => {
+          val (aCounts, aSums) = a
+          val (bCounts, bSums) = b
 
-        val nextCounts =  HashMapUtil.mergeMaps[(Int, String), Long](aCounts, bCounts, (a :Long , b : Long  ) => a+b)
-        val nextSums = HashMapUtil.mergeMaps[(Int, String), Long](aSums, bSums , (a :Long  , b : Long  ) => a+b)
-        (nextCounts, nextSums)
-      })
+          val nextCounts =  HashMapUtil.mergeMaps[(Int, String), Long](aCounts, bCounts, (a :Long , b : Long  ) => a+b)
+          val nextSums = HashMapUtil.mergeMaps[(Int, String), Long](aSums, bSums , (a :Long  , b : Long  ) => a+b)
+          (nextCounts, nextSums)
+        })
     keyPair
   }
   //return iterator of (colIndex,group)-> value, then make it into a map.
