@@ -12,7 +12,7 @@ object DataFrameStatistics {
   //toDO: Right now all the keys have to fit in memory... maybe that is a bad idea?
 
   def findMedianAndDistinctByKey(inputData: DataFrame, medianColumns: List[Int],
-                                 distinctColumns: List[Int], groupByIndices: List[Int]) = {
+    distinctColumns: List[Int], groupByIndices: List[Int]) = {
     val allColumns = (medianColumns ++ distinctColumns).distinct
     val valPairs = DataFrameProcessingUtils.createHashMapBySeveralGroups(inputData,
       allColumns, groupByIndices)
@@ -30,9 +30,9 @@ object DataFrameStatistics {
    * Maps the result of the median to one row per group
    */
   private def mapMediansToWide(
-                        medianMap: RDD[((Int, String),
-                          Double )], medians: List[Int]
-                        ): RDD[(String, Array[Double])] = {
+    medianMap: RDD[((Int, String),
+      Double )], medians: List[Int]
+  ): RDD[(String, Array[Double])] = {
     val locationMedianIndexMap = medians.zipWithIndex.toMap
     medianMap.sparkContext.broadcast(locationMedianIndexMap)
     val zero = Array.fill[Double](medians.length)(Double.NaN)
@@ -41,27 +41,27 @@ object DataFrameStatistics {
         case (((index, group), median)) =>
           (group, (locationMedianIndexMap.get(index), median ))
       }.filter(
-          x => x._2._1.isDefined
-        ).map{
+        x => x._2._1.isDefined
+      ).map{
         case ((group, (Some(i), v ))) => (group, (i, v))
       }
     )
     useGroupAsKey.aggregateByKey(zero)(
       seqOp =
         (row, x) => {
-        val (index, value) = x
-        row.updated(index, value)
-      },
+          val (index, value) = x
+          row.updated(index, value)
+        },
       combOp =
         (a, b) => a.zip(b).map { case ((x, y)) =>
-        val (xNan, yNan) = (x.isNaN, y.isNaN)
-        (xNan, yNan) match {
-          case (true, true) => Double.NaN
-          case (false, true) => x
-          case (true, false) => y
-          //this is a non exhaustive match, if both x and y have values we should  throw exception }
-        }
-      })
+          val (xNan, yNan) = (x.isNaN, y.isNaN)
+            (xNan, yNan) match {
+            case (true, true) => Double.NaN
+            case (false, true) => x
+            case (true, false) => y
+              //this is a non exhaustive match, if both x and y have values we should  throw exception }
+          }
+        })
   }
 }
 
@@ -93,8 +93,8 @@ object DataFrameProcessingUtils{
    * @return rdd with ((cellValue, (cellIndex, groupByValue)), count)
    */
   def createHashMapByGroup(inputData : DataFrame,
-                           activeCols : Seq[Int], groupByIndex : Int
-                            ) : RDD[((Double, (Int, String)), Long)] = {
+    activeCols : Seq[Int], groupByIndex : Int
+  ) : RDD[((Double, (Int, String)), Long)] = {
     val map =  inputData.rdd.mapPartitions(it => {
       val hashMap = new collection.mutable.HashMap[(Double, (Int, String)), Long]()
       it.foreach( row => {
@@ -118,8 +118,8 @@ object DataFrameProcessingUtils{
    * @return rdd with ((cellValue, (cellIndex, groupByValue)), count)
    */
   def createHashMapBySeveralGroups(inputData : DataFrame,
-                           activeCols : Seq[Int], groupByIndices : List[Int]
-                            ) : RDD[((Double, (Int, String)), Long)] = {
+    activeCols : Seq[Int], groupByIndices : List[Int]
+  ) : RDD[((Double, (Int, String)), Long)] = {
     val map =  inputData.rdd.mapPartitions(it => {
       val hashMap = new collection.mutable.HashMap[(Double, (Int, String)), Long]()
       it.foreach( row => {
@@ -147,7 +147,7 @@ object DataFrameProcessingUtils{
    * @return
    */
   def mapToKeyedVectors(inputData : DataFrame, activeCols : Array[Int], groupByIndices : List[Int ]) = {
-     inputData.map( row => {
+    inputData.map( row => {
       val key = buildKey(row, groupByIndices)
       val vector =  org.apache.spark.mllib.linalg.Vectors.dense(activeCols.map(
         i => row.get(i).toString.toDouble)
@@ -184,9 +184,9 @@ object DataFrameProcessingUtils{
  */
 object HashMapUtil extends Serializable {
   def mergeMaps[A, B](
-                       mapA : HashMap[A, B],
-                       mapB : HashMap[A, B],
-                       merge : (B,B)=> B) : HashMap[A,B] = {
+    mapA : HashMap[A, B],
+    mapB : HashMap[A, B],
+    merge : (B,B)=> B) : HashMap[A,B] = {
     var nextMap = mapB
     //add thing to map B
     mapA.foreach{case ((key, aValue)) =>
