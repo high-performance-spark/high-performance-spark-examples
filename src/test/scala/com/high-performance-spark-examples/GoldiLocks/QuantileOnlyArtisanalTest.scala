@@ -5,7 +5,7 @@ import org.apache.spark.rdd._
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-// tag:MAGIC-PANDA[]
+// tag:MAGIC_PANDA[]
 class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
   @transient private var _sc: SparkContext = _
   def sc: SparkContext = _sc
@@ -32,4 +32,4 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
     super.afterAll()
   }
 }
-// end:MAGIC-PANDA[]
+// end:MAGIC_PANDA[]
