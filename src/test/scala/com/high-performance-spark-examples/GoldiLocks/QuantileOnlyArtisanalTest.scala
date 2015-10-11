@@ -27,6 +27,7 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
 
   override def afterAll() {
     // We clear the driver port so that we don't try and bind to the same port on restart
+    sc.stop()
     System.clearProperty("spark.driver.port")
     _sc = null
     super.afterAll()
