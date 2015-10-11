@@ -3,6 +3,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.random.RandomRDDs
 
 object GenerateScalingData {
+  // tag::MAGIC_PANDA
   /**
    * Generate a Goldilocks data set. We expect the key to follow an exponential
    * distribution and the data its self to be normal.
@@ -12,4 +13,5 @@ object GenerateScalingData {
     val valuesRDD = RandomRDDs.normalVectorRDD(sc, numRows = 1, numCols = 500)
     keyRDD.zip(valuesRDD).map{case (k, v) => List(k.toString) ++ v.toArray.map(_.toString)}
   }
+  // end::MAGIC_PANDA
 }
