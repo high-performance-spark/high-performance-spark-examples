@@ -6,6 +6,9 @@ import org.apache.spark.sql.DataFrame
 object HappyPanda {
   def happyPandas(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.select(pandaInfo("place"),
-      (pandaInfo("happy_pandas") / pandaInfo("pandas")).as("percentHappy"))
+      (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
+  }
+  def minHappyPandas(pandaInfo: DataFrame, num: Int): DataFrame = {
+    pandaInfo.filter(pandaInfo("happyPandas") >= num)
   }
 }
