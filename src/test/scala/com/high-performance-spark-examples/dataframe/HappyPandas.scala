@@ -13,7 +13,7 @@ import org.scalatest.exceptions.TestFailedException
 class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSuiteBase {
   val inputList = List(PandaInfo("toronto", 2, 1), PandaInfo("san diego", 3, 2))
 
-  //tag::approxEqualDataFrames
+  //tag::approxEqualDataFrames[]
   test("verify simple happy pandas") {
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
@@ -25,9 +25,9 @@ class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSui
     val result = HappyPanda.happyPandas(inputDF)
     approxEqualDataFrames(expectedDf, result, 1E-5)
   }
-  //end::approxEqualDataFrames
+  //end::approxEqualDataFrames[]
 
-  //tag::exactEqualDataFrames
+  //tag::exactEqualDataFrames[]
   test("verify exact equality") {
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
@@ -36,7 +36,7 @@ class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSui
     val resultRows = result.collect()
     assert(List(Row("san diego", 3, 2)) === resultRows)
   }
-  //end::exactEqualDataFrames
+  //end::exactEqualDataFrames[]
 
 }
 
