@@ -12,43 +12,46 @@ import scala.reflect.runtime.{universe => ru}
  * valPairs is an K/V RDD of ((Value, ColumnIndex), OccurenceCount)
  * colIndexList is the list of column indexes we wish to extract ranks for
  */
-class QuantileWithHashMap(val valPairs: RDD[((Double, Int), Long)], val colIndexList: List[Int], targetRanks: List[Long]) {
+object QuantileWithHashMap {
   /*
    * n is value of the last column index in the valPairs. It represents the width of the part of the dataset
    * that we care about. It is possible that n will be greater than the number
    * of columns if some columns between 0 and n are not included
    */
-  val n = colIndexList.last+1
 
   /**
    * @return A map of colIndex -> Array of rank stats for column indices (corresponding to the class param)
    */
-  def findQuantiles( ) = {
+  def findQuantiles( valPairs: RDD[((Double, Int), Long)],  colIndexList: List[Int], targetRanks: List[Long] ) = {
+    val n = colIndexList.last+1
     val sorted = valPairs.sortByKey()
     sorted.persist(StorageLevel.MEMORY_AND_DISK)
     val parts : Array[Partition] = sorted.partitions
-    val map1 = getTotalsForeachPart(sorted, parts.length)
-    val map2  = getLocationsOfRanksWithinEachPart(map1)
+    val map1 = getTotalsForeachPart(sorted, parts.length, n )
+    val map2  = getLocationsOfRanksWithinEachPart(targetRanks, map1, n)
     val result = findElementsIteratively(sorted, map2)
     result.groupByKey().collectAsMap()
   }
 
 
-  def findQuantilesWithCustomStorage(storageLevel: StorageLevel, checkPoint : Boolean, directory : String = "") = {
+  def findQuantilesWithCustomStorage(valPairs: RDD[((Double, Int), Long)],
+    colIndexList: List[Int],
+    targetRanks: List[Long],
+    storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK,
+    checkPoint : Boolean, directory : String = "") = {
+
+    val n = colIndexList.last+1
     val sorted  = valPairs.sortByKey()
     if(storageLevel!=StorageLevel.NONE){
       sorted.persist(storageLevel)
     }
     if(checkPoint){
       sorted.sparkContext.setCheckpointDir(directory)
-      if(storageLevel.equals(StorageLevel.NONE)){
-        println("Warning: Checkpointing without storing can be very slow. Consider changing Storage level Param ")
-      }
       sorted.checkpoint()
     }
     val parts : Array[Partition] = sorted.partitions
-    val map1 = getTotalsForeachPart(sorted, parts.length)
-    val map2  = getLocationsOfRanksWithinEachPart(map1)
+    val map1 = getTotalsForeachPart(sorted, parts.length, n)
+    val map2  = getLocationsOfRanksWithinEachPart(targetRanks, map1, n)
     val result = findElementsIteratively(sorted, map2)
     result.groupByKey().collectAsMap()
   }
@@ -58,7 +61,7 @@ class QuantileWithHashMap(val valPairs: RDD[((Double, Int), Long)], val colIndex
    * @param numPartitions
    * @return an RDD the length of the number of partitions, where each row is a triple (partition Index
    */
-  def getTotalsForeachPart(sorted: RDD[((Double, Int), Long)], numPartitions: Int) = {
+  private def getTotalsForeachPart(sorted: RDD[((Double, Int), Long)], numPartitions: Int, n : Int ) = {
     val zero = Array.fill[Long](n)(0)
     sorted.mapPartitionsWithIndex((index : Int, it : Iterator[((Double, Int), Long)]) => {
       val keyPair : Array[Long] = it.aggregate(zero)(
@@ -78,7 +81,8 @@ class QuantileWithHashMap(val valPairs: RDD[((Double, Int), Long)], val colIndex
    * @return and Array, locations where locations(i) = (i, list of each (colIndex, Value)
    *         in that partition value pairs that correspond to one of the target rank statistics for that col
    */
-  def getLocationsOfRanksWithinEachPart(partitionMap : Array[(Int, Array[Long])]) : Array[(Int, List[(Int, Long)])]  = {
+  private def getLocationsOfRanksWithinEachPart(targetRanks : List[Long],
+    partitionMap : Array[(Int, Array[Long])], n : Int ) : Array[(Int, List[(Int, Long)])]  = {
     val runningTotal = Array.fill[Long](n)(0)
     partitionMap.sortBy(_._1).map { case (partitionIndex, totals)=> {
       val relevantIndexList = new  scala.collection.mutable.MutableList[(Int, Long)]()
@@ -102,19 +106,19 @@ class QuantileWithHashMap(val valPairs: RDD[((Double, Int), Long)], val colIndex
    * @return An iterator of columnIndex, value pairs which correspond only to the values at which are
    *         rank statistics.
    */
-  def findElementsIteratively(sorted : RDD[((Double, Int), Long)], locations : Array[(Int, List[(Int, Long)])]) = {
+  private def findElementsIteratively(sorted : RDD[((Double, Int), Long)], locations : Array[(Int, List[(Int, Long)])]) = {
     sorted.mapPartitionsWithIndex((index : Int, it : Iterator[((Double, Int), Long)]) => {
       val targetsInThisPart = locations(index)._2
       val len = targetsInThisPart.length
       if(len >0 ) {
-        val newIt = PartitionProcessingUtil2.getNewValues(it, targetsInThisPart)
+        val newIt = PartitionProcessingUtil.getNewValues(it, targetsInThisPart)
         newIt}
       else Iterator.empty
     } )
   }
 }
 
-object PartitionProcessingUtil2 extends Serializable {
+object PartitionProcessingUtil extends Serializable {
 
   def getNewValues(it: Iterator[((Double, Int), Long)], targetsInThisPart: List[(Int, Long)]): Iterator[(Int, Double)] = {
     val partMap = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
