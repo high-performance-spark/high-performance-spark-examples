@@ -1,8 +1,7 @@
 package com.highperformancespark.examples.goldilocks
 
 import org.apache.spark._
-import org.apache.spark.rdd._
-
+import org.apache.spark.sql.SQLContext
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 // tag::MAGIC_PANDA[]
@@ -17,12 +16,39 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
     super.beforeAll()
   }
 
-  test("retrieve quantiles") {
-    val input: RDD[((Double, Int), Long)] = sc.parallelize(
-      List(((2.0, 1), 10L), ((1.0, 1), 5L), ((3.0, 1), 4L)))
-    val result = new QuantileWithHashMap(input, List(1), List(1L, 6L)).findQuantiles()
-    val expected = List(1.0, 2.0)
-    assert(expected === result(1).toList)
+  val inputList = List(GoldiLocksRow(0.0, 4.5, 7.7, 5.0),
+    GoldiLocksRow(1.0, 5.5, 6.7, 6.0),
+    GoldiLocksRow(2.0, 5.5, 1.5, 7.0),
+    GoldiLocksRow(3.0, 5.5, 0.5, 7.0),
+    GoldiLocksRow(4.0, 5.5, 0.5, 8.0)
+  )
+
+  test("Goldi locks first try ") {
+    val sqlContext = new SQLContext(sc)
+    val input = sqlContext.createDataFrame(inputList)
+    val secondAndThird = GoldiLocksFirstTry.findQuantiles(input, targetRanks = List(2L, 3L))
+    val expectedResult = Map[Int, Set[Double]](
+      0 -> Set(1.0, 2.0),
+      1 -> Set(5.5, 5.5),
+      2 -> Set(0.5, 1.5),
+      3 -> Set(6.0, 7.0))
+    secondAndThird.foreach(x => println( x._1 +"," + x._2.mkString(" ")))
+     assert(expectedResult.forall{case ((index, expectedRanks)) =>
+      secondAndThird.get(index).get.toSet.equals(expectedRanks)})
+  }
+
+  test("GoldiLocks With Hashmap ") {
+    val sqlContext = new SQLContext(sc)
+    val input = sqlContext.createDataFrame(inputList)
+    val secondAndThird = GoldiLocksWithHashMap.findQuantiles(input, targetRanks = List(2L, 3L))
+    val expectedResult = Map[Int, Set[Double]](
+      0 -> Set(1.0, 2.0),
+      1 -> Set(5.5, 5.5),
+      2 -> Set(0.5, 1.5),
+      3 -> Set(6.0, 7.0))
+    secondAndThird.foreach(x => println( x._1 +"," + x._2.mkString(" ")))
+    assert(expectedResult.forall{case ((index, expectedRanks)) =>
+      secondAndThird.get(index).get.toSet.equals(expectedRanks)})
   }
 
   override def afterAll() {
@@ -34,3 +60,6 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
   }
 }
 // end::MAGIC_PANDA[]
+
+
+  case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double  )
