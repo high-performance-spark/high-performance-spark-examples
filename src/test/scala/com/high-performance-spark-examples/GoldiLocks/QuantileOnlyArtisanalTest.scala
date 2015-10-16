@@ -20,7 +20,7 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
   test("retrieve quantiles") {
     val input: RDD[((Double, Int), Long)] = sc.parallelize(
       List(((2.0, 1), 10L), ((1.0, 1), 5L), ((3.0, 1), 4L)))
-    val result = new QuantileWithHashMap(input, List(1), List(1L, 6L)).findQuantiles()
+    val result = QuantileWithHashMap.findQuantiles(input, List(1), List(1L, 6L))
     val expected = List(1.0, 2.0)
     assert(expected === result(1).toList)
   }

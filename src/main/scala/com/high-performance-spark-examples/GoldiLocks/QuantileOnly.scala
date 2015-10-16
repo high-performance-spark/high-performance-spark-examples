@@ -111,31 +111,46 @@ object QuantileWithHashMap {
       val targetsInThisPart = locations(index)._2
       val len = targetsInThisPart.length
       if(len >0 ) {
-        val newIt = PartitionProcessingUtil.getNewValues(it, targetsInThisPart)
-        newIt}
-      else Iterator.empty
-    } )
-  }
-}
-
-object PartitionProcessingUtil extends Serializable {
-
-  def getNewValues(it: Iterator[((Double, Int), Long)], targetsInThisPart: List[(Int, Long)]): Iterator[(Int, Double)] = {
-    val partMap = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
-    val keysInThisPart = targetsInThisPart.map(_._1).distinct
-    val runningTotals: mutable.HashMap[Int, Long] = new mutable.HashMap()
-    keysInThisPart.foreach(key => runningTotals += ((key, 0L)))
-    val newIt: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
-    it.foreach { case ((value, colIndex), count) => {
-      if (keysInThisPart.contains(colIndex) ) {
-        val total = runningTotals(colIndex)
-        val ranksPresent =  partMap(colIndex).filter(v => (v <= count + total) && (v > total))
-        ranksPresent.foreach(r => {
+        val partMap = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+        val keysInThisPart = targetsInThisPart.map(_._1).distinct
+        val runningTotals: mutable.HashMap[Int, Long] = new mutable.HashMap()
+       keysInThisPart.foreach(key => runningTotals += ((key, 0L)))
+       val newIt: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+       it.foreach { case ((value, colIndex), count) => {
+        if (keysInThisPart.contains(colIndex) ) {
+          val total = runningTotals(colIndex)
+          val ranksPresent =  partMap(colIndex).filter(v => (v <= count + total) && (v > total))
+          ranksPresent.foreach(r => {
           newIt += ((colIndex, value))
-        })
+          })
         runningTotals.update(colIndex, total + count)
       }
     }}
     newIt.toIterator
   }
+      else Iterator.empty
+    } )
+  }
 }
+
+// object FindElements extends Serializable {
+
+//   def getNewValues(it: Iterator[((Double, Int), Long)], targetsInThisPart: List[(Int, Long)]): Iterator[(Int, Double)] = {
+//     val partMap = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+//     val keysInThisPart = targetsInThisPart.map(_._1).distinct
+//     val runningTotals: mutable.HashMap[Int, Long] = new mutable.HashMap()
+//     keysInThisPart.foreach(key => runningTotals += ((key, 0L)))
+//     val newIt: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+//     it.foreach { case ((value, colIndex), count) => {
+//       if (keysInThisPart.contains(colIndex) ) {
+//         val total = runningTotals(colIndex)
+//         val ranksPresent =  partMap(colIndex).filter(v => (v <= count + total) && (v > total))
+//         ranksPresent.foreach(r => {
+//           newIt += ((colIndex, value))
+//         })
+//         runningTotals.update(colIndex, total + count)
+//       }
+//     }}
+//     newIt.toIterator
+//   }
+// }
