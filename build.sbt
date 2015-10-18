@@ -1,6 +1,6 @@
 organization := "com.highperformancespark"
 
-name := "spark-testing-base"
+name := "examples"
 
 publishMavenStyle := true
 
