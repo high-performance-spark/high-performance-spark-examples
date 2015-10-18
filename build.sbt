@@ -16,7 +16,9 @@ sparkVersion := "1.5.1"
 
 spDependencies += "holdenk/spark-testing-base:0.1.3"
 
+//tag::sparkComponents[]
 sparkComponents ++= Seq("core", "streaming", "sql", "hive", "mllib")
+//end::sparkComponents[]
 
 parallelExecution in Test := false
 
