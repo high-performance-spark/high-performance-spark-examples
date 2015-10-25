@@ -29,28 +29,43 @@ object HappyPanda {
     hiveContext
   }
 
+  // Illustrate loading some JSON data
+  def loadDataSimple(sqlCtx: SQLContext, path: String): DataFrame = {
+    //tag::loadPandaJSONSimple[]
+    sqlCtx.read.json(path)
+    //end::loadPandaJSONSimple[]
+  }
+
   def happyPandas(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.select(pandaInfo("place"),
       (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
   }
 
+  //tag::simpleFilter[]
   def minHappyPandas(pandaInfo: DataFrame, num: Int): DataFrame = {
     pandaInfo.filter(pandaInfo("happyPandas") >= num)
   }
+  //end::simpleFilter[]
+
+  //tag::complexFilter[]
+  def minHappyPandas(pandaInfo: DataFrame, num: Int): DataFrame = {
+    pandaInfo.filter(pandaInfo("happyPandas") >= pandaInfo("totalPandas") * 2)
+  }
+  //end::complexFilter[]
 
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(pandas: DataFrame): DataFrame = {
-    pandas.groupBy(pandas("zip")).max("pandasize")
+    pandas.groupBy(pandas("zip")).max("pandaSize")
   }
   //end::maxPandaSizePerZip[]
 
   //tag::minMaxPandasSizePerZip[]
   def minMaxPandaSizePerZip(pandas: DataFrame): DataFrame = {
     // List of strings
-    pandas.groupBy(pandas("zip")).agg(("min", "pandasize"), ("max", "pandasize"))
+    pandas.groupBy(pandas("zip")).agg(("min", "pandaSize"), ("max", "pandaSize"))
     // Map of column to aggregate
-    pandas.groupBy(pandas("zip")).agg(Map("pandasize" -> "min",
-      "pandasize" -> "max"))
+    pandas.groupBy(pandas("zip")).agg(Map("pandaSize" -> "min",
+      "pandaSize" -> "max"))
     // expression literals
   }
   //end::minMaxPandasSizePerZip[]
@@ -58,7 +73,7 @@ object HappyPanda {
   //tag::complexAggPerZip[]
   def complexAggPerZip(pandas: DataFrame): DataFrame = {
     // Compute the min and mean
-    pandas.groupBy(pandas("zip")).agg(min(pandas("pandasize")), mean(pandas("pandasize")))
+    pandas.groupBy(pandas("zip")).agg(min(pandas("pandaSize")), mean(pandas("pandaSize")))
   }
   //end::complexAggPerZip[]
 }
