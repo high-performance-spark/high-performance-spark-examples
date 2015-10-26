@@ -2,7 +2,7 @@
  * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
  */
 
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{SQLContext, DataFrame, Row}
 import org.apache.spark.sql.types._
 
 import com.holdenkarau.spark.testing._
@@ -38,6 +38,13 @@ class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSui
   }
   //end::exactEqualDataFrames[]
 
+
+  def loadPandaStuffies(sqlCtx: SQLContext): DataFrame = {
+    val pandaStuffies = List(Row("ikea", null), Row("tube", 6), Row("real", 30))
+    val schema = StructType(List(StructField("name", StringType, true),
+      StructField("age", IntegerType, true)))
+    sqlCtx.createDataFrame(sc.parallelize(pandaStuffies), schema)
+  }
 }
 
 case class PandaInfo(place: String, totalPandas: Integer, happyPandas: Integer)
