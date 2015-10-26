@@ -41,6 +41,16 @@ object HappyPanda {
       (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
   }
 
+  //tag::encodePandaType[]
+  def encodePandaType(pandaInfo: DataFrame, num: Int): DataFrame = {
+    pandaInfo.select(pandaInfo("pandaId"),
+      when(pandaInfo("pandaType") === "giant", 0).
+      when(pandaInfo("pandaType") === "red", 1).
+      otherwise(2)
+    )
+  }
+  //end::encodePandaType[]
+
   //tag::simpleFilter[]
   def minHappyPandas(pandaInfo: DataFrame, num: Int): DataFrame = {
     pandaInfo.filter(pandaInfo("happyPandas") >= num)
@@ -48,8 +58,8 @@ object HappyPanda {
   //end::simpleFilter[]
 
   //tag::complexFilter[]
-  def minHappyPandas(pandaInfo: DataFrame, num: Int): DataFrame = {
-    pandaInfo.filter(pandaInfo("happyPandas") >= pandaInfo("totalPandas") * 2)
+  def minHappyPandasComplex(pandaInfo: DataFrame, num: Int): DataFrame = {
+    pandaInfo.filter(pandaInfo("happyPandas") >= pandaInfo("totalPandas") / 2)
   }
   //end::complexFilter[]
 
