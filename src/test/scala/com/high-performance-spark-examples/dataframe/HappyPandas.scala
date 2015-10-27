@@ -8,6 +8,7 @@ import org.apache.spark.sql.types._
 import com.holdenkarau.spark.testing._
 
 import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.exceptions.TestFailedException
 
 class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSuiteBase {
@@ -26,6 +27,22 @@ class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSui
     approxEqualDataFrames(expectedDf, result, 1E-5)
   }
   //end::approxEqualDataFrames[]
+
+  test("verify approx by hand") {
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
+    val expectedRows = List(Row("toronto", 0.5), Row("san diego", 2/3.0))
+    val inputDF = sqlCtx.createDataFrame(inputList)
+    val result = HappyPanda.happyPandas(inputDF)
+    val resultRows = result.collect()
+    //tag::approxEqualRow[]
+    assert(expectedRows.size === resultRows.size)
+    expectedRows.zip(resultRows).foreach{case (r1, r2) =>
+      assert(r1(0) === r2(0))
+      assert(r1.getDouble(1) === (r2.getDouble(1) +- 0.001))
+    }
+    //end::approxEqualRow[]
+  }
 
   //tag::exactEqualDataFrames[]
   test("verify exact equality") {
