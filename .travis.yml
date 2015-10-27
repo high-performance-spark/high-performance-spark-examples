@@ -1,4 +1,8 @@
 language: scala
+sudo: false
+cache:
+  directories:
+    - $HOME/.ivy2
 scala:
    - 2.10.4
 before_install:
