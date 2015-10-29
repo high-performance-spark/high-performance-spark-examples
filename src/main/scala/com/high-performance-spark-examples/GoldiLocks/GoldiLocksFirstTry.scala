@@ -11,7 +11,6 @@ import scala.collection.mutable.ArrayBuffer
 
 object GoldiLocksFirstTry {
 
-
   def findQuantiles( dataFrame: DataFrame, targetRanks: List[Long] ) = {
     val n = dataFrame.schema.length
     val  valPairs: RDD[(Double, Int)] = getPairs(dataFrame)
@@ -36,7 +35,7 @@ object GoldiLocksFirstTry {
 
   /**
    * Step 2. Find the number of elements for each column in each partition
-   * @param sorted
+   * @param sorted - the sorted (value, colIndex) pairs
    * @param numPartitions
    * @param n the number of columns
    * @return an RDD the length of the number of partitions, where each row contains
@@ -71,13 +70,13 @@ object GoldiLocksFirstTry {
   private def getLocationsOfRanksWithinEachPart(targetRanks : List[Long],
     partitionMap : Array[(Int, Array[Long])], n : Int ) : Array[(Int, List[(Int, Long)])]  = {
     val runningTotal = Array.fill[Long](n)(0)
-    partitionMap.sortBy(_._1).map { case (partitionIndex, totals)=> {
+    partitionMap.sortBy(_._1).map { case (partitionIndex, totals)=>
       val relevantIndexList = new  scala.collection.mutable.MutableList[(Int, Long)]()
       totals.zipWithIndex.foreach{ case (colCount, colIndex)  => {
         val runningTotalCol = runningTotal(colIndex)
         runningTotal(colIndex) += colCount
         val ranksHere = targetRanks.filter(rank =>
-          (runningTotalCol <= rank && runningTotalCol + colCount >= rank)
+          runningTotalCol <= rank && runningTotalCol + colCount >= rank
         )
         //for each of the rank statistics present add this column index and the index it will be
         //at on this partition (the rank - the running total)
@@ -86,7 +85,7 @@ object GoldiLocksFirstTry {
         })
       }}
       (partitionIndex, relevantIndexList.toList)
-    }}
+    }
   }
 
   /**
@@ -104,7 +103,7 @@ object GoldiLocksFirstTry {
         keysInThisPart.foreach(key => runningTotals+=((key, 0L)))
         val newIt : ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
         it.foreach{ case( value, colIndex) => {
-          if(runningTotals isDefinedAt(colIndex)){
+          if(runningTotals isDefinedAt colIndex){
             val total = runningTotals(colIndex) + 1L
             runningTotals.update(colIndex, total)
             if(partMap(colIndex).contains(total)){

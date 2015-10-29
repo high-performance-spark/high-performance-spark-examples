@@ -16,7 +16,7 @@ object SecondarySort {
     sortedWithinParts
   }
 
-  def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag, S, V](pairRDD : RDD[((K, S), V)], partitions : Int ) = {
+  def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag, S, V : ClassTag](pairRDD : RDD[((K, S), V)], partitions : Int ) = {
     val colValuePartitioner = new PrimaryKeyPartitioner[Double, Int](partitions)
     implicit val ordering: Ordering[(K, S)] = Ordering.by(_._1)
     val sortedWithinParts = pairRDD.repartitionAndSortWithinPartitions(
