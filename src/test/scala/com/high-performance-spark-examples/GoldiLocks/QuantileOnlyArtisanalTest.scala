@@ -55,6 +55,11 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
     val data = sc.parallelize(Range.apply(0, 10)).flatMap( i => List(20.0, 30.0 , 40.0 ).map(x => ((x, i), 1L )))
     val r = SecondarySort.groupByKeyAndSortBySecondaryKey(data, 3)
     r.collect().foreach( v => println( v))
+    val rSorted = r.collect().sortWith(
+      lt = (a, b) => a._1.toDouble > b._1.toDouble )
+    assert(r.collect().zipWithIndex.forall{
+      case (((key, list), index )) => rSorted(index)._1.equals(key)
+    })
   }
 
   override def afterAll() {
