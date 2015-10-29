@@ -51,6 +51,12 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
       secondAndThird.get(index).get.toSet.equals(expectedRanks)})
   }
 
+  test("Secondary Sort"){
+    val data = sc.parallelize(Range.apply(0, 10)).flatMap( i => List(20.0, 30.0 , 40.0 ).map(x => ((x, i), 1L )))
+    val r = SecondarySort.groupByKeyAndSortBySecondaryKey(data, 3)
+    r.collect().foreach( v => println( v))
+  }
+
   override def afterAll() {
     // We clear the driver port so that we don't try and bind to the same port on restart
     sc.stop()
