@@ -4,10 +4,11 @@
 
 import org.apache.spark._
 import org.apache.spark.sql._
-import org.apache.spark.sql.hive._
-import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.catalyst.expressions.aggregate._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.hive._
 
 object HappyPanda {
   // How to create a HiveContext or SQLContext with an existing SparkContext
@@ -86,4 +87,20 @@ object HappyPanda {
     pandas.groupBy(pandas("zip")).agg(min(pandas("pandaSize")), mean(pandas("pandaSize")))
   }
   //end::complexAggPerZip[]
+
+  def computeRelativePandaSizes(pandas: DataFrame): DataFrame = {
+    //tag::relativePandaSizesWindow[]
+    val windowSpec = Window
+      .orderBy(pandas("age"))
+      .partitionBy(pandas("zip"))
+      .rowsBetween(start = 10, end = 10) // use rangeBetween for range instead
+    //end::relativePandaSizesWindow[]
+    //tag::relativePandaSizesQuery[]
+    val pandaRelativeSizeFunc = (pandas("pandaSize") -
+      avg(pandas("pandaSize")).over(windowSpec))
+    pandas.select(pandas("name"), pandas("zip"), pandas("pandaSize"),
+      pandaRelativeSizeFunc.as("panda_relative_size"))
+    //end::relativePandaSizesQuery[]
+  }
+
 }

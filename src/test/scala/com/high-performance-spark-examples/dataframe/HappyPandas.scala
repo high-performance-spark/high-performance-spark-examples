@@ -55,11 +55,26 @@ class HappyPandasTest extends FunSuite with SharedSparkContext with DataFrameSui
   }
   //end::exactEqualDataFrames[]
 
+  // Make a test once we have hivectx in the base
+  def futureTestRrelativePandaSize() {
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
+    // TODO: Generate some data instead of using the small static data
+    val inputDF = loadPandaStuffies(sqlCtx)
+    val result = HappyPanda.computeRelativePandaSizes(inputDF)
+    val resultRows = result.collect()
+    assert(List() === resultRows)
+  }
 
   def loadPandaStuffies(sqlCtx: SQLContext): DataFrame = {
-    val pandaStuffies = List(Row("ikea", null), Row("tube", 6), Row("real", 30))
+    val pandaStuffies = List(Row("ikea", null, 0.2, 94110),
+      Row("tube", 6, 0.4, 94110),
+      Row("panda", 6, 0.5, 94110),
+      Row("real", 30, 77.5, 100000))
     val schema = StructType(List(StructField("name", StringType, true),
-      StructField("age", IntegerType, true)))
+      StructField("age", IntegerType, true),
+      StructField("pandaSize", DoubleType, true),
+      StructField("zip", IntegerType, true)))
     sqlCtx.createDataFrame(sc.parallelize(pandaStuffies), schema)
   }
 }
