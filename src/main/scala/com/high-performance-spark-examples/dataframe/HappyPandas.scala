@@ -88,6 +88,15 @@ object HappyPanda {
   }
   //end::complexAggPerZip[]
 
+  def simpleSqlExample(pandas: DataFrame): DataFrame = {
+    val sqlCtx = pandas.sqlContext
+    //tag::pandasSQLQuery[]
+    pandas.registerTempTable("pandas")
+    val miniPandas = sqlCtx.sql("SELECT * FROM pandas WHERE pandaSize < 100")
+    //end::pandasSQLQuery[]
+    miniPandas
+  }
+
   def orderPandas(pandas: DataFrame): DataFrame = {
     //tag::simpleSort[]
     pandas.orderBy(pandas("size").asc, pandas("age").desc)
