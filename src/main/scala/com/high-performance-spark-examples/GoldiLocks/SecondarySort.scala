@@ -69,3 +69,34 @@ class PrimaryKeyPartitioner[K, S](partitions: Int) extends Partitioner {
   }
 }
 //end::primaryKeyPartitioner[]
+
+object CoPartitioningLessons {
+
+  def coLocated[K,V](a : RDD[(K, V)], b : RDD[(K, V)],
+    partitionerX : Partitioner, partitionerY :Partitioner): Unit = {
+
+    //tag::coLocated
+    val rddA = a.partitionBy(partitionerX)
+    rddA.cache()
+    val rddB = b.partitionBy(partitionerY)
+    rddB.cache()
+    val rddC = a.cogroup(b)
+    rddC.count()
+    //end::coLocated[]
+    }
+
+  def notCoLocated[K,V](a : RDD[(K, V)], b : RDD[(K, V)],
+    partitionerX : Partitioner, partitionerY :Partitioner): Unit = {
+
+    //tag::notCoLocated
+    val rddA = a.partitionBy(partitionerX)
+    rddA.cache()
+    val rddB = b.partitionBy(partitionerY)
+    rddB.cache()
+    val rddC = a.cogroup(b)
+    rddA.count()
+    rddB.count()
+    rddC.count()
+    //end::notCoLocated[]
+    }
+}

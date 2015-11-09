@@ -9,6 +9,20 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 
+object GoldiLocksGroupByKey {
+  //tag::groupByKey[]
+  def findRankStatistics(
+    pairRDD: RDD[(Int, Double)],
+    ranks: List[Long]): scala.collection.Map[Int, List[Double]] = {
+    pairRDD.groupByKey().mapValues(iter => {
+      val ar = iter.toArray.sorted
+      ranks.map(n => ar(n.toInt))
+    }).collectAsMap()
+  }
+  //end::groupByKey[]
+}
+
+//tag::firstTry[]
 object GoldiLocksFirstTry {
 
   def findQuantiles( dataFrame: DataFrame, targetRanks: List[Long] ) = {
@@ -118,5 +132,5 @@ object GoldiLocksFirstTry {
       }
     })
   }
-
 }
+//end::firstTry[]
