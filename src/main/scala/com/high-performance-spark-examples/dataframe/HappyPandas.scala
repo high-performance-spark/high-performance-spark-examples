@@ -90,7 +90,7 @@ object HappyPanda {
 
   def orderPandas(pandas: DataFrame): DataFrame = {
     //tag::simpleSort[]
-    pandas.orderBy(asc(pandas("size")), desc(pandas("age")))
+    pandas.orderBy(pandas("size").asc, pandas("age").desc)
     //end::simpleSort[]
   }
 

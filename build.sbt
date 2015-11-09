@@ -14,8 +14,6 @@ javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
 sparkVersion := "1.5.1"
 
-spDependencies += "holdenk/spark-testing-base:0.1.3"
-
 //tag::sparkComponents[]
 sparkComponents ++= Seq("core", "streaming", "sql", "hive", "mllib")
 //end::sparkComponents[]
@@ -30,8 +28,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.4",
   "junit" % "junit" % "4.10",
+  "com.holdenkarau" % "spark-testing-base_2.10" % "1.5.1_0.2.1",
   "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
-  "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
   "com.novocode" % "junit-interface" % "0.10" % "test->default")
 
 
