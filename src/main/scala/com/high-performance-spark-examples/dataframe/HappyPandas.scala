@@ -110,7 +110,7 @@ object HappyPanda {
   }
 
   // Join DataFrames of Pandas and Sizes with
-  def joins(df1: DataFrame, df2: DantaFrame): Unit = {
+  def joins(df1: DataFrame, df2: DataFrame): Unit = {
     // Inner join implicit
     df1.join(df2, df1("name") === df2("name"))
     // Inner join explicit
