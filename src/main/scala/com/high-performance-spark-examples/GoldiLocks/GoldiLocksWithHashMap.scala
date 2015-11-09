@@ -9,7 +9,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.runtime.{universe => ru}
 
-
+//tag::hashMap[]
 object GoldiLocksWithHashMap {
 
   def findQuantiles( dataFrame: DataFrame , targetRanks: List[Long] ) = {
@@ -162,3 +162,4 @@ object GoldiLocksWithHashMap {
     result.groupByKey().collectAsMap()
   }
 }
+//end::hashMap[]
