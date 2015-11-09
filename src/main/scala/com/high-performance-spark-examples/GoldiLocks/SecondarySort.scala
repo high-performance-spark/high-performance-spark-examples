@@ -8,7 +8,7 @@ import scala.reflect.ClassTag
 
 object SecondarySort {
 
-  //tag::sortByTwoKeys
+  //tag::sortByTwoKeys[]
   def sortByTwoKeys[K : Ordering : ClassTag , S, V : ClassTag](pairRDD : RDD[((K, S), V)], partitions : Int ) = {
     val colValuePartitioner = new PrimaryKeyPartitioner[K, S](partitions)
     implicit val ordering: Ordering[(K, S)] = Ordering.by(_._1)
@@ -16,9 +16,9 @@ object SecondarySort {
       colValuePartitioner)
     sortedWithinParts
   }
-  //end::sortByTwoKeys
+  //end::sortByTwoKeys[]
 
-  //tag::sortAndGroup
+  //tag::sortAndGroup[]
   def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag, S, V : ClassTag](pairRDD : RDD[((K, S), V)], partitions : Int ) = {
     val colValuePartitioner = new PrimaryKeyPartitioner[Double, Int](partitions)
     implicit val ordering: Ordering[(K, S)] = Ordering.by(_._1)
@@ -47,11 +47,11 @@ object SecondarySort {
       }
     }).map { case (key, buf) => (key, buf.toList) }.iterator
   }
-  //end::sortAndGroup
+  //end::sortAndGroup[]
 
 }
 
-//tag::primaryKeyPartitioner
+//tag::primaryKeyPartitioner[]
 class PrimaryKeyPartitioner[K, S](partitions: Int) extends Partitioner {
   /**
    * We create a hash partitioner and use it with the first set of keys.
@@ -68,4 +68,4 @@ class PrimaryKeyPartitioner[K, S](partitions: Int) extends Partitioner {
     delegatePartitioner.getPartition(k._1)
   }
 }
-//end::primaryKeyPartitioner
+//end::primaryKeyPartitioner[]
