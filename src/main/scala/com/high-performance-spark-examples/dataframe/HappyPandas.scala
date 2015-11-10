@@ -9,6 +9,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.hive._
+import org.apache.spark.sql.hive.thriftserver._
 
 object HappyPanda {
   // How to create a HiveContext or SQLContext with an existing SparkContext
@@ -95,6 +96,13 @@ object HappyPanda {
     val miniPandas = sqlCtx.sql("SELECT * FROM pandas WHERE pandaSize < 100")
     //end::pandasSQLQuery[]
     miniPandas
+  }
+
+  def startJDBCServer(sqlContext: HiveContext): Unit = {
+    //tag::startJDBC[]
+    sqlContext.setConf("hive.server2.thrift.port", "9090")
+    HiveThriftServer2.startWithContext(sqlContext)
+    //end::startJDBC[]
   }
 
   def orderPandas(pandas: DataFrame): DataFrame = {
