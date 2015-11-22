@@ -72,7 +72,7 @@ class PrimaryKeyPartitioner[K, S](partitions: Int) extends Partitioner {
 
 object CoPartitioningLessons {
 
-  def coLocated[K,V](a : RDD[(K, V)], b : RDD[(K, V)],
+  def coLocated(a : RDD[(Int, String)], b : RDD[(Int, String)],
     partitionerX : Partitioner, partitionerY :Partitioner): Unit = {
 
     //tag::coLocated
@@ -85,7 +85,7 @@ object CoPartitioningLessons {
     //end::coLocated[]
     }
 
-  def notCoLocated[K,V](a : RDD[(K, V)], b : RDD[(K, V)],
+  def notCoLocated(a : RDD[(Int, String)], b : RDD[(Int, String )],
     partitionerX : Partitioner, partitionerY :Partitioner): Unit = {
 
     //tag::notCoLocated
