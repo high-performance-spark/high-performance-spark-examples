@@ -42,7 +42,7 @@ object HappyPanda {
     //end::loadPandaJSONComplex[]
     val rdd = sc.textFile(path)
     //tag::loadPandaJsonRDD[]
-    val df3 = sqlCtx.jsonRDD(rdd)
+    val df3 = sqlCtx.read.json(rdd)
     //end::loadPandaJSONRDD[]
     df
   }
