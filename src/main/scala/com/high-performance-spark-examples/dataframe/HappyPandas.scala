@@ -1,6 +1,7 @@
 /**
  * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
  */
+package com.highperformancespark.examples.dataframe
 
 import org.apache.spark._
 import org.apache.spark.sql._
@@ -32,10 +33,18 @@ object HappyPanda {
   }
 
   // Illustrate loading some JSON data
-  def loadDataSimple(sqlCtx: SQLContext, path: String): DataFrame = {
+  def loadDataSimple(sc: SparkContext, sqlCtx: SQLContext, path: String): DataFrame = {
     //tag::loadPandaJSONSimple[]
-    sqlCtx.read.json(path)
+    val df = sqlCtx.read.json(path)
     //end::loadPandaJSONSimple[]
+    //tag::loadPandaJSONComplex[]
+    val df2 = sqlCtx.read.format("json").option("samplingRatio", "1.0").load(path)
+    //end::loadPandaJSONComplex[]
+    val rdd = sc.textFile(path)
+    //tag::loadPandaJsonRDD[]
+    val df3 = sqlCtx.jsonRDD(rdd)
+    //end::loadPandaJSONRDD[]
+    df
   }
 
   def happyPandas(pandaInfo: DataFrame): DataFrame = {
