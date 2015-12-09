@@ -1,6 +1,7 @@
 /**
  * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
  */
+package com.highperformancespark.examples.dataframe
 
 import org.apache.spark.sql.{SQLContext, DataFrame, Row}
 import org.apache.spark.sql.types._
