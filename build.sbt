@@ -31,6 +31,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.10",
   "com.holdenkarau" % "spark-testing-base_2.10" % "1.5.1_0.2.1",
   "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
+  "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
   "com.novocode" % "junit-interface" % "0.10" % "test->default")
 
 
