@@ -82,8 +82,26 @@ case class LoadSave(sqlContext: SQLContext) {
     //end::writeJDBC[]
   }
 
+  //tag::loadParquet[]
+  def loadParquet(path: String): DataFrame = {
+    // Configure Spark to read binary data as string, note: must be configured on SQLContext
+    sqlContext.setConf("spark.sql.parquet.binaryAsString", "true")
+    // Load parquet data using merge schema (configured through option)
+    sqlContext.read
+      .option("mergeSchema", "true")
+      .format("parquet")
+      .load(path)
+  }
+  //end::loadParquet[]
+
+  //tag::writeParquet[]
+  def writeParquet(df: DataFrame, path: String) = {
+    df.write.format("parquet").save(path)
+  }
+  //end::writeParquet[]
+
   //tag::loadHiveTable[]
-  def loadHiveTable(name: String): DataFrame = {
+  def loadHiveTable(): DataFrame = {
     sqlContext.read.table("pandas")
   }
   //end::loadHiveTable[]
