@@ -29,7 +29,7 @@ case class LoadSave(sqlContext: SQLContext) {
 
     // Create a Row RDD from our RDD of case classes
     val rowRDD = input.map(pm => Row(pm.name,
-      pm.pandas.map(pi => Row(pi.pandaName, pi.happy, pi.pt))))
+      pm.pandas.map(pi => Row(pi.name, pi.happy, pi.pt))))
     // Create DataFrame explicitly with specified schema
     val schema = StructType(List(
       StructField("name", StringType, true),
@@ -38,13 +38,12 @@ case class LoadSave(sqlContext: SQLContext) {
           StructField("name", StringType, true),
           StructField("happy", BooleanType, true),
           StructField("pt", StringType, true)))))))
-    ))
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
 
   //tag::createFromLocal[]
-  def createFromLocal(input: Seq[PandaMagic]) = {
+  def createFromLocal(input: Seq[PandaPlace]) = {
     sqlContext.createDataFrame(input)
   }
   //end::createFromLocal[]
@@ -56,9 +55,9 @@ case class LoadSave(sqlContext: SQLContext) {
   //end::collectResults[]
 
   //tag::toRDD[]
-  def toRDD(input: DataFrame): RDD[PandaPlaces] = {
+  def toRDD(input: DataFrame): RDD[PandaInfo] = {
     val rdd: RDD[Row] = input.rdd
-    rdd.map(row => PandaMagic(row.getAs[Boolean](0), row.getAs[String](1)))
+    rdd.map(row => PandaInfo(row.getAs[String](0), row.getAs[Boolean](1), row.getAs[String](2)))
   }
   //end::toRDD[]
 
