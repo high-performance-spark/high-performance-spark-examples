@@ -16,21 +16,29 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
 
-case class PandaMagic(happy: Boolean, name: String)
+case class PandaInfo(name: String, happy: Boolean, pt: String)
+case class PandaPlace(name: String, pandas: Array[PandaInfo])
 case class LoadSave(sqlContext: SQLContext) {
   import sqlContext.implicits._
   //tag::createFromRDD[]
-  def createFromCaseClassRDD(input: RDD[PandaMagic]) = {
+  def createFromCaseClassRDD(input: RDD[PandaPlace]) = {
     // Create DataFrame explicitly using sqlContext and schema inferance
-    val df1 = sqlContext.createDataFrame(input, classOf[PandaMagic])
+    val df1 = sqlContext.createDataFrame(input)
     // Create DataFrame using sqlContext implicits and schema inferance
     val df2 = input.toDF()
 
     // Create a Row RDD from our RDD of case classes
-    val rowRDD = input.map(pm => Row(pm.happy, pm.name))
+    val rowRDD = input.map(pm => Row(pm.name,
+      pm.pandas.map(pi => Row(pi.pandaName, pi.happy, pi.pt))))
     // Create DataFrame explicitly with specified schema
-    val schema = StructType(List(StructField("happy", BooleanType, false),
-      StructField("name", StringType, true)))
+    val schema = StructType(List(
+      StructField("name", StringType, true),
+      StructField("pandas", ArrayType(
+        StructType(List(
+          StructField("name", StringType, true),
+          StructField("happy", BooleanType, true),
+          StructField("pt", StringType, true)))))))
+    ))
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
@@ -48,7 +56,7 @@ case class LoadSave(sqlContext: SQLContext) {
   //end::collectResults[]
 
   //tag::toRDD[]
-  def toRDD(input: DataFrame): RDD[PandaMagic] = {
+  def toRDD(input: DataFrame): RDD[PandaPlaces] = {
     val rdd: RDD[Row] = input.rdd
     rdd.map(row => PandaMagic(row.getAs[Boolean](0), row.getAs[String](1)))
   }
