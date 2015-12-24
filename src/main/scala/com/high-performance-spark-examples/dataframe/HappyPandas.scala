@@ -13,7 +13,7 @@ import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
 
 object HappyPanda {
-  // How to create a HiveContext or SQLContext with an existing SparkContext
+  // create SQLContext with an existing SparkContext
   def sqlContext(sc: SparkContext): SQLContext = {
     //tag::createSQLContext[]
     val sqlContext = new SQLContext(sc)
@@ -23,6 +23,7 @@ object HappyPanda {
     sqlContext
   }
 
+  // create HiveContext with an existing SparkContext
   def hiveContext(sc: SparkContext): HiveContext = {
     //tag::createHiveContext[]
     val hiveContext = new HiveContext(sc)
@@ -47,32 +48,70 @@ object HappyPanda {
     df
   }
 
-  def happyPandas(pandaInfo: DataFrame): DataFrame = {
+  //  Here will be some examples on PandaInfo DataFrame
+
+  /**
+    * @param place name of place
+    * @param pandaType type of pandas in this place
+    * @param happyPandas number of happy pandas in this place
+    * @param totalPandas total number of pandas in this place
+    */
+  case class PandaInfo(place: String, pandaType: String, happyPandas: Integer, totalPandas: Integer)
+
+  /**
+    * Gets the percentage of happy pandas per place.
+    *
+    * @param pandaInfo the input DataFrame
+    * @return Returns a pair of (place, percentage of happy pandas)
+    */
+  def happyPandasPercentage(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.select(pandaInfo("place"),
       (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
   }
 
   //tag::encodePandaType[]
-  def encodePandaType(pandaInfo: DataFrame, num: Int): DataFrame = {
-    pandaInfo.select(pandaInfo("pandaId"),
-      when(pandaInfo("pandaType") === "giant", 0).
+  /**
+    * Encodes pandaType to Integer values instead of string values.
+    *
+    * @param pandaInfo the input DataFrame
+    * @return Returns a pair of (pandaId, mapped integer value for pandaType)
+    */
+  def encodePandaType(pandaInfo: DataFrame): DataFrame = {
+    pandaInfo.select(pandaInfo("place"),
+      (when(pandaInfo("pandaType") === "giant", 0).
       when(pandaInfo("pandaType") === "red", 1).
-      otherwise(2)
+      otherwise(2)).as("encodedType")
     )
   }
   //end::encodePandaType[]
 
   //tag::simpleFilter[]
-  def minHappyPandas(pandaInfo: DataFrame, num: Int): DataFrame = {
-    pandaInfo.filter(pandaInfo("happyPandas") >= num)
+  /**
+    * Gets places with happy pandas more than minHappinessBound.
+    */
+  def minHappyPandas(pandaInfo: DataFrame, minHappyPandas: Int): DataFrame = {
+    pandaInfo.filter(pandaInfo("happyPandas") >= minHappyPandas)
   }
   //end::simpleFilter[]
 
   //tag::complexFilter[]
-  def minHappyPandasComplex(pandaInfo: DataFrame, num: Int): DataFrame = {
+  /**
+    * Gets places that contains happy pandas more than unhappy pandas.
+    */
+  def happyPandasPlaces(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.filter(pandaInfo("happyPandas") >= pandaInfo("totalPandas") / 2)
   }
   //end::complexFilter[]
+
+
+  /**
+    *
+    * @param name name of panda
+    * @param zip zip code
+    * @param pandaSize size of panda in KG
+    * @param age age of panda
+    */
+  case class Pandas(name: String, zip: String, pandaSize: Integer, age: Integer)
 
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(pandas: DataFrame): DataFrame = {
@@ -114,9 +153,17 @@ object HappyPanda {
     //end::startJDBC[]
   }
 
+  /**
+    * Orders pandas by size ascending and by age descending.
+    * Pandas will be sorted by "size" first and if two pandas have the same "size"
+    * will be sorted by "age".
+    *
+    * @param pandas
+    * @return
+    */
   def orderPandas(pandas: DataFrame): DataFrame = {
     //tag::simpleSort[]
-    pandas.orderBy(pandas("size").asc, pandas("age").desc)
+    pandas.orderBy(pandas("pandaSize").asc, pandas("age").desc)
     //end::simpleSort[]
   }
 
@@ -127,9 +174,11 @@ object HappyPanda {
       .partitionBy(pandas("zip"))
       .rowsBetween(start = 10, end = 10) // use rangeBetween for range instead
     //end::relativePandaSizesWindow[]
+
     //tag::relativePandaSizesQuery[]
     val pandaRelativeSizeFunc = (pandas("pandaSize") -
       avg(pandas("pandaSize")).over(windowSpec))
+
     pandas.select(pandas("name"), pandas("zip"), pandas("pandaSize"),
       pandaRelativeSizeFunc.as("panda_relative_size"))
     //end::relativePandaSizesQuery[]
