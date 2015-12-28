@@ -105,7 +105,6 @@ object HappyPanda {
 
 
   /**
-    *
     * @param name name of panda
     * @param zip zip code
     * @param pandaSize size of panda in KG
@@ -121,17 +120,22 @@ object HappyPanda {
 
   //tag::minMaxPandasSizePerZip[]
   def minMaxPandaSizePerZip(pandas: DataFrame): DataFrame = {
-    // List of strings
-    pandas.groupBy(pandas("zip")).agg(("min", "pandaSize"), ("max", "pandaSize"))
-    // Map of column to aggregate
-    pandas.groupBy(pandas("zip")).agg(Map("pandaSize" -> "min",
-      "pandaSize" -> "max"))
-    // expression literals
+    pandas.groupBy(pandas("zip")).agg(min("pandaSize"), max("pandaSize"))
   }
   //end::minMaxPandasSizePerZip[]
 
+  def minPandaSizeMaxAgePerZip(pandas: DataFrame): DataFrame = {
+    // this query can be written in two methods
+
+    // 1
+    pandas.groupBy(pandas("zip")).agg(("pandaSize", "min"), ("age", "max"))
+
+    // 2
+    pandas.groupBy(pandas("zip")).agg(Map("pandaSize" -> "min", "age" -> "max"))
+  }
+
   //tag::complexAggPerZip[]
-  def complexAggPerZip(pandas: DataFrame): DataFrame = {
+  def minMeanSizePerZip(pandas: DataFrame): DataFrame = {
     // Compute the min and mean
     pandas.groupBy(pandas("zip")).agg(min(pandas("pandaSize")), mean(pandas("pandaSize")))
   }
@@ -141,7 +145,7 @@ object HappyPanda {
     val sqlCtx = pandas.sqlContext
     //tag::pandasSQLQuery[]
     pandas.registerTempTable("pandas")
-    val miniPandas = sqlCtx.sql("SELECT * FROM pandas WHERE pandaSize < 100")
+    val miniPandas = sqlCtx.sql("SELECT * FROM pandas WHERE pandaSize < 12")
     //end::pandasSQLQuery[]
     miniPandas
   }
@@ -157,9 +161,6 @@ object HappyPanda {
     * Orders pandas by size ascending and by age descending.
     * Pandas will be sorted by "size" first and if two pandas have the same "size"
     * will be sorted by "age".
-    *
-    * @param pandas
-    * @return
     */
   def orderPandas(pandas: DataFrame): DataFrame = {
     //tag::simpleSort[]
@@ -172,14 +173,14 @@ object HappyPanda {
     val windowSpec = Window
       .orderBy(pandas("age"))
       .partitionBy(pandas("zip"))
-      .rowsBetween(start = 10, end = 10) // use rangeBetween for range instead
+      .rowsBetween(start = -1, end = 1) // use rangeBetween for range instead
     //end::relativePandaSizesWindow[]
 
     //tag::relativePandaSizesQuery[]
     val pandaRelativeSizeFunc = (pandas("pandaSize") -
       avg(pandas("pandaSize")).over(windowSpec))
 
-    pandas.select(pandas("name"), pandas("zip"), pandas("pandaSize"),
+    pandas.select(pandas("name"), pandas("zip"), pandas("pandaSize"), pandas("age"),
       pandaRelativeSizeFunc.as("panda_relative_size"))
     //end::relativePandaSizesQuery[]
   }
