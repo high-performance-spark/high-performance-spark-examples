@@ -4,13 +4,18 @@
 package com.highperformancespark.examples.dataframe
 
 import org.apache.spark._
-import org.apache.spark.sql._
+//tag::sparkSQLImports[]
+import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.catalyst.expressions.aggregate._
-import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types._
+//end::sparkSQLImports[]
+//tag::sparkHiveImports[]
+// Additional imports for using HiveContext
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
+//end::sparkHiveImports[]
 
 object HappyPanda {
   // How to create a HiveContext or SQLContext with an existing SparkContext
