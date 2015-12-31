@@ -9,6 +9,9 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.scalatest.Matchers._
 
+import scala.collection.mutable
+import scala.util.Random
+
 class HappyPandasTest extends DataFrameSuiteBase {
   val toronto = "toronto"
   val sandiego = "san diego"
@@ -172,29 +175,44 @@ class HappyPandasTest extends DataFrameSuiteBase {
 
 
   test("test computeRelativePandaSizes") {
-    val inputDF = loadPandaStuffies()
+    val inputPandaList = loadPandaStuffies()
+    val inputDF = sqlContext.createDataFrame(inputPandaList)
+
     val resultDF = HappyPanda.computeRelativePandaSizes(inputDF)
 
-    val expectedDF = getExpectedPandasRelativeSize()
+    val expectedDF = getExpectedPandasRelativeSize(inputPandaList, -10, 10)
 
-    approxEqualDataFrames(expectedDF.orderBy("name"), resultDF.orderBy("name"), 1e-2)
+    approxEqualDataFrames(expectedDF.orderBy("name"), resultDF.orderBy("name"), 1e-5)
   }
 
-  private def getExpectedPandasRelativeSize():DataFrame = {
-    val expectedRows = List(
-      Row("name1-1", "zip1", 10, 1, -5.0),
-      Row("name2-1", "zip1", 20, 2, 5.0),
-      Row("name3-1", "zip1", 15, 3, 1.6666),
-      Row("name4-1", "zip1",  5, 4, -5.0),
+  private def getExpectedPandasRelativeSize(pandaList: List[Pandas], start: Int, end: Int):DataFrame = {
 
-      Row("name1-2", "zip2",  5, 1, -7.5),
-      Row("name2-2", "zip2", 20, 2, 4.66666),
-      Row("name3-2", "zip2", 21, 3, 0.5),
+    val expectedRows =
+      pandaList
+        .groupBy(_.zip)
+        .map(zipPandas => (zipPandas._1, zipPandas._2.sortBy(_.age)))
+        .flatMap(zipPandas => {
+          val pandas = zipPandas._2
+          val length = pandas.size - 1
+          val result = new mutable.MutableList[Row]
 
-      Row("name1-3", "zip3", 10, 1, 0.0),
-      Row("name2-3", "zip3", 10, 2, 0.0),
+          for (i <- 0 to length) {
+            var totalSum = 0
+            val startOffset = math.max(0, i + start)
+            val endOffset = math.min(length, i + end)
 
-      Row("name1-4", "zip4",  5, 1, 0.0))
+            for (j <- (startOffset to endOffset))
+              totalSum += pandas(j).pandaSize
+
+            val count = (endOffset - startOffset + 1)
+            val average = totalSum.toDouble / count
+
+            val panda = pandas(i)
+            result += Row(panda.name, panda.zip, panda.pandaSize, panda.age, panda.pandaSize - average)
+          }
+
+          result
+        }).toList
 
     val expectedDF = createDF(expectedRows, ("name", StringType),
                                             ("zip", StringType),
@@ -205,23 +223,31 @@ class HappyPandasTest extends DataFrameSuiteBase {
     expectedDF
   }
 
-  private def loadPandaStuffies(): DataFrame = {
-    val pandaStuffies = List(
-      Pandas("name1-1", "zip1", 10, 1),
-      Pandas("name2-1", "zip1", 20, 2),
-      Pandas("name3-1", "zip1", 15, 3),
-      Pandas("name4-1", "zip1", 5, 4),
+  private def loadPandaStuffies(): List[Pandas] = {
+    val zipCount = 20
+    val maxPandasPerZip = 100
+    val maxPandaAge = 50
+    val maxPandaSize = 500
+    val random = new Random()
 
-      Pandas("name1-2", "zip2", 5, 1),
-      Pandas("name2-2", "zip2", 20, 2),
-      Pandas("name3-2", "zip2", 21, 3),
+    val pandas =
+      (1 to zipCount)
+      .flatMap(zipId => {
+        val pandasCount = 1 + random.nextInt(maxPandasPerZip)
+        val zipName = s"zip($zipId)"
 
-      Pandas("name1-3", "zip3", 10, 1),
-      Pandas("name2-3", "zip3", 10, 2),
+        (1 to pandasCount).map(pandaId => {
+          val name = s"panda($pandaId)($zipId)"
+          val size = 1 + random.nextInt(maxPandaSize)
+          val age = 1 + random.nextInt(maxPandaAge)
 
-      Pandas("name1-4", "zip4", 5, 1))
+           Pandas(name, zipName, size, age)
+        }
+      )
 
-    sqlContext.createDataFrame(sc.parallelize(pandaStuffies))
+    })
+
+    pandas.toList
   }
 
 

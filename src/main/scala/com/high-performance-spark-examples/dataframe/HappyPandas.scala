@@ -74,7 +74,7 @@ object HappyPanda {
     * Encodes pandaType to Integer values instead of string values.
     *
     * @param pandaInfo the input DataFrame
-    * @return Returns a pair of (pandaId, mapped integer value for pandaType)
+    * @return Returns a DataFrame of pandaId and integer value for pandaType.
     */
   def encodePandaType(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.select(pandaInfo("place"),
@@ -173,7 +173,7 @@ object HappyPanda {
     val windowSpec = Window
       .orderBy(pandas("age"))
       .partitionBy(pandas("zip"))
-      .rowsBetween(start = -1, end = 1) // use rangeBetween for range instead
+      .rowsBetween(start = -10, end = 10) // use rangeBetween for range instead
     //end::relativePandaSizesWindow[]
 
     //tag::relativePandaSizesQuery[]
