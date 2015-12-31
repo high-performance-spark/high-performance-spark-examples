@@ -224,8 +224,8 @@ class HappyPandasTest extends DataFrameSuiteBase {
   }
 
   private def loadPandaStuffies(): List[Pandas] = {
-    val zipCount = 20
-    val maxPandasPerZip = 100
+    val zipCount = 3
+    val maxPandasPerZip = 15
     val maxPandaAge = 50
     val maxPandaSize = 500
     val random = new Random()
