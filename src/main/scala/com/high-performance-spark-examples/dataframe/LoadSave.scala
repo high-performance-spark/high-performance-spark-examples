@@ -5,6 +5,7 @@ package com.highperformancespark.examples.dataframe
 
 import java.util.Properties
 
+import com.highperformancespark.examples.dataframe.HappyPanda.PandaInfo
 import org.apache.spark._
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
@@ -16,28 +17,31 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
 
-case class PandaInfo(name: String, happy: Boolean, pt: String)
 case class PandaPlace(name: String, pandas: Array[PandaInfo])
+
 case class LoadSave(sqlContext: SQLContext) {
   import sqlContext.implicits._
   //tag::createFromRDD[]
   def createFromCaseClassRDD(input: RDD[PandaPlace]) = {
     // Create DataFrame explicitly using sqlContext and schema inferance
     val df1 = sqlContext.createDataFrame(input)
+
     // Create DataFrame using sqlContext implicits and schema inferance
     val df2 = input.toDF()
 
     // Create a Row RDD from our RDD of case classes
     val rowRDD = input.map(pm => Row(pm.name,
-      pm.pandas.map(pi => Row(pi.name, pi.happy, pi.pt))))
+      pm.pandas.map(pi => Row(pi.place, pi.pandaType, pi.happyPandas, pi.totalPandas))))
+
     // Create DataFrame explicitly with specified schema
     val schema = StructType(List(
       StructField("name", StringType, true),
       StructField("pandas", ArrayType(
         StructType(List(
-          StructField("name", StringType, true),
-          StructField("happy", BooleanType, true),
-          StructField("pt", StringType, true)))))))
+          StructField("place", StringType, true),
+          StructField("pandaType", StringType, true),
+          StructField("happyPandas", IntegerType, true),
+          StructField("totalPandas", IntegerType, true)))))))
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
@@ -51,13 +55,14 @@ case class LoadSave(sqlContext: SQLContext) {
   //tag::collectResults[]
   def collectDF(df: DataFrame) = {
     val result: Array[Row] = df.collect()
+    result
   }
   //end::collectResults[]
 
   //tag::toRDD[]
   def toRDD(input: DataFrame): RDD[PandaInfo] = {
     val rdd: RDD[Row] = input.rdd
-    rdd.map(row => PandaInfo(row.getAs[String](0), row.getAs[Boolean](1), row.getAs[String](2)))
+    rdd.map(row => PandaInfo(row.getAs[String](0), row.getAs[String](1), row.getAs[Integer](2), row.getAs[Integer](3)))
   }
   //end::toRDD[]
 
