@@ -5,7 +5,7 @@ import org.apache.spark.sql.SQLContext
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 // tag::MAGIC_PANDA[]
-class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
+class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
   @transient private var _sc: SparkContext = _
   def sc: SparkContext = _sc
 
@@ -23,7 +23,7 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
     GoldiLocksRow(4.0, 5.5, 0.5, 8.0)
   )
 
-  test("Goldi locks first try ") {
+  test("Goldilocks first try ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
     val secondAndThird = GoldiLocksFirstTry.findQuantiles(input, targetRanks = List(2L, 3L))
@@ -35,6 +35,43 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
     secondAndThird.foreach(x => println( x._1 +"," + x._2.mkString(" ")))
     assert(expectedResult.forall{case ((index, expectedRanks)) =>
       secondAndThird.get(index).get.toSet.equals(expectedRanks)})
+  }
+
+  //tests the edge case in which one partition does not contain any of the elements in one column
+  test("Goldilocks first try multiplePartitions") {
+    import org.scalatest.PrivateMethodTester._
+    val testData = sc.parallelize(List(1.0, 2.0, 3.0, 4.0).map(x => (x, x)), 3)
+    val mapPartitions = testData.mapPartitionsWithIndex {
+      case (index, iter) =>
+        val key = if (index == 1) 1 else 0
+          iter.map(x => (x._1, key))
+    }
+
+    val getColumnFreqPerPartition = PrivateMethod[ Array[(Int, Array[Long])]]('getColumnFreqPerPartition)
+    val totals = GoldiLocksFirstTry invokePrivate getColumnFreqPerPartition(mapPartitions, 2)
+
+    totals.foreach(x => println(x._1 + " : " + x._2.mkString(" ")))
+    val getLocationsOfRanksWithinEachPart =
+      PrivateMethod[Array[(Int, List[(Int, Long)])]]('getLocationsOfRanksWithinEachPart)
+
+    val locations = GoldiLocksFirstTry invokePrivate getLocationsOfRanksWithinEachPart(List(1L), totals, 2)
+    locations.foreach(x => println(x._1 + " : " + x._2.mkString(" ")))
+
+    //assert that there is nothing in the column with index 1 on the second partition
+    assert(totals(1)._2(0) == 0 )
+
+    val firstPartition = locations(0)._2
+    //assertFirstPartitionOnlyContains a target rank for the for columnIndex 0, at index 1
+    assert(firstPartition.toSet.equals(Set((0,1))) )
+
+    //assertSecondPartition only contains rank for columnIndex 1, at index 1
+    val secondPartition = locations(1)._2
+    assert(secondPartition.toSet.equals(Set((1,1))) )
+
+    //assert ThirdPartition contains no locations
+    val thirdPartition = locations(2)._2
+    assert(thirdPartition.toSet.equals(Set()))
+    assert(locations.length == 3)
   }
 
   test("GoldiLocks With Hashmap ") {
@@ -71,6 +108,5 @@ class QuantileOnlyArtisanallTest extends FunSuite with BeforeAndAfterAll {
   }
 }
 // end::MAGIC_PANDA[]
-
 
 case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double  )
