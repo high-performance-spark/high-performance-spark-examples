@@ -1,133 +1,209 @@
 package com.highperformancespark.examples.goldilocks
 
-import org.apache.spark.Partition
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.storage.StorageLevel
 
-import scala.collection.mutable
+import scala.collection.{mutable, Map}
 import scala.collection.mutable.ArrayBuffer
-import scala.reflect.runtime.{universe => ru}
+import scala.collection.mutable.MutableList
 
 //tag::hashMap[]
 object GoldiLocksWithHashMap {
 
-  def findQuantiles( dataFrame: DataFrame , targetRanks: List[Long] ) = {
-    val valueIndexCountPairs: RDD[((Double, Int), Long)] = createHashMap(dataFrame)
-    val n =  dataFrame.schema.length
-    val sorted = valueIndexCountPairs.sortByKey()
-    sorted.persist(StorageLevel.MEMORY_AND_DISK)
-    val parts : Array[Partition] = sorted.partitions
-    val map1 = getTotalsForeachPart(sorted, parts.length, n )
-    val map2  = getLocationsOfRanksWithinEachPart(targetRanks, map1, n)
-    val result = findElementsIteratively(sorted, map2)
-    result.groupByKey().collectAsMap()
+  /**
+    * Find nth target rank for every column.                 
+    *
+    * For example:                                           
+    *
+    * dataframe:                                             
+    *   (0.0, 4.5, 7.7, 5.0)                                 
+    *   (1.0, 5.5, 6.7, 6.0)                                 
+    *   (2.0, 5.5, 1.5, 7.0)                                 
+    *   (3.0, 5.5, 0.5, 7.0)                                 
+    *   (4.0, 5.5, 0.5, 8.0)                                 
+    *
+    * targetRanks:                                           
+    *   1, 3                                                 
+    *
+    * The output will be:                                    
+    *   0 -> (0.0, 2.0)                                      
+    *   1 -> (4.5, 5.5)                                      
+    *   2 -> (7.7, 1.5)                                      
+    *   3 -> (5.0, 7.0)                                      
+    *
+    * @param dataFrame dataframe of doubles                  
+    * @param targetRanks the required ranks for every column 
+    *
+    * @return map of (column index, list of target ranks)    
+    */
+  def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
+    Map[Int, Iterable[Double]] = {
+    
+    val aggregatedValueColumnPairs: RDD[((Double, Int), Long)] = getAggregatedValueColumnPairs(dataFrame)
+    val sortedAggregatedValueColumnPairs = aggregatedValueColumnPairs.sortByKey()
+    sortedAggregatedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
+
+    val numOfColumns =  dataFrame.schema.length
+    val partitionColumnsFreq = getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs, numOfColumns)
+    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
+
+    val targetRanksValues = findTargetRanksIteratively(sortedAggregatedValueColumnPairs, ranksLocations)
+    targetRanksValues.groupByKey().collectAsMap()
   }
 
   /**
    * Step 1. Map the rows to pairs of ((value, colIndex), count) where count is the number of times
    * that value and that pair appear on this partition
+   *
+   * For example:
+   *
+   * dataFrame:
+   *     1.5, 1.25, 2.0
+   *     1.5,  2.5, 2.0
+   *
+   * The output RDD will be:
+   *    ((1.5, 0), 2) ((1.25, 1), 1) ((2.5, 1), 1) ((2.0, 2), 2)
+   *
    * @param dataFrame of double columns to compute the rank statistics for
-   * @return
+   *
+   * @return returns RDD of ((value, column index), count)
    */
-  def createHashMap(dataFrame : DataFrame) : RDD[((Double, Int), Long)] = {
-    val map =  dataFrame.rdd.mapPartitions(it => {
-      val hashMap = new mutable.HashMap[(Double, Int), Long]()
-      it.foreach( row => {
-        row.toSeq.zipWithIndex.foreach{ case (value, i) => {
-          val v = value.toString.toDouble
-          val key = (v, i)
-          val count = hashMap.getOrElseUpdate(key, 0)
-          hashMap.update(key, count + 1 )
+  def getAggregatedValueColumnPairs(dataFrame : DataFrame) : RDD[((Double, Int), Long)] = {
+    val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
+      val valueColumnMap = new mutable.HashMap[(Double, Int), Long]()
+      rows.foreach(row => {
+        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) => {
+          val key = (value.toString.toDouble, columnIndex)
+          val count = valueColumnMap.getOrElseUpdate(key, 0)
+          valueColumnMap.update(key, count + 1)
         }}
       })
-      val newM = hashMap.toArray
-      newM.toIterator
+
+      valueColumnMap.toIterator
     })
-    map
+
+    aggregatedValueColumnRDD
   }
 
   /**
-   * Step 2. Find the number of elements for each column in each partition
-   * @param sorted  rdd of ((value, index), count) pairs which has already been sorted
-   * @param numPartitions the number of partitions
-   * @return an RDD the length of the number of partitions, where each row contains
-   *         - the partition index
-   *         - an array, totalsPerPart where totalsPerPart(i) = the number of elements in column
-   *         i on this partition
-   */
-  private def getTotalsForeachPart(sorted: RDD[((Double, Int), Long)], numPartitions: Int, n : Int ) = {
-    val zero = Array.fill[Long](n)(0)
-    sorted.mapPartitionsWithIndex((index : Int, it : Iterator[((Double, Int), Long)]) => {
-      val totalsPerPart : Array[Long] = it.aggregate(zero)(
-        (a : Array[Long], v : ((Double ,Int), Long)) => {
-          val ((value, colIndex) , count) = v
+    * Step 2. Find the number of elements for each column in each partition.
+    *
+    * For Example:
+    *
+    * sortedValueColumnPairs:
+    *    Partition 1: ((1.5, 0), 2) ((2.0, 0), 1)
+    *    Partition 2: ((4.0, 0), 3) ((3.0, 1), 1)
+    *
+    * numOfColumns: 3
+    *
+    * The output will be:
+    *    [(0, [3, 0]), (1, [3, 1])]
+    *
+    * @param sortedAggregatedValueColumnPairs - sortedAggregatedValueColumnPairs RDD of ((value, column index), count)
+    * @param numOfColumns the number of columns
+    *
+    * @return Array that contains (partition index, number of elements from every column on this partition)
+    */
+  private def getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
+                                        numOfColumns : Int): Array[(Int, Array[Long])] = {
+
+    val zero = Array.fill[Long](numOfColumns)(0)
+    def aggregateColumnFrequencies(partitionIndex : Int, pairs : Iterator[((Double, Int), Long)]) = {
+      val columnsFreq : Array[Long] = pairs.aggregate(zero)(
+        (a : Array[Long], v : ((Double,Int), Long)) => {
+          val ((value, colIndex), count) = v
           a(colIndex) = a(colIndex) + count
           a},
         (a : Array[Long], b : Array[Long]) => {
-          require(a.length == b.length)
           a.zip(b).map{ case(aVal, bVal) => aVal + bVal}
         })
-      Iterator((index, totalsPerPart))
-    }).collect()
+
+      Iterator((partitionIndex, columnsFreq))
+    }
+
+    sortedAggregatedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
 
   /**
-   * Step 3: For each Partition determine the index of the elements that are desired rank statistics
-   * @param partitionMap- the result of the previous method
-   * @return an Array, the length of the number of partitions where each row contains
-   *         - the partition index
-   *         - a list,  relevantIndexList where relevantIndexList(i) = the index of an element on this
-   *         partition that matches one of the target ranks
-   */
-  private def getLocationsOfRanksWithinEachPart(targetRanks : List[Long],
-    partitionMap : Array[(Int, Array[Long])], n : Int ) : Array[(Int, List[(Int, Long)])]  = {
-    val runningTotal = Array.fill[Long](n)(0)
-    partitionMap.sortBy(_._1).map { case (partitionIndex, totals)=> {
-      val relevantIndexList = new  scala.collection.mutable.MutableList[(Int, Long)]()
-      totals.zipWithIndex.foreach{ case (colCount, colIndex)  => {
+    * Step 3: For each Partition determine the index of the elements that are desired rank statistics
+    *
+    * For Example:
+    *    targetRanks: 5
+    *    partitionColumnsFreq: [(0, [2, 3]), (1, [4, 1]), (2, [5, 2])]
+    *    numOfColumns: 2
+    *
+    * The output will be:
+    *    [(0, []), (1, [(0, 3)]), (2, [(1, 1)])]
+    *
+    * @param partitionColumnsFreq Array of (partition index, columns frequencies per this partition)
+    *
+    * @return  Array that contains (partition index, relevantIndexList where relevantIndexList(i) = the index
+    *          of an element on this partition that matches one of the target ranks)
+    */
+  private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
+                                              partitionColumnsFreq : Array[(Int, Array[Long])],
+                                              numOfColumns : Int) : Array[(Int, List[(Int, Long)])]  = {
+
+    val runningTotal = Array.fill[Long](numOfColumns)(0)
+
+    partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq)=> {
+      val relevantIndexList = new MutableList[(Int, Long)]()
+
+      columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  => {
         val runningTotalCol = runningTotal(colIndex)
+
+        val ranksHere: List[Long] = targetRanks.filter(rank =>
+          (runningTotalCol < rank && runningTotalCol + colCount >= rank))
+        relevantIndexList ++= ranksHere.map(rank => (colIndex, rank - runningTotalCol))
+
         runningTotal(colIndex) += colCount
-        val ranksHere = targetRanks.filter(rank =>
-          (runningTotalCol <= rank && runningTotalCol + colCount >= rank)
-        )
-        ranksHere.foreach(rank => {
-          relevantIndexList += ((colIndex, rank-runningTotalCol))
-        })
-      }} //end of mapping col counts
+      }}
+
       (partitionIndex, relevantIndexList.toList)
     }}
   }
 
   /**
-   * Step4: Using the results of the previous method, scan the  data and return the elements
-   * which correspond to the rank statistics we are looking for in each column
-   */
-  private def findElementsIteratively(sorted : RDD[((Double, Int), Long)],
-    locations : Array[(Int, List[(Int, Long)])]) = {
-    sorted.mapPartitionsWithIndex((index : Int, it : Iterator[((Double, Int), Long)]) => {
-      val targetsInThisPart = locations(index)._2
-      val len = targetsInThisPart.length
-      if(len >0 ) {
-        val partMap = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
-        val keysInThisPart = targetsInThisPart.map(_._1).distinct
-        val runningTotals: mutable.HashMap[Int, Long] = new mutable.HashMap()
-        keysInThisPart.foreach(key => runningTotals += ((key, 0L)))
-        val newIt: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
-        it.foreach { case ((value, colIndex), count) => {
-          if (keysInThisPart.contains(colIndex) ) {
+    * Finds rank statistics elements using ranksLocations.
+    *
+    * @param sortedAggregatedValueColumnPairs - sorted RDD of (value, colIndex) pairs
+    * @param ranksLocations Array of (partition Index, list of (column index, rank index of this column at this partition))
+    *
+    * @return returns RDD of the target ranks (column index, value)
+    */
+  private def findTargetRanksIteratively(sortedAggregatedValueColumnPairs : RDD[((Double, Int), Long)],
+                                         ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
+
+    sortedAggregatedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int,
+      aggregatedValueColumnPairs : Iterator[((Double, Int), Long)]) => {
+
+      val targetsInThisPart = ranksLocations(partitionIndex)._2
+      if (!targetsInThisPart.isEmpty) {
+        val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+        val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+
+        val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+        runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+
+        val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+
+        aggregatedValueColumnPairs.foreach { case ((value, colIndex), count) => {
+          if (columnsInThisPart contains colIndex) {
             val total = runningTotals(colIndex)
-            val ranksPresent =  partMap(colIndex).filter(v => (v <= count + total) && (v > total))
-            ranksPresent.foreach(r => {
-              newIt += ((colIndex, value))
-            })
+
+            val ranksPresent =  columnsRelativeIndex(colIndex)
+              .filter(index => (index <= count + total) && (index > total))
+            ranksPresent.foreach(r => result += ((colIndex, value)))
+
             runningTotals.update(colIndex, total + count)
           }
         }}
-        newIt.toIterator
+
+        result.toIterator
       }
       else Iterator.empty
-    } )
+    })
   }
 
   /**
@@ -148,18 +224,18 @@ object GoldiLocksWithHashMap {
 
     val n = colIndexList.last+1
     val sorted  = valPairs.sortByKey()
-    if(storageLevel!=StorageLevel.NONE){
+    if (storageLevel != StorageLevel.NONE)
       sorted.persist(storageLevel)
-    }
-    if(checkPoint){
+
+    if (checkPoint) {
       sorted.sparkContext.setCheckpointDir(directory)
       sorted.checkpoint()
     }
-    val parts : Array[Partition] = sorted.partitions
-    val map1 = getTotalsForeachPart(sorted, parts.length, n)
-    val map2  = getLocationsOfRanksWithinEachPart(targetRanks, map1, n)
-    val result = findElementsIteratively(sorted, map2)
-    result.groupByKey().collectAsMap()
+
+    val partitionColumnsFreq = getColumnsFreqPerPartition(sorted, n)
+    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, n)
+    val targetRanksValues = findTargetRanksIteratively(sorted, ranksLocations)
+    targetRanksValues.groupByKey().collectAsMap()
   }
 }
 //end::hashMap[]

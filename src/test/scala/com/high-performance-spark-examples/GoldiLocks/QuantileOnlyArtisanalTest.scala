@@ -26,7 +26,7 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
   test("Goldilocks first try ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
-    val secondAndThird = GoldiLocksFirstTry.findQuantiles(input, targetRanks = List(2L, 3L))
+    val secondAndThird = GoldiLocksFirstTry.findRankStatistics(input, targetRanks = List(2L, 3L))
     val expectedResult = Map[Int, Set[Double]](
       0 -> Set(1.0, 2.0),
       1 -> Set(5.5, 5.5),
@@ -47,14 +47,14 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
           iter.map(x => (x._1, key))
     }
 
-    val getColumnFreqPerPartition = PrivateMethod[ Array[(Int, Array[Long])]]('getColumnFreqPerPartition)
-    val totals = GoldiLocksFirstTry invokePrivate getColumnFreqPerPartition(mapPartitions, 2)
+    val getColumnsFreqPerPartition = PrivateMethod[ Array[(Int, Array[Long])]]('getColumnsFreqPerPartition)
+    val totals = GoldiLocksFirstTry invokePrivate getColumnsFreqPerPartition(mapPartitions, 2)
 
     totals.foreach(x => println(x._1 + " : " + x._2.mkString(" ")))
-    val getLocationsOfRanksWithinEachPart =
-      PrivateMethod[Array[(Int, List[(Int, Long)])]]('getLocationsOfRanksWithinEachPart)
+    val getRanksLocationsWithinEachPart =
+      PrivateMethod[Array[(Int, List[(Int, Long)])]]('getRanksLocationsWithinEachPart)
 
-    val locations = GoldiLocksFirstTry invokePrivate getLocationsOfRanksWithinEachPart(List(1L), totals, 2)
+    val locations = GoldiLocksFirstTry invokePrivate getRanksLocationsWithinEachPart(List(1L), totals, 2)
     locations.foreach(x => println(x._1 + " : " + x._2.mkString(" ")))
 
     //assert that there is nothing in the column with index 1 on the second partition
@@ -77,7 +77,7 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
   test("GoldiLocks With Hashmap ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
-    val secondAndThird = GoldiLocksWithHashMap.findQuantiles(input, targetRanks = List(2L, 3L))
+    val secondAndThird = GoldiLocksWithHashMap.findRankStatistics(input, targetRanks = List(2L, 3L))
     val expectedResult = Map[Int, Set[Double]](
       0 -> Set(1.0, 2.0),
       1 -> Set(5.5, 5.5),
