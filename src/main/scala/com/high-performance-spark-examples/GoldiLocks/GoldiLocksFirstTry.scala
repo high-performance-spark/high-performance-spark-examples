@@ -6,8 +6,8 @@ import org.apache.spark.storage.StorageLevel
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.Map;
-import scala.collection.mutable.MutableList;
+import scala.collection.Map
+import scala.collection.mutable.MutableList
 
 object GoldiLocksGroupByKey {
   //tag::groupByKey[]
@@ -51,18 +51,19 @@ object GoldiLocksFirstTry {
     *
     * @return map of (column index, list of target ranks)
     */
-  def findQuantiles(dataFrame: DataFrame, targetRanks: List[Long]):
+  def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
 
-    val valueColumnPairs: RDD[(Double, Int)] = getValueColumnIndexPairs(dataFrame)
+    val valueColumnPairs: RDD[(Double, Int)] = getValueColumnPairs(dataFrame)
     val sortedValueColumnPairs = valueColumnPairs.sortByKey()
     sortedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
     val numOfColumns = dataFrame.schema.length
-    val partitionColumnsFreq = getColumnFreqPerPartition(sortedValueColumnPairs, numOfColumns)
-    val ranksLocations  = getLocationsOfRanksWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
-    val result = findElementsIteratively(sortedValueColumnPairs, ranksLocations)
-    result.groupByKey().collectAsMap()
+    val partitionColumnsFreq = getColumnsFreqPerPartition(sortedValueColumnPairs, numOfColumns)
+    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
+
+    val targetRanksValues = findTargetRanksIteratively(sortedValueColumnPairs, ranksLocations)
+    targetRanksValues.groupByKey().collectAsMap()
   }
 
   /**
@@ -81,7 +82,7 @@ object GoldiLocksFirstTry {
    *
    * @return RDD of pairs (value, column Index)
    */
-  private def getValueColumnIndexPairs(dataFrame : DataFrame): RDD[(Double, Int)] = {
+  private def getValueColumnPairs(dataFrame : DataFrame): RDD[(Double, Int)] = {
     dataFrame.flatMap(row => row.toSeq.zipWithIndex.map{ case (v, index) =>
       (v.toString.toDouble, index)})
   }
@@ -105,24 +106,23 @@ object GoldiLocksFirstTry {
    *
    * @return Array that contains (partition index, number of elements from every column on this partition)
    */
-  private def getColumnFreqPerPartition(sortedValueColumnPairs: RDD[(Double, Int)], numOfColumns : Int):
+  private def getColumnsFreqPerPartition(sortedValueColumnPairs: RDD[(Double, Int)], numOfColumns : Int):
     Array[(Int, Array[Long])] = {
 
     val zero = Array.fill[Long](numOfColumns)(0)
 
     def aggregateColumnFrequencies (partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) = {
-      val totalsPerPart : Array[Long] = valueColumnPairs.aggregate(zero)(
+      val columnsFreq : Array[Long] = valueColumnPairs.aggregate(zero)(
         (a : Array[Long], v : (Double ,Int)) => {
           val (value, colIndex) = v
           a(colIndex) = a(colIndex) + 1L
           a
         },
         (a : Array[Long], b : Array[Long]) => {
-          require(a.length == b.length)
           a.zip(b).map{ case(aVal, bVal) => aVal + bVal}
         })
 
-      Iterator((partitionIndex, totalsPerPart))
+      Iterator((partitionIndex, columnsFreq))
     }
 
     sortedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
@@ -144,8 +144,9 @@ object GoldiLocksFirstTry {
    * @return  Array that contains (partition index, relevantIndexList where relevantIndexList(i) = the index
    *          of an element on this partition that matches one of the target ranks)
    */
-  private def getLocationsOfRanksWithinEachPart(targetRanks : List[Long],
-    partitionColumnsFreq : Array[(Int, Array[Long])], numOfColumns : Int) : Array[(Int, List[(Int, Long)])] = {
+  private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
+                                              partitionColumnsFreq : Array[(Int, Array[Long])],
+                                              numOfColumns : Int) : Array[(Int, List[(Int, Long)])] = {
 
     val runningTotal = Array.fill[Long](numOfColumns)(0)
 
@@ -154,7 +155,8 @@ object GoldiLocksFirstTry {
 
       columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  => {
         val runningTotalCol = runningTotal(colIndex)
-        val ranksHere: List[Long] = targetRanks.filter(rank => (runningTotalCol < rank && runningTotalCol + colCount >= rank))
+        val ranksHere: List[Long] = targetRanks.filter(rank =>
+          (runningTotalCol < rank && runningTotalCol + colCount >= rank))
 
         // for each of the rank statistics present add this column index and the index it will be at
         // on this partition (the rank - the running total)
@@ -173,9 +175,9 @@ object GoldiLocksFirstTry {
     * @param sortedValueColumnPairs - sorted RDD of (value, colIndex) pairs
     * @param ranksLocations Array of (partition Index, list of (column index, rank index of this column at this partition))
     *
-    * @return
+    * @return returns RDD of the target ranks (column index, value)
     */
-  private def findElementsIteratively(sortedValueColumnPairs : RDD[(Double, Int)],
+  private def findTargetRanksIteratively(sortedValueColumnPairs : RDD[(Double, Int)],
                                       ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
 
     sortedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
@@ -190,7 +192,7 @@ object GoldiLocksFirstTry {
         val result : ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
 
         valueColumnPairs.foreach{ case(value, colIndex) => {
-          if (runningTotals isDefinedAt colIndex) {
+          if (runningTotals contains colIndex) {
             val total = runningTotals(colIndex) + 1L
             runningTotals.update(colIndex, total)
 
