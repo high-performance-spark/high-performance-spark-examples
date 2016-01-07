@@ -192,19 +192,23 @@ object HappyPanda {
 
   // Join DataFrames of Pandas and Sizes with
   def joins(df1: DataFrame, df2: DataFrame): Unit = {
-    // Inner join implicit
     //tag::innerJoin[]
+    // Inner join implicit
     df1.join(df2, df1("name") === df2("name"))
-    //end::innerJoin[]
-    //tag::joins[]
     // Inner join explicit
     df1.join(df2, df1("name") === df2("name"), "inner")
+    //end::innerJoin[]
+    //tag::leftouterJoin[]
     // Left outer join explicit
     df1.join(df2, df1("name") === df2("name"), "left_outer")
+    //end::leftouterJoin[]
+    //tag::rightouterJoin[]
     // Right outer join explicit
     df1.join(df2, df1("name") === df2("name"), "right_outer")
+    //end::rightouterJoin[]
+    //tag::leftsemiJoin[]
     // Left semi join explicit
     df1.join(df2, df1("name") === df2("name"), "leftsemi")
-    //end::joins[]
+    //end::leftsemiJoin[]
   }
 }
