@@ -1,0 +1,5 @@
+ASSEMBLY_JAR=./target/scala-2.10/examples_2.10.jar
+CLASS="com.highperformancespark.dataframe.mysqlload"
+#tag:[submit]
+spark-submit --jars ./resources/mysql-connector-java-5.1.38.jar $ASSEMBLY_JAR $CLASS 
+#end:[submit]
