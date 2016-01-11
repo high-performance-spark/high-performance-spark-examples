@@ -1,3 +1,6 @@
+Individual components under resources are available under their own licenses.
+	   * MySQL connector is GPL
+The source code in this repo is available under the Apache License
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
