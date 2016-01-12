@@ -16,19 +16,54 @@
  */
 package com.highperformancespark.examples.perf
 
+import com.highperformancespark.examples.dataframe.HappyPanda.RawPanda
+import com.highperformancespark.examples.tools._
+
 import org.apache.spark.rdd._
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.hive.HiveContext
 
 /**
- * A simple performance test to compare a simple sort between DataFrame, Dataset, and RDD
+ * A simple performance test to compare a simple sort between DataFrame, and RDD
  */
 object SimplePerfTest {
-  def main(args: Array[Sttring]) = {
-    val sparkConf = SparkConf().setAppName("simple-perf-test")
-    val sc = SparkContext(sparkConf)
-    val scalingFactor = if (args.length > 0) args(0).toInt else 100
+  def main(args: Array[String]) = {
+    val sparkConf = new SparkConf().setAppName("simple-perf-test")
+    val sc = new SparkContext(sparkConf)
+    val sqlCtx = new HiveContext(sc)
+    val scalingFactor = if (args.length > 0) args(0).toLong else 100L
     val size = if (args.length > 1) args(1).toInt else 50
+    run(sc, sqlCtx, scalingFactor, size)
+  }
+
+  def run(sc: SparkContext, sqlCtx: HiveContext, scalingFactor: Long, size: Int) = {
+    import sqlCtx.implicits._
     val inputRDD = GenerateScalingData.generateGoldilocks(sc, scalingFactor, size)
+    inputRDD.cache()
+    inputRDD.count()
+    val rddTimeings = 1.to(10).map(x => time(testOnRDD(inputRDD)))
+    val inputDataFrame = inputRDD.toDF()
+    inputDataFrame.cache()
+    inputDataFrame.count()
+    val dataFrameTimeings = 1.to(10).map(x => time(testOnRDD(inputRDD)))
+    println(rddTimeings.mkString(","))
+    println(dataFrameTimeings.mkString(","))
+  }
+
+  def testOnRDD(rdd: RDD[RawPanda]) = {
+    rdd.map(p => (p.id, p)).sortByKey().foreach{x => ()}
+  }
+
+  def testOnDataFrame(df: DataFrame) = {
+    df.orderBy("id").rdd.foreach{x => ()}
+  }
+
+  def time[R](block: => R): (R, Long) = {
+    val t0 = System.nanoTime()
+    val result = block    // call-by-name
+    val t1 = System.nanoTime()
+    println(s"Time ${t1 - t0}ns")
+    (result, t1 - t0)
   }
 }
