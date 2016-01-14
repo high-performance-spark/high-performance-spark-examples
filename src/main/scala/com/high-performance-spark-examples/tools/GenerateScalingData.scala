@@ -11,11 +11,13 @@ object GenerateScalingData {
   /**
    * Generate a Goldilocks data set. We expect the zip code to follow an exponential
    * distribution and the data its self to be normal
+   * @param rows number of rows in the RDD
+   * @param size number of value elements
    */
-  def generateFullGoldilocks(sc: SparkContext, elements: Long, size: Int): RDD[RawPanda] = {
-    val keyRDD = sc.parallelize(1L.to(size))
-    val zipRDD = RandomRDDs.exponentialRDD(sc, mean = 1000,  size = size).map(_.toInt.toString)
-    val valuesRDD = RandomRDDs.normalVectorRDD(sc, numRows = size, numCols = elements)
+  def generateFullGoldilocks(sc: SparkContext, rows: Long, size: Int): RDD[RawPanda] = {
+    val zipRDD = RandomRDDs.exponentialRDD(sc, mean = 1000,  size = rows).map(_.toInt.toString)
+    val valuesRDD = RandomRDDs.normalVectorRDD(sc, numRows = rows, numCols = size)
+    val keyRDD = sc.parallelize(1L.to(rows), zipRDD.partitions.size)
     keyRDD.zipPartitions(zipRDD, valuesRDD){
       (i1, i2, i3) =>
       new Iterator[(Long, String, Vector)] {
