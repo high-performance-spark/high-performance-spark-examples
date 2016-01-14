@@ -47,8 +47,8 @@ object SimplePerfTest {
     inputDataFrame.cache()
     inputDataFrame.count()
     val dataFrameTimeings = 1.to(10).map(x => time(testOnRDD(inputRDD)))
-    println(rddTimeings.mkString(","))
-    println(dataFrameTimeings.mkString(","))
+    println(rddTimeings.map(_._2).mkString(","))
+    println(dataFrameTimeings.map(_._2).mkString(","))
   }
 
   def testOnRDD(rdd: RDD[RawPanda]) = {
