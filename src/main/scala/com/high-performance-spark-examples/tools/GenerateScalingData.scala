@@ -15,7 +15,7 @@ object GenerateScalingData {
   def generateFullGoldilocks(sc: SparkContext, elements: Long, size: Int): RDD[RawPanda] = {
     val keyRDD = sc.parallelize(1L.to(size))
     val zipRDD = RandomRDDs.exponentialRDD(sc, mean = 1000,  size = size).map(_.toInt.toString)
-    val valuesRDD = RandomRDDs.normalVectorRDD(sc, numRows = 1, numCols = size)
+    val valuesRDD = RandomRDDs.normalVectorRDD(sc, numRows = size, numCols = elements)
     keyRDD.zipPartitions(zipRDD, valuesRDD){
       (i1, i2, i3) =>
       new Iterator[(Long, String, Vector)] {
