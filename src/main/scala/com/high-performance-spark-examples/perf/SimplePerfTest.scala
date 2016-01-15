@@ -39,7 +39,7 @@ object SimplePerfTest {
 
   def run(sc: SparkContext, sqlCtx: HiveContext, scalingFactor: Long, size: Int) = {
     import sqlCtx.implicits._
-    val inputRDD = GenerateScalingData.generateGoldilocks(sc, scalingFactor, size)
+    val inputRDD = GenerateScalingData.generateFullGoldilocks(sc, scalingFactor, size)
     inputRDD.cache()
     inputRDD.count()
     val rddTimeings = 1.to(10).map(x => time(testOnRDD(inputRDD)))
@@ -52,11 +52,11 @@ object SimplePerfTest {
   }
 
   def testOnRDD(rdd: RDD[RawPanda]) = {
-    rdd.map(p => (p.id, p)).sortByKey().foreach{x => ()}
+    rdd.map(p => (p.id, p)).sortByKey().distinct().count()
   }
 
   def testOnDataFrame(df: DataFrame) = {
-    df.orderBy("id").rdd.foreach{x => ()}
+    df.orderBy("id").distinct().count()
   }
 
   def time[R](block: => R): (R, Long) = {
