@@ -43,6 +43,7 @@ class MixedDataset(sqlCtx: SQLContext) {
     ds.select($"attributes"(0).as[Double])
   }
 
+  //tag::toRDDDF[]
   /**
    * Illustrate converting a Dataset to an RDD
    */
@@ -56,12 +57,15 @@ class MixedDataset(sqlCtx: SQLContext) {
   def toDF(ds: Dataset[RawPanda]): DataFrame = {
     ds.toDF()
   }
+  //end::toRDDDF[]
 
   /**
    * Illustrate DataFrame to Dataset. Its important to note that if the schema does not match what
    * is expected by the Dataset this fails fast.
    */
+  //tag::DataFrameAsDataset[]
   def fromDF(df: DataFrame): Dataset[RawPanda] = {
     df.as[RawPanda]
   }
+  //end::DataFrameAsDataset[]
 }
