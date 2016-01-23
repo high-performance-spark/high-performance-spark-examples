@@ -16,7 +16,7 @@
  */
 package com.highperformancespark.examples.perf
 
-import com.highperformancespark.examples.dataframe.HappyPanda.RawPanda
+import com.highperformancespark.examples.dataframe.RawPanda
 import com.highperformancespark.examples.tools._
 
 import org.apache.spark.rdd._
