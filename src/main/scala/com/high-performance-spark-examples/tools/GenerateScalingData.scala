@@ -1,6 +1,6 @@
 package com.highperformancespark.examples.tools
 
-import com.highperformancespark.examples.dataframe.HappyPanda.RawPanda
+import com.highperformancespark.examples.dataframe.RawPanda
 
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
