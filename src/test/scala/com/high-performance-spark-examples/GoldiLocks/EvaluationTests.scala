@@ -1,20 +1,10 @@
 package com.highperformancespark.examples.goldilocks
 
-import org.apache.spark._
+import com.holdenkarau.spark.testing.SharedSparkContext
 import org.apache.spark.rdd.RDD
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.FunSuite
 
-
-class EvaluationTests extends FunSuite with BeforeAndAfterAll {
-  @transient private var _sc: SparkContext = _
-  def sc: SparkContext = _sc
-
-  val conf = new SparkConf().setMaster("local[4]").setAppName("test")
-
-  override def beforeAll() {
-    _sc = new SparkContext(conf)
-    super.beforeAll()
-  }
+class EvaluationTests extends FunSuite with SharedSparkContext {
 
   test("MapValues preserves Partitioning "){
     val s = Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0).zipWithIndex
@@ -39,12 +29,5 @@ class EvaluationTests extends FunSuite with BeforeAndAfterAll {
     assert(rddC.count() < rddA.count() - rddB.count())
   }
 
-  override def afterAll() {
-    // We clear the driver port so that we don't try and bind to the same port on restart
-    sc.stop()
-    System.clearProperty("spark.driver.port")
-    _sc = null
-    super.afterAll()
-  }
 }
 
