@@ -29,11 +29,23 @@ class MixedDataset(sqlCtx: SQLContext) {
   }
 
   /**
+   * A sample function on a Dataset of RawPandas.
+   * Use the first attribute to deterimine if a panda is fuzzy
+   */
+  //tag::basicSelect[]
+  def fuzzyPandas(ds: Dataset[RawPanda]): Dataset[(Long, Boolean)] = {
+    ds.select($"id".as[Long], ($"attributes"(0) > 0.5).as[Boolean])
+  }
+  //end::basicSelect[]
+
+  /**
    * Functional map + Dataset, sums the positive attributes for the pandas
    */
+  //tag::functionalQuery[]
   def funMap(ds: Dataset[RawPanda]): Dataset[Double] = {
     ds.map{rp => rp.attributes.filter(_ > 0).sum}
   }
+  //end::functionalQuery[]
 
   /**
    * Illustrate how we make typed queries, using some of the float properties to produce boolean
