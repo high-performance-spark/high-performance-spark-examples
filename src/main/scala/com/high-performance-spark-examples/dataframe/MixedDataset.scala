@@ -30,10 +30,10 @@ class MixedDataset(sqlCtx: SQLContext) {
 
   /**
    * A sample function on a Dataset of RawPandas.
-   * Use the first attribute to deterimine if a panda is fuzzy
+   * Use the first attribute to deterimine if a panda is squishy.
    */
   //tag::basicSelect[]
-  def fuzzyPandas(ds: Dataset[RawPanda]): Dataset[(Long, Boolean)] = {
+  def squishyPandas(ds: Dataset[RawPanda]): Dataset[(Long, Boolean)] = {
     ds.select($"id".as[Long], ($"attributes"(0) > 0.5).as[Boolean])
   }
   //end::basicSelect[]
