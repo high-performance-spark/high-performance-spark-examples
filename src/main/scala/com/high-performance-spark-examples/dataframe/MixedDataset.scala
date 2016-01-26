@@ -39,6 +39,15 @@ class MixedDataset(sqlCtx: SQLContext) {
   //end::basicSelect[]
 
   /**
+   * Union happy and sad pandas
+   */
+  //tag::basicUnion[]
+  def unionPandas(happyPandas: Dataset[RawPanda], sadPandas: Dataset[RawPanda]) = {
+    happyPandas.union(sadPandas)
+  }
+  //end::basicUnion[]
+
+  /**
    * Functional map + Dataset, sums the positive attributes for the pandas
    */
   //tag::functionalQuery[]
