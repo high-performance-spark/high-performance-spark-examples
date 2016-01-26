@@ -18,6 +18,7 @@ sparkVersion := "1.6.0"
 sparkComponents ++= Seq("core", "streaming", "sql", "hive", "hive-thriftserver", "mllib")
 //end::sparkComponents[]
 
+
 parallelExecution in Test := false
 
 fork := true
@@ -29,6 +30,9 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.4",
   "junit" % "junit" % "4.10",
+  //tag::sparkCSV[]
+  "com.databricks" % "spark-csv_2.10" % "1.3.0",
+  //end::sparkCSV[]
   "com.holdenkarau" % "spark-testing-base_2.10" % "1.5.1_0.2.1",
   "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
   "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
