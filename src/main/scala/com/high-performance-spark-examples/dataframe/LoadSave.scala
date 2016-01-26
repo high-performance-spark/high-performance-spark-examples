@@ -5,7 +5,6 @@ package com.highperformancespark.examples.dataframe
 
 import java.util.Properties
 
-import com.highperformancespark.examples.dataframe.HappyPanda.PandaInfo
 import org.apache.spark._
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
@@ -16,8 +15,6 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
-
-case class PandaPlace(name: String, pandas: Array[PandaInfo])
 
 case class LoadSave(sqlContext: SQLContext) {
   import sqlContext.implicits._
@@ -31,17 +28,17 @@ case class LoadSave(sqlContext: SQLContext) {
 
     // Create a Row RDD from our RDD of case classes
     val rowRDD = input.map(pm => Row(pm.name,
-      pm.pandas.map(pi => Row(pi.place, pi.pandaType, pi.happyPandas, pi.totalPandas))))
+      pm.pandas.map(pi => Row(pi.id, pi.zip, pi.happy, pi.attributes))))
 
     // Create DataFrame explicitly with specified schema
     val schema = StructType(List(
       StructField("name", StringType, true),
       StructField("pandas", ArrayType(
         StructType(List(
-          StructField("place", StringType, true),
-          StructField("pandaType", StringType, true),
-          StructField("happyPandas", IntegerType, true),
-          StructField("totalPandas", IntegerType, true)))))))
+          StructField("id", LongType, true),
+          StructField("zip", StringType, true),
+          StructField("happy", BooleanType, true),
+          StructField("attributes", ArrayType(FloatType), true)))))))
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
@@ -60,9 +57,9 @@ case class LoadSave(sqlContext: SQLContext) {
   //end::collectResults[]
 
   //tag::toRDD[]
-  def toRDD(input: DataFrame): RDD[PandaInfo] = {
+  def toRDD(input: DataFrame): RDD[RawPanda] = {
     val rdd: RDD[Row] = input.rdd
-    rdd.map(row => PandaInfo(row.getAs[String](0), row.getAs[String](1), row.getAs[Integer](2), row.getAs[Integer](3)))
+    rdd.map(row => RawPanda(row.getAs[Long](0), row.getAs[String](1), row.getAs[Boolean](2), row.getAs[Array[Double]](3)))
   }
   //end::toRDD[]
 
