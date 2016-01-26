@@ -12,7 +12,7 @@ crossScalaVersions := Seq("2.10.4", "2.11.6")
 
 javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
-sparkVersion := "1.5.1"
+sparkVersion := "1.6.0"
 
 //tag::sparkComponents[]
 sparkComponents ++= Seq("core", "streaming", "sql", "hive", "hive-thriftserver", "mllib")
@@ -64,6 +64,7 @@ mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
     case PathList("javax", "servlet", xs @ _*) => MergeStrategy.first
     case PathList("org", "apache", xs @ _*) => MergeStrategy.first
     case PathList("org", "jboss", xs @ _*) => MergeStrategy.first
+    case "log4j.properties" => MergeStrategy.discard
     case "about.html"  => MergeStrategy.rename
     case "reference.conf" => MergeStrategy.concat
     case _ => MergeStrategy.first
