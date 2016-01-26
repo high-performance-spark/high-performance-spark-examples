@@ -15,8 +15,11 @@ javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 sparkVersion := "1.6.0"
 
 //tag::sparkComponents[]
-sparkComponents ++= Seq("core", "streaming", "sql", "hive", "hive-thriftserver", "mllib")
+sparkComponents ++= Seq("core", "streaming", "hive-thriftserver", "mllib")
 //end::sparkComponents[]
+//tag::addSQLHiveComponent[]
+sparkComponents ++= Seq("sql", "hive")
+//end::addSQLHiveComponent[]
 
 
 parallelExecution in Test := false
