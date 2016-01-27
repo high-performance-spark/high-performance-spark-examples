@@ -82,31 +82,46 @@ object HappyPanda {
     * @return Returns a DataFrame of pandaId and integer value for pandaType.
     */
   def encodePandaType(pandaInfo: DataFrame): DataFrame = {
-    pandaInfo.select(pandaInfo("place"),
-      (when(pandaInfo("pandaType") === "giant", 0).
-      when(pandaInfo("pandaType") === "red", 1).
+    pandaInfo.select(pandaInfo("id"),
+      (when(pandaInfo("pt") === "giant", 0).
+      when(pandaInfo("pt") === "red", 1).
       otherwise(2)).as("encodedType")
     )
   }
   //end::encodePandaType[]
 
-  //tag::simpleFilter[]
   /**
     * Gets places with happy pandas more than minHappinessBound.
     */
   def minHappyPandas(pandaInfo: DataFrame, minHappyPandas: Int): DataFrame = {
     pandaInfo.filter(pandaInfo("happyPandas") >= minHappyPandas)
   }
-  //end::simpleFilter[]
 
-  //tag::complexFilter[]
+  /**
+    * Find pandas that are sad
+    */
+  def sadPandas(pandaInfo: DataFrame): DataFrame = {
+    //tag::simpleFilter[]
+    pandaInfo.filter(!pandaInfo("happy"))
+    //end::simpleFilter[]
+  }
+
+  /**
+   * Find pandas that are happy and fuzzier than squishy
+   */
+  def happyFuzzyPandas(pandaInfo: DataFrame): DataFrame = {
+    //tag::complexFilter[]
+    pandaInfo.filter(pandaInfo("happy").and(
+      pandaInfo("attributes")(0) > pandaInfo("attributes")(1)))
+    //end::complexFilter[]
+  }
   /**
     * Gets places that contains happy pandas more than unhappy pandas.
     */
   def happyPandasPlaces(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.filter(pandaInfo("happyPandas") >= pandaInfo("totalPandas") / 2)
   }
-  //end::complexFilter[]
+
 
 
   /**
