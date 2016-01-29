@@ -59,7 +59,8 @@ case class LoadSave(sqlContext: SQLContext) {
   //tag::toRDD[]
   def toRDD(input: DataFrame): RDD[RawPanda] = {
     val rdd: RDD[Row] = input.rdd
-    rdd.map(row => RawPanda(row.getAs[Long](0), row.getAs[String](1), row.getAs[Boolean](2), row.getAs[Array[Double]](3)))
+    rdd.map(row => RawPanda(row.getAs[Long](0), row.getAs[String](1),
+      row.getAs[String](2), row.getAs[Boolean](3), row.getAs[Array[Double]](4)))
   }
   //end::toRDD[]
 
