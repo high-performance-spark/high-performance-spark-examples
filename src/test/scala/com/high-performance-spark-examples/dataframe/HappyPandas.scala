@@ -16,9 +16,14 @@ class HappyPandasTest extends DataFrameSuiteBase {
   val toronto = "toronto"
   val sandiego = "san diego"
   val virginia = "virginia"
-  val pandaInfoList = List(PandaInfo(toronto, "giant", 1, 2),
-                          PandaInfo(sandiego, "red", 2, 3),
-                          PandaInfo(virginia, "black", 1, 10))
+  val pandaInfoList = List(
+    PandaInfo(toronto, "giant", 1, 2),
+    PandaInfo(sandiego, "red", 2, 3),
+    PandaInfo(virginia, "black", 1, 10))
+
+  val rawPandaList = List(
+    RawPanda(10L, "94110", "giant", true, Array(1.0, 0.9)),
+    RawPanda(11L, "94110", "red", true, Array(1.0, 0.9)))
 
   val pandasList = List(Pandas("bata", "10010", 10, 2),
                         Pandas("wiza", "10010", 20, 4),
@@ -57,11 +62,11 @@ class HappyPandasTest extends DataFrameSuiteBase {
   }
 
   test("test encode Panda type") {
-    val inputDF = sqlContext.createDataFrame(pandaInfoList)
+    val inputDF = sqlContext.createDataFrame(rawPandaList)
     val resultDF = HappyPanda.encodePandaType(inputDF)
 
-    val expectedRows = List(Row(toronto, 0), Row(sandiego, 1), Row(virginia, 2))
-    val expectedDF = createDF3(expectedRows, ("place", StringType, true),
+    val expectedRows = List(Row(10L, 0), Row(11L, 1))
+    val expectedDF = createDF3(expectedRows, ("id", LongType, false),
                                              ("encodedType", IntegerType, false))
 
     equalDataFrames(expectedDF, resultDF)
