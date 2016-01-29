@@ -30,7 +30,7 @@ object GenerateScalingData {
         def next(): (Long, String, Vector) = (i1.next(), i2.next(), i3.next())
       }
     }.map{case (k, z, v) =>
-      RawPanda(k, z, v(0) > 0.5, v.toArray)}
+      RawPanda(k, z, "giant", v(0) > 0.5, v.toArray)}
   }
 
   // tag::MAGIC_PANDA[]
@@ -44,7 +44,7 @@ object GenerateScalingData {
     val zipRDD = RandomRDDs.exponentialRDD(sc, mean = 1000,  size = rows).map(_.toInt.toString)
     val valuesRDD = RandomRDDs.normalVectorRDD(sc, numRows = rows, numCols = numCols)
       zipRDD.zip(valuesRDD).map{case (z, v) =>
-      RawPanda(1, z, v(0) > 0.5, v.toArray)}
+      RawPanda(1, z, "giant", v(0) > 0.5, v.toArray)}
   }
   // end::MAGIC_PANDA[]
 }
