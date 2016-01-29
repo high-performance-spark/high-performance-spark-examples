@@ -123,6 +123,14 @@ object HappyPanda {
   }
 
 
+  /**
+   * Remove duplicate pandas by id
+   */
+  def removeDuplicates(pandas: DataFrame): DataFrame = {
+    //tag::dropDuplicatePandaIds[]
+    pandas.dropDuplicates(List("id"))
+    //end::dropDuplicatePandaIds[]
+  }
 
   /**
     * @param name name of panda
