@@ -21,7 +21,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     // end::MapValues[]
   }
 
-  test( "Subtract Behavior"){
+  test( "Subtract Behavior "){
     val a = Array(1, 2, 3 ,4 ,4 ,4 ,4 )
     val b = Array(3, 4 )
     val rddA = sc.parallelize(a)
@@ -36,7 +36,8 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     // tag::TwoActions[]
     val sorted = rddA.sortByKey()
     val count = sorted.count()
-    sorted.saveAsHadoopFile(path)
+    val sample: Long = count / 10
+    sorted.take(sample.toInt)
     // end::TwoActions[]
   }
 
@@ -45,8 +46,9 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     // tag::TwoActionsCache[]
     val sorted = rddA.sortByKey()
     val count = sorted.count()
+    val sample: Long = count / 10
     rddA.persist()
-    sorted.saveAsHadoopFile(path)
+    sorted.take(sample.toInt)
     // end::TwoActionsCache[]
 
   }
