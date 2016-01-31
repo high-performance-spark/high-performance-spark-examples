@@ -21,7 +21,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     // end::MapValues[]
   }
 
-  test( "Subtract Behavior "){
+  test( "Subtract Behavior"){
     val a = Array(1, 2, 3 ,4 ,4 ,4 ,4 )
     val b = Array(3, 4 )
     val rddA = sc.parallelize(a)
