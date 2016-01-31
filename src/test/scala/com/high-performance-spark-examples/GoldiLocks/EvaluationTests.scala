@@ -22,12 +22,27 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
   }
 
   test( "Subtract Behavior "){
+    // tag::Subtract[]
     val a = Array(1, 2, 3 ,4 ,4 ,4 ,4 )
     val b = Array(3, 4 )
     val rddA = sc.parallelize(a)
     val rddB = sc.parallelize(b)
     val rddC =  rddA.subtract(rddB)
     assert(rddC.count() < rddA.count() - rddB.count())
+    // tag::Subtract[]
+  }
+
+  test( "Intersection Behavior "){
+    // tag::Intersect[]
+    val a = Array(1, 2, 3 ,4 ,4 ,4 ,4 )
+    val b = Array(3, 4 )
+    val rddA = sc.parallelize(a)
+    val rddB = sc.parallelize(b)
+    val intersection =  rddA.intersection(rddB)
+    val subtraction = rddA.subtract(rddB)
+    val union = intersection.union(subtraction)
+     assert(!rddA.collect().sorted.sameElements(union.collect().sorted))
+    // tag::Intersect[]
   }
 
   test( "Two actions without caching  ") {
