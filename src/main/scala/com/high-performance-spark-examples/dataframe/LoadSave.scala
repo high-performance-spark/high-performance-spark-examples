@@ -5,16 +5,9 @@ package com.highperformancespark.examples.dataframe
 
 import java.util.Properties
 
-import org.apache.spark._
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.expressions.aggregate._
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.expressions._
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.hive._
-import org.apache.spark.sql.hive.thriftserver._
 
 case class LoadSave(sqlContext: SQLContext) {
   import sqlContext.implicits._
@@ -32,13 +25,13 @@ case class LoadSave(sqlContext: SQLContext) {
 
     // Create DataFrame explicitly with specified schema
     val schema = StructType(List(
-      StructField("name", StringType, true),
+      StructField("name", StringType, nullable = true),
       StructField("pandas", ArrayType(
         StructType(List(
-          StructField("id", LongType, true),
-          StructField("zip", StringType, true),
-          StructField("happy", BooleanType, true),
-          StructField("attributes", ArrayType(FloatType), true)))))))
+          StructField("place", StringType, nullable = true),
+          StructField("pandaType", StringType, nullable = true),
+          StructField("happyPandas", IntegerType, nullable = true),
+          StructField("totalPandas", IntegerType, nullable = true)))))))
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
