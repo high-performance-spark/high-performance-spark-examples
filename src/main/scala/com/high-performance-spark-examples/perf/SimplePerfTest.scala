@@ -52,11 +52,11 @@ object SimplePerfTest {
   }
 
   def testOnRDD(rdd: RDD[RawPanda]) = {
-    rdd.map(p => (p.id, p)).sortByKey().distinct().count()
+    rdd.map(p => (p.zip, (p.attributes(0), 1))).reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.collect()
   }
 
   def testOnDataFrame(df: DataFrame) = {
-    df.orderBy("id").distinct().count()
+    df.select(df("zip"), df("attributes")(0).as("fuzzyness")).groupBy("zip").avg("fuzzyness").collect()
   }
 
   def time[R](block: => R): (R, Long) = {
