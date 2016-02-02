@@ -57,17 +57,17 @@ object SimplePerfTest {
   }
 
   def testOnRDD(rdd: RDD[(Int, Double)]) = {
-    rdd.map{case (x, y) => (x, (y, 1))}.reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.collect()
+    rdd.map{case (x, y) => (x, (y, 1))}.reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.count()
   }
 
   def groupOnRDD(rdd: RDD[(Int, Double)]) = {
     rdd.groupByKey().mapValues{v =>
       v.aggregate((0.0, 0))({case (x, y) => (x._1 + y, x._2 + 1)},
-        {case (x, y) => (x._1 + y._1, x._2 + y._2)})}
+        {case (x, y) => (x._1 + y._1, x._2 + y._2)})}.count()
   }
 
   def testOnDataFrame(df: DataFrame) = {
-    df.groupBy("zip").avg("fuzzyness").collect()
+    df.groupBy("zip").avg("fuzzyness").count()
   }
 
   def time[R](block: => R): (R, Long) = {
