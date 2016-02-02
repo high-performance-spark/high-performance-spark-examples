@@ -46,7 +46,7 @@ object SimplePerfTest {
     val inputDataFrame = inputRDD.toDF()
     inputDataFrame.cache()
     inputDataFrame.count()
-    val dataFrameTimeings = 1.to(10).map(x => time(testOnRDD(inputRDD)))
+    val dataFrameTimeings = 1.to(10).map(x => time(testOnDataFrame(inputDataFrame)))
     println(rddTimeings.map(_._2).mkString(","))
     println(dataFrameTimeings.map(_._2).mkString(","))
   }
