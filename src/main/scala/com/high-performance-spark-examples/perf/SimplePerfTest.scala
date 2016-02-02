@@ -23,6 +23,7 @@ import org.apache.spark.rdd._
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.sql.types._
 
 /**
  * A simple performance test to compare a simple sort between DataFrame, and RDD
@@ -40,11 +41,13 @@ object SimplePerfTest {
   def run(sc: SparkContext, sqlCtx: HiveContext, scalingFactor: Long, size: Int) = {
     import sqlCtx.implicits._
     val inputRDD = GenerateScalingData.generateFullGoldilocks(sc, scalingFactor, size)
-    inputRDD.cache()
-    inputRDD.count()
-    val rddTimeings = 1.to(10).map(x => time(testOnRDD(inputRDD)))
-    val groupTimeings = 1.to(10).map(x => time(groupOnRDD(inputRDD)))
-    val inputDataFrame = inputRDD.toDF()
+    val pairRDD = inputRDD.map(p => (p.zip.toInt, p.attributes(0)))
+    pairRDD.cache()
+    pairRDD.count()
+    val rddTimeings = 1.to(10).map(x => time(testOnRDD(pairRDD)))
+    val groupTimeings = 1.to(10).map(x => time(groupOnRDD(pairRDD)))
+    val df = inputRDD.toDF()
+    val inputDataFrame = df.select(df("zip").cast(IntegerType), df("attributes")(0).as("fuzzyness"))
     inputDataFrame.cache()
     inputDataFrame.count()
     val dataFrameTimeings = 1.to(10).map(x => time(testOnDataFrame(inputDataFrame)))
@@ -53,18 +56,18 @@ object SimplePerfTest {
     println(dataFrameTimeings.map(_._2).mkString(","))
   }
 
-  def groupOnRDD(rdd: RDD[RawPanda]) = {
-    rdd.map(p => (p.zip, (p.attributes(0), 1))).reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.collect()
+  def testOnRDD(rdd: RDD[(Int, Double)]) = {
+    rdd.map{case (x, y) => (x, (y, 1))}.reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.collect()
   }
 
-  def testOnRDD(rdd: RDD[RawPanda]) = {
-    rdd.map(p => (p.zip, p.attributes(0))).groupByKey().mapValues{v =>
+  def groupOnRDD(rdd: RDD[(Int, Double)]) = {
+    rdd.groupByKey().mapValues{v =>
       v.aggregate((0.0, 0))({case (x, y) => (x._1 + y, x._2 + 1)},
         {case (x, y) => (x._1 + y._1, x._2 + y._2)})}
   }
 
   def testOnDataFrame(df: DataFrame) = {
-    df.select(df("zip"), df("attributes")(0).as("fuzzyness")).groupBy("zip").avg("fuzzyness").collect()
+    df.groupBy("zip").avg("fuzzyness").collect()
   }
 
   def time[R](block: => R): (R, Long) = {
