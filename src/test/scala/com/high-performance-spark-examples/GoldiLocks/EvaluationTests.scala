@@ -29,7 +29,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     val rddB = sc.parallelize(b)
     val rddC =  rddA.subtract(rddB)
     assert(rddC.count() < rddA.count() - rddB.count())
-    // tag::Subtract[]
+    // end::Subtract[]
   }
 
   test( "Intersection Behavior "){
@@ -42,7 +42,28 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     val subtraction = rddA.subtract(rddB)
     val union = intersection.union(subtraction)
      assert(!rddA.collect().sorted.sameElements(union.collect().sorted))
-    // tag::Intersect[]
+    // end::Intersect[]
+  }
+
+  test("Itereative Computations "){
+    def RMSE(rdd : RDD[(Int, Int )]) = {
+      val n = rdd.count()
+      math.sqrt(rdd.map(x => (x._1 - x._2) * (x._1 - x._2)).reduce(_ + _) / n)
+    }
+
+    val validationSet = sc.parallelize(keyValuePairs)
+
+    // tag::iterativeComp[]
+    val testSet: Array[RDD[(Double, Int)]] = Array(validationSet.mapValues(_ + 1), validationSet.mapValues(_ + 2), validationSet)
+    validationSet.persist() //persist since we are using this RDD several times
+    val errors = testSet.map( rdd => {
+        RMSE(rdd.join(validationSet).values)
+    })
+    // end::iterativeComp[]
+
+    //the one where we didn't change anything should have the lowest root mean squared error
+    assert(errors.min == errors(2))
+
   }
 
   test( "Two actions without caching  ") {
@@ -65,8 +86,9 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     rddA.persist()
     sorted.take(sample.toInt)
     // end::TwoActionsCache[]
-
   }
+
+
 
 }
 
