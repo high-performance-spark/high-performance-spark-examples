@@ -24,14 +24,13 @@ case class LoadSave(sqlContext: SQLContext) {
       pm.pandas.map(pi => Row(pi.id, pi.zip, pi.happy, pi.attributes))))
 
     // Create DataFrame explicitly with specified schema
-    val schema = StructType(List(
-      StructField("name", StringType, nullable = true),
-      StructField("pandas", ArrayType(
-        StructType(List(
-          StructField("place", StringType, nullable = true),
-          StructField("pandaType", StringType, nullable = true),
-          StructField("happyPandas", IntegerType, nullable = true),
-          StructField("totalPandas", IntegerType, nullable = true)))))))
+    val schema = StructType(List(StructField("name", StringType, true),
+      StructField("pandas", ArrayType(StructType(List(
+        StructField("id", LongType, true),
+        StructField("zip", StringType, true),
+        StructField("happy", BooleanType, true),
+        StructField("attributes", ArrayType(FloatType), true)))))))
+
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
