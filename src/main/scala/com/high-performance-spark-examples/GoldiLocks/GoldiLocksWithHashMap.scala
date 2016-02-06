@@ -73,11 +73,11 @@ object GoldiLocksWithHashMap {
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
       val valueColumnMap = new mutable.HashMap[(Double, Int), Long]()
       rows.foreach(row => {
-        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) =>
+        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) => {
           val key = (value.toString.toDouble, columnIndex)
           val count = valueColumnMap.getOrElseUpdate(key, 0)
           valueColumnMap.update(key, count + 1)
-        }
+        }}
       })
 
       valueColumnMap.toIterator
@@ -172,40 +172,44 @@ object GoldiLocksWithHashMap {
     *
     * @return returns RDD of the target ranks (column index, value)
     */
+  //tag::mapPartitionsExample[]
   private def findTargetRanksIteratively(sortedAggregatedValueColumnPairs : RDD[((Double, Int), Long)],
-                                         ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
+                                         ranksLocations : Array[(Int, List[(Int, Long)])]
+  ): RDD[(Int, Double)] = {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int,
       aggregatedValueColumnPairs : Iterator[((Double, Int), Long)]) => {
 
-      val targetsInThisPart = ranksLocations(partitionIndex)._2
-      if (targetsInThisPart.nonEmpty) {
-        val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
-        val columnsInThisPart = targetsInThisPart.map(_._1).distinct
-
-        val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
-        runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
-
-        val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
-
-        aggregatedValueColumnPairs.foreach { case ((value, colIndex), count) => {
-          if (columnsInThisPart contains colIndex) {
-            val total = runningTotals(colIndex)
-
-            val ranksPresent =  columnsRelativeIndex(colIndex)
-              .filter(index => (index <= count + total) && (index > total))
-            ranksPresent.foreach(r => result += ((colIndex, value)))
-
-            runningTotals.update(colIndex, total + count)
-          }
-        }}
-
-        result.toIterator
+      val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
+     if (!targetsInThisPart.isEmpty) {
+//        val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+//        val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+//
+//        val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+//        runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+//
+//        val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+//
+//        aggregatedValueColumnPairs.foreach { case ((value, colIndex), count) => {
+//          if (columnsInThisPart contains colIndex) {
+//            val total = runningTotals(colIndex)
+//
+//            val ranksPresent =  columnsRelativeIndex(colIndex)
+//              .filter(index => (index <= count + total) && (index > total))
+//            ranksPresent.foreach(r => result += ((colIndex, value)))
+//
+//            runningTotals.update(colIndex, total + count)
+//          }
+//        }}
+//
+//        result.toIterator
+        FindTargetsSubRoutine.asIteratorToIteratorTransformation(aggregatedValueColumnPairs,
+          targetsInThisPart)
       }
       else Iterator.empty
     })
   }
-
+  //end::mapPartitionsExample[]
   /**
    * We will want to use this in some chapter where we talk about check pointing
    * @param valPairs
@@ -239,3 +243,68 @@ object GoldiLocksWithHashMap {
   }
 }
 //end::hashMap[]
+
+
+object FindTargetsSubRoutine extends Serializable {
+
+  //tag::notIter[]
+  def withHashMap(valueColumnPairsIter : Iterator[((Double, Int), Long)], targetsInThisPart: List[(Int, Long)] ) = {
+
+      val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+      val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+
+      val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+      runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+
+      val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+
+      valueColumnPairsIter.foreach {
+        case ((value, colIndex), count) =>
+
+          if (columnsInThisPart contains colIndex) {
+            val total = runningTotals(colIndex)
+            val ranksPresent =  columnsRelativeIndex(colIndex)
+                              .filter(index => (index <= count + total) && (index > total))
+
+            ranksPresent.foreach(r => result += ((colIndex, value)))
+
+            runningTotals.update(colIndex, total + count)
+        }
+      }
+
+      result.toIterator
+  }
+  //end::notIter[]
+
+//The same routine but as an iterator transformation
+  //ToDO: PlaceHolder for the iterator to iterator transformation which I haven't written yet
+   //tag::iterToIter[]
+  def asIteratorToIteratorTransformation(valueColumnPairsIter : Iterator[((Double, Int), Long)],
+  targetsInThisPart: List[(Int, Long)] ) = {
+
+    val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+    val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+
+    val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+    runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+
+    val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+
+    valueColumnPairsIter.foreach {
+      case ((value, colIndex), count) =>
+
+        if (columnsInThisPart contains colIndex) {
+          val total = runningTotals(colIndex)
+          val ranksPresent =  columnsRelativeIndex(colIndex)
+                              .filter(index => (index <= count + total) && (index > total))
+
+          ranksPresent.foreach(r => result += ((colIndex, value)))
+
+          runningTotals.update(colIndex, total + count)
+        }
+    }
+
+    result.toIterator
+  }
+  //end::iterToIter[]
+}
