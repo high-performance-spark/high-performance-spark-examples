@@ -102,7 +102,7 @@ object HappyPanda {
     */
   def sadPandas(pandaInfo: DataFrame): DataFrame = {
     //tag::simpleFilter[]
-    pandaInfo.filter(!pandaInfo("happy"))
+    pandaInfo.filter(pandaInfo("happy") !== true)
     //end::simpleFilter[]
   }
 
