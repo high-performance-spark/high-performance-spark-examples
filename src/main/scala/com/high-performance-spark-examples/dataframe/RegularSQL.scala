@@ -3,19 +3,9 @@
  */
 package com.highperformancespark.examples.dataframe
 
-import org.apache.spark._
-import org.apache.spark.rdd._
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.expressions.aggregate._
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.expressions._
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.hive._
-import org.apache.spark.sql.hive.thriftserver._
 
 case class RegularSQL(sqlContext: SQLContext) {
-  import sqlContext.implicits._
 
   //tag::queryTable[]
   def querySQL(): DataFrame = {
