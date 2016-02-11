@@ -37,7 +37,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
     val inputDF = sqlContext.createDataFrame(pandaPlaces)
     val pandaInfo = sqlContext.createDataFrame(rawPandaList)
     val expectedDf = pandaInfo.select((pandaInfo("attributes")(0) / pandaInfo("attributes")(1)).as("murh"))
-    val result = HappyPanda.squishPandaFromPace(inputDF)
+    val result = HappyPandas.squishPandaFromPace(inputDF)
 
     approxEqualDataFrames(expectedDf, result, 1E-5)
   }
