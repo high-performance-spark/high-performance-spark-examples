@@ -256,7 +256,7 @@ object FindTargetsSubRoutine extends Serializable {
       val columnsInThisPart: List[Int] = targetsInThisPart.map(_._1).distinct
 
     //a HashMap with the running totals of each column index. As we loop through the iterator
-    // we will update the hashmap as we see elements of each column index.
+    //we will update the hashmap as we see elements of each column index.
       val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
       runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
@@ -267,6 +267,7 @@ object FindTargetsSubRoutine extends Serializable {
         case ((value, colIndex), count) =>
 
           if (columnsInThisPart contains colIndex) {
+
             val total = runningTotals(colIndex)
             //the ranks that are contains by this element of the input iterator.
             //get by filtering the
@@ -274,15 +275,15 @@ object FindTargetsSubRoutine extends Serializable {
                               .filter(index => (index <= count + total) && (index > total))
 
             ranksPresent.foreach(r => result += ((colIndex, value)))
-           //update the running totals.
+
+            //update the running totals.
             runningTotals.update(colIndex, total + count)
         }
       }
     //convert
-      result.toIterator
+    result.toIterator
   }
-    //end::notIter[]
-
+   //end::notIter[]
 
    //tag::iterToIter[]
   /**
@@ -296,16 +297,21 @@ object FindTargetsSubRoutine extends Serializable {
     val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 
     val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
-    runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+     runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+
+    //filter out the pairs that don't have a column index that is in this part
+    val pairsWithRanksInThisPart =  valueColumnPairsIter.filter{
+      case (((value, colIndex), count)) =>
+        columnsInThisPart contains colIndex
+     }
 
     //map the valueColumn pairs to a list of (colIndex, value) pairs that correspond to one of the
     //desired rank statistics on this partition.
-
-    valueColumnPairsIter.flatMap{
+    pairsWithRanksInThisPart.flatMap{
 
       case (((value, colIndex), count)) =>
 
-        if (columnsInThisPart contains colIndex) {
+       // if (columnsInThisPart contains colIndex) {
           val total = runningTotals(colIndex)
           val ranksPresent: List[Long] = columnsRelativeIndex(colIndex)
                                          .filter(index => (index <= count + total) && (index > total))
@@ -315,10 +321,6 @@ object FindTargetsSubRoutine extends Serializable {
           //update the running totals
           runningTotals.update(colIndex, total + count)
           nextElems
-        } else{
-          //if there is nothing here add an empty iterator to the flatMap
-          Iterator[(Int, Double)]()
-        }
     }
   }
   //end::iterToIter[]
