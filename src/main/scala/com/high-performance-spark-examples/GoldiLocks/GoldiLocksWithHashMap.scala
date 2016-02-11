@@ -311,7 +311,6 @@ object FindTargetsSubRoutine extends Serializable {
 
       case (((value, colIndex), count)) =>
 
-       // if (columnsInThisPart contains colIndex) {
           val total = runningTotals(colIndex)
           val ranksPresent: List[Long] = columnsRelativeIndex(colIndex)
                                          .filter(index => (index <= count + total) && (index > total))
