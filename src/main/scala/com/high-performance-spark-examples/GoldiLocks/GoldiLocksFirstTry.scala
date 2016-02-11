@@ -151,17 +151,17 @@ object GoldiLocksFirstTry {
     partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq) =>
       val relevantIndexList = new MutableList[(Int, Long)]()
 
-      columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  => {
+      columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  =>
         val runningTotalCol = runningTotal(colIndex)
         val ranksHere: List[Long] = targetRanks.filter(rank =>
-          (runningTotalCol < rank && runningTotalCol + colCount >= rank))
+          runningTotalCol < rank && runningTotalCol + colCount >= rank)
 
         // for each of the rank statistics present add this column index and the index it will be at
         // on this partition (the rank - the running total)
         relevantIndexList ++= ranksHere.map(rank => (colIndex, rank - runningTotalCol))
 
         runningTotal(colIndex) += colCount
-      }}
+      }
 
       (partitionIndex, relevantIndexList.toList)
     }
@@ -187,19 +187,21 @@ object GoldiLocksFirstTry {
         val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
         runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
-        val result : ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
-
-        valueColumnPairs.foreach{ case(value, colIndex) => {
-          if (runningTotals contains colIndex) {
-            val total = runningTotals(colIndex) + 1L
-            runningTotals.update(colIndex, total)
-
-            if (columnsRelativeIndex(colIndex).contains(total))
-              result += ((colIndex, value))
-          }
-        }}
-
-        result.toIterator
+        //filter this iterator, so that it contains only those (value, columnIndex) that are the ranks statistics on this partition
+        // I.e. Keep track of the number of elements we have seen for each columnIndex using the
+        // running total hashMap. Keep those pairs for which value is the nth element for that columnIndex that appears on this partition
+        // and the map contains (columnIndex, n).
+        valueColumnPairs.filter{
+          case(value, colIndex) =>
+            //rely on lazy evaluation. If we have already seen this column index, then evalute this
+            // block in which we increment the running totals and return if this element's count appears in the map.
+            lazy val thisPairIsTheRankStatistic: Boolean = {
+              val total = runningTotals(colIndex) + 1L
+              runningTotals.update(colIndex, total)
+              columnsRelativeIndex(colIndex).contains(total)
+            }
+             (runningTotals contains colIndex) && thisPairIsTheRankStatistic
+        }.map(_.swap)
       }
       else {
         Iterator.empty
