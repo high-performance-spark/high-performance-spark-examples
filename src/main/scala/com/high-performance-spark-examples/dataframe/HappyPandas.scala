@@ -5,7 +5,8 @@ package com.highperformancespark.examples.dataframe
 
 import org.apache.spark._
 //tag::sparkSQLImports[]
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.{DataFrame, SQLContext, Row}
+import org.apache.spark.sql.catalyst.expressions.aggregate._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
 //end::sparkSQLImports[]
