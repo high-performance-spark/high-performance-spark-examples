@@ -98,6 +98,21 @@ object HappyPanda {
   }
 
   /**
+   * Extra the panda info from panda places and compute the squisheness of the panda
+   */
+  def squishPandaFromPace(pandaPlace: DataFrame): DataFrame = {
+    //tag::selectExplode[]
+    val pandaInfo = pandaPlace.explode(pandaPlace("pandas")){
+      case Row(pandas: Seq[Row]) =>
+        pandas.map{
+          case Row(id: Long, zip: String, pt: String, happy: Boolean, attrs: Seq[Double]) =>
+            RawPanda(id, zip, pt, happy, attrs.toArray)
+        }}
+    pandaInfo.select((pandaInfo("attributes")(0) / pandaInfo("attributes")(1)).as("murh"))
+    //end::selectExplode[]
+  }
+
+  /**
     * Find pandas that are sad
     */
   def sadPandas(pandaInfo: DataFrame): DataFrame = {

@@ -31,6 +31,17 @@ class HappyPandasTest extends DataFrameSuiteBase {
                         Pandas("hanafy", "11000", 15, 7),
                         Pandas("hamdi", "11111", 20, 10))
 
+  val pandaPlaces = List(PandaPlace("toronto", rawPandaList.toArray))
+
+  test("simple explode test") {
+    val inputDF = sqlContext.createDataFrame(pandaPlaces)
+    val pandaInfo = sqlContext.createDataFrame(rawPandaList)
+    val expectedDf = pandaInfo.select((pandaInfo("attributes")(0) / pandaInfo("attributes")(1)).as("murh"))
+    val result = HappyPanda.squishPandaFromPace(inputDF)
+
+    approxEqualDataFrames(expectedDf, result, 1E-5)
+  }
+
   //tag::approxEqualDataFrames[]
 
   test("verify simple happy pandas Percentage") {
