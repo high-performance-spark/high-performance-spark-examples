@@ -10,8 +10,10 @@ import org.apache.spark.rdd.RDD
 object FilterInvalidPandas {
 
   def filterInvalidPandas(sc: SparkContext, invalidPandas: List[Long], input: RDD[RawPanda]) = {
+    //tag::broadcast[]
     val invalid = HashSet() ++ invalidPandas
     val invalidBroadcast = sc.broadcast(invalid)
     input.filter{panda => !invalidBroadcast.value.contains(panda.id)}
+    //end::broadcast[]
   }
 }
