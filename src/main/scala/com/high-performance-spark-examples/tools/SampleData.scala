@@ -43,13 +43,12 @@ object SampleData {
    * Custom random sample with RNG. This is intended as an example of how to save setup overhead.
    */
   def customSampleInput[T: ClassTag](rdd: RDD[T]): RDD[T] = {
-    rdd.mapPartitions{itr => val r = new Random()
-      itr.flatMap{x =>
-      if (r.nextInt(10) == 0) {
-        Some(x)
-      } else {
-        None
-      }}
+    //tag::mapPartitions[]
+    rdd.mapPartitions{itr =>
+      // Only create once RNG per partitions
+      val r = new Random()
+      itr.filter(x => r.nextInt(10) == 0)
     }
+    //end::mapPartitions[]
   }
 }
