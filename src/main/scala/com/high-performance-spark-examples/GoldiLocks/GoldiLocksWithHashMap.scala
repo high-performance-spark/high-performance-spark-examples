@@ -73,11 +73,11 @@ object GoldiLocksWithHashMap {
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
       val valueColumnMap = new mutable.HashMap[(Double, Int), Long]()
       rows.foreach(row => {
-        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) => {
+        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) =>
           val key = (value.toString.toDouble, columnIndex)
           val count = valueColumnMap.getOrElseUpdate(key, 0)
           valueColumnMap.update(key, count + 1)
-        }}
+        }
       })
 
       valueColumnMap.toIterator
@@ -179,7 +179,7 @@ object GoldiLocksWithHashMap {
       aggregatedValueColumnPairs : Iterator[((Double, Int), Long)]) => {
 
       val targetsInThisPart = ranksLocations(partitionIndex)._2
-      if (!targetsInThisPart.isEmpty) {
+      if (targetsInThisPart.nonEmpty) {
         val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
         val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 

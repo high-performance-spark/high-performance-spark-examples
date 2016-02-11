@@ -1,9 +1,7 @@
 import scala.util.Random
-import scala.reflect.{classTag, ClassTag}
+import scala.reflect.{ClassTag}
 
-import org.apache.spark._
 import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.random.RandomRDDs
 
 /**
  * Sample our production data to be able to use it for tests

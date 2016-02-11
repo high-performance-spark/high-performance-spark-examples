@@ -1,10 +1,10 @@
 package  com.highperformancespark.examples.goldilocks
 
-import org.apache.spark.{Partitioner, HashPartitioner}
-import org.apache.spark.rdd.RDD
-
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
+
+import org.apache.spark.{HashPartitioner, Partitioner}
+import org.apache.spark.rdd.RDD
 
 object SecondarySort {
 
@@ -31,11 +31,11 @@ object SecondarySort {
     it: Iterator[((K, S), V)]): Iterator[(K, List[(S, V)])] = {
     val res = List[(K, ArrayBuffer[(S, V)])]()
     it.foldLeft(res)((list, next) => list match {
-      case Nil => {
+      case Nil =>
         val ((firstKey, secondKey), value) = next
         List((firstKey, ArrayBuffer((secondKey, value))))
-      }
-      case head :: rest => {
+
+      case head :: rest =>
         val (curKey, valueBuf) = head
         val ((firstKey, secondKey), value) = next
         if (!firstKey.equals(curKey) ) {
@@ -44,7 +44,7 @@ object SecondarySort {
           valueBuf.append((secondKey, value))
           list
         }
-      }
+
     }).map { case (key, buf) => (key, buf.toList) }.iterator
   }
   //end::sortAndGroup[]

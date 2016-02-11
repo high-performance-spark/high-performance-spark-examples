@@ -1,13 +1,11 @@
 package com.highperformancespark.examples.goldilocks
 
+import scala.collection.{Map, mutable}
+import scala.collection.mutable.{ArrayBuffer, MutableList}
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.storage.StorageLevel
-
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.Map
-import scala.collection.mutable.MutableList
 
 object GoldiLocksGroupByKey {
   //tag::groupByKey[]
@@ -182,7 +180,7 @@ object GoldiLocksFirstTry {
 
     sortedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
       val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
-      if (!targetsInThisPart.isEmpty) {
+      if (targetsInThisPart.nonEmpty) {
         val columnsRelativeIndex: Map[Int, List[Long]] = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
         val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 
