@@ -4,6 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.storage.StorageLevel
 
+import scala.Predef
 import scala.collection.{mutable, Map}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.MutableList
@@ -73,11 +74,11 @@ object GoldiLocksWithHashMap {
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
       val valueColumnMap = new mutable.HashMap[(Double, Int), Long]()
       rows.foreach(row => {
-        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) =>
+        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) => {
           val key = (value.toString.toDouble, columnIndex)
           val count = valueColumnMap.getOrElseUpdate(key, 0)
           valueColumnMap.update(key, count + 1)
-        }
+        }}
       })
 
       valueColumnMap.toIterator
@@ -172,40 +173,23 @@ object GoldiLocksWithHashMap {
     *
     * @return returns RDD of the target ranks (column index, value)
     */
+  //tag::mapPartitionsExample[]
   private def findTargetRanksIteratively(sortedAggregatedValueColumnPairs : RDD[((Double, Int), Long)],
-                                         ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
+                                         ranksLocations : Array[(Int, List[(Int, Long)])]
+  ): RDD[(Int, Double)] = {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int,
       aggregatedValueColumnPairs : Iterator[((Double, Int), Long)]) => {
 
-      val targetsInThisPart = ranksLocations(partitionIndex)._2
-      if (targetsInThisPart.nonEmpty) {
-        val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
-        val columnsInThisPart = targetsInThisPart.map(_._1).distinct
-
-        val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
-        runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
-
-        val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
-
-        aggregatedValueColumnPairs.foreach { case ((value, colIndex), count) => {
-          if (columnsInThisPart contains colIndex) {
-            val total = runningTotals(colIndex)
-
-            val ranksPresent =  columnsRelativeIndex(colIndex)
-              .filter(index => (index <= count + total) && (index > total))
-            ranksPresent.foreach(r => result += ((colIndex, value)))
-
-            runningTotals.update(colIndex, total + count)
-          }
-        }}
-
-        result.toIterator
+      val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
+     if (!targetsInThisPart.isEmpty) {
+        FindTargetsSubRoutine.asIteratorToIteratorTransformation(aggregatedValueColumnPairs,
+          targetsInThisPart)
       }
       else Iterator.empty
     })
   }
-
+  //end::mapPartitionsExample[]
   /**
    * We will want to use this in some chapter where we talk about check pointing
    * @param valPairs
@@ -239,3 +223,104 @@ object GoldiLocksWithHashMap {
   }
 }
 //end::hashMap[]
+
+
+object FindTargetsSubRoutine extends Serializable {
+
+  //tag::notIter[]
+  /**
+    * This sub routine returns an Iterator of (columnIndex, value) that correspond to one of the
+    desired rank statistics on this partition.
+
+    Because in the original iterator, the pairs are distinct
+    and include the count, one row of the original iterator could map to multiple elements in the output.
+    I.e. if we were looking for the 2nd and 3rd element in column index 4 on this partition. And the head
+    of this partition is ((3249.0, 4), 23) (i.e. the element 3249.0 in the 4 th column appears 23 times),
+    then we would output (4, 3249.0) twice in the final iterator. Once because 3249.0 is the 2nd element and
+    once because it is the third element on that partition for that column index
+    and we are looking for both the second and third element.
+
+    * @param valueColumnPairsIter - passed in from the mapPartitions function. An iterator of the sorted
+    *                             ((value, columnIndex), count) tupples.
+    * @param targetsInThisPart - (columnIndex, index-on-partition pairs). In the above example this would
+    *                          include (4, 2) and (4,3) since we desire the 2nd element for column
+    *                          index 4 on this partition and the 3rd element.
+    * @return All of the rank statistics that live in this partition as an iterator of (columnIndex, value pairs)
+    */
+  def withArrayBuffer(valueColumnPairsIter : Iterator[((Double, Int), Long)],
+    targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
+
+      val columnsRelativeIndex: Predef.Map[Int, List[Long]] = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+
+    //the column indices of the pairs that are desired rank statistics that live in this partition.
+      val columnsInThisPart: List[Int] = targetsInThisPart.map(_._1).distinct
+
+    //a HashMap with the running totals of each column index. As we loop through the iterator
+    //we will update the hashmap as we see elements of each column index.
+      val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+      runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+
+    //we use an array buffer to build the resulting iterator
+      val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+
+      valueColumnPairsIter.foreach {
+        case ((value, colIndex), count) =>
+
+          if (columnsInThisPart contains colIndex) {
+
+            val total = runningTotals(colIndex)
+            //the ranks that are contains by this element of the input iterator.
+            //get by filtering the
+            val ranksPresent =  columnsRelativeIndex(colIndex)
+                              .filter(index => (index <= count + total) && (index > total))
+
+            ranksPresent.foreach(r => result += ((colIndex, value)))
+
+            //update the running totals.
+            runningTotals.update(colIndex, total + count)
+        }
+      }
+    //convert
+    result.toIterator
+  }
+   //end::notIter[]
+
+   //tag::iterToIter[]
+  /**
+    * Same function as above but rather than building the result from an array buffer we use
+    * a flatMap on the iterator to get the resulting iterator.
+    */
+  def asIteratorToIteratorTransformation(valueColumnPairsIter : Iterator[((Double, Int), Long)],
+    targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
+
+    val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+    val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+
+    val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+     runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+
+    //filter out the pairs that don't have a column index that is in this part
+    val pairsWithRanksInThisPart =  valueColumnPairsIter.filter{
+      case (((value, colIndex), count)) =>
+        columnsInThisPart contains colIndex
+     }
+
+    //map the valueColumn pairs to a list of (colIndex, value) pairs that correspond to one of the
+    //desired rank statistics on this partition.
+    pairsWithRanksInThisPart.flatMap{
+
+      case (((value, colIndex), count)) =>
+
+          val total = runningTotals(colIndex)
+          val ranksPresent: List[Long] = columnsRelativeIndex(colIndex)
+                                         .filter(index => (index <= count + total) && (index > total))
+
+          val nextElems: Iterator[(Int, Double)] = ranksPresent.map(r => (colIndex, value)).toIterator
+
+          //update the running totals
+          runningTotals.update(colIndex, total + count)
+          nextElems
+    }
+  }
+  //end::iterToIter[]
+}
