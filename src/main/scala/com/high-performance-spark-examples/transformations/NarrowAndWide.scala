@@ -8,7 +8,7 @@ object NarrowAndWide {
 
   //toDO: Probably should write some sort of test for this.
   //this is used in chapter 4 for the stage diagram
-  def sillySparkProgram( rdd1 : RDD[Int]) = {
+  def sillySparkProgram(rdd1 : RDD[Int]) = {
 
     //tag::narrowWide[]
 
@@ -23,14 +23,14 @@ object NarrowAndWide {
   //this is used in chapter two for the stage diagram.
 
   //tag::stageDiagram[]
-  def simpleSparkProgram( rdd : RDD[Double]): Long ={
-
+  def simpleSparkProgram(rdd : RDD[Double]): Long ={
+  //stage1
     rdd.filter(_< 1000.0)
       .map(x => (x , x) )
-
+  //stage2
       .groupByKey()
       .map{ case(value, groups) => (groups.sum, value)}
-
+  //stage 3
       .sortByKey()
       .count()
   }
