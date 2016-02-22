@@ -76,7 +76,7 @@ object HappyPanda {
 
   //tag::encodePandaType[]
   /**
-    * Encodes pandaType to Integer values instead of string values.
+    * Encodes pandaType to Integer values instead of String values.
     *
     * @param pandaInfo the input DataFrame
     * @return Returns a DataFrame of pandaId and integer value for pandaType.
