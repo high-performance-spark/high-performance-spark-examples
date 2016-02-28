@@ -64,6 +64,18 @@ class MixedDataset(sqlCtx: SQLContext) {
     ds.select($"attributes"(0).as[Double])
   }
 
+  /**
+   * Illustrate Dataset joins
+   */
+  def joinSample(pandas: Dataset[RawPanda], coffeeShops: Dataset[CoffeeShop]):
+      Dataset[(RawPanda, CoffeeShop)] = {
+    //tag::joinWith[]
+    val result: Dataset[(RawPanda, CoffeeShop)] = pandas.joinWith(coffeeShops,
+      $"zip" === $"zip")
+    //end::joinWith[]
+    result
+  }
+
   //tag::toRDDDF[]
   /**
    * Illustrate converting a Dataset to an RDD

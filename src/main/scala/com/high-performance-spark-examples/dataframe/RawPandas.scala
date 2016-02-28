@@ -13,3 +13,5 @@ case class RawPanda(id: Long, zip: String, pt: String, happy: Boolean, attribute
  * @param pandas pandas in that place
  */
 case class PandaPlace(name: String, pandas: Array[RawPanda])
+
+case class CoffeeShop(zip: String, name: String)
