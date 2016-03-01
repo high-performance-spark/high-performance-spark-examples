@@ -56,6 +56,21 @@ class MixedDataset(sqlCtx: SQLContext) {
   }
   //end::functionalQuery[]
 
+  //tag::maxPandaSizePerZip[]
+  def maxPandaSizePerZip(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
+    ds.groupBy($"zip").keyAs[String].agg(max("attributes(2)").as[Double])
+  }
+  //end::maxPandaSizePerZip[]
+
+  //tag::maxPandaSizePerZipScala[]
+  def maxPandaSizePerZipScala(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
+    ds.groupBy($"zip").keyAs[String].mapGroups{ case (g, iter) =>
+      (g, iter.map(_.attributes(2)).reduceLeft(Math.max(_, _)))
+    }
+  }
+  //end::maxPandaSizePerZipScala[]
+
+
   /**
    * Illustrate how we make typed queries, using some of the float properties to produce boolean
    * values.
