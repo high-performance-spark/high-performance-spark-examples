@@ -70,7 +70,6 @@ class MixedDataset(sqlCtx: SQLContext) {
   }
   //end::maxPandaSizePerZipScala[]
 
-
   /**
    * Illustrate how we make typed queries, using some of the float properties to produce boolean
    * values.
