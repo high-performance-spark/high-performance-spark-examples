@@ -95,7 +95,7 @@ class MixedDataset(sqlCtx: SQLContext) {
    */
   def selfJoin(pandas: Dataset[RawPanda]):
       Dataset[(RawPanda, RawPanda)] = {
-    //tag::slefJoin[]
+    //tag::selfJoin[]
     val result: Dataset[(RawPanda, RawPanda)] = pandas.joinWith(pandas,
       $"zip" === $"zip")
     //end::selfJoin[]
