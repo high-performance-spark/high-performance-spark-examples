@@ -155,6 +155,12 @@ object HappyPandas {
     */
   case class Pandas(name: String, zip: String, pandaSize: Integer, age: Integer)
 
+  def describePandas(pandas: DataFrame): DataFrame = {
+    //tag::pandaSizeRangeVarDescribe[]
+    pandas.describe()
+    //end::pandaSizeRangeVarDescribe[]
+  }
+
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(pandas: DataFrame): DataFrame = {
     pandas.groupBy(pandas("zip")).max("pandaSize")
