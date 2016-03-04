@@ -76,7 +76,7 @@ object HappyPandas {
 
   //tag::encodePandaType[]
   /**
-    * Encodes pandaType to Integer values instead of string values.
+    * Encodes pandaType to Integer values instead of String values.
     *
     * @param pandaInfo the input DataFrame
     * @return Returns a DataFrame of pandaId and integer value for pandaType.
@@ -154,6 +154,12 @@ object HappyPandas {
     * @param age age of panda
     */
   case class Pandas(name: String, zip: String, pandaSize: Integer, age: Integer)
+
+  def describePandas(pandas: DataFrame): DataFrame = {
+    //tag::pandaSizeRangeVarDescribe[]
+    pandas.describe()
+    //end::pandaSizeRangeVarDescribe[]
+  }
 
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(pandas: DataFrame): DataFrame = {
