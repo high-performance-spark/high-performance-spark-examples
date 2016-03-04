@@ -90,6 +90,19 @@ class MixedDataset(sqlCtx: SQLContext) {
     result
   }
 
+  /**
+   * Illustrate a self join to compare pandas in the same zip code
+   */
+  def selfJoin(pandas: Dataset[RawPanda]):
+      Dataset[(RawPanda, RawPanda)] = {
+    //tag::joinWith[]
+    val result: Dataset[(RawPanda, RawPanda)] = pandas.joinWith(pandas,
+      $"zip" === $"zip")
+    //end::joinWith[]
+    result
+  }
+
+
   //tag::toRDDDF[]
   /**
    * Illustrate converting a Dataset to an RDD
