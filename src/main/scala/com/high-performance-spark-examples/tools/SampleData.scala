@@ -1,9 +1,7 @@
 import scala.util.Random
-import scala.reflect.{classTag, ClassTag}
+import scala.reflect.{ClassTag}
 
-import org.apache.spark._
 import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.random.RandomRDDs
 
 /**
  * Sample our production data to be able to use it for tests
@@ -45,13 +43,12 @@ object SampleData {
    * Custom random sample with RNG. This is intended as an example of how to save setup overhead.
    */
   def customSampleInput[T: ClassTag](rdd: RDD[T]): RDD[T] = {
-    rdd.mapPartitions{itr => val r = new Random()
-      itr.flatMap{x =>
-      if (r.nextInt(10) == 0) {
-        Some(x)
-      } else {
-        None
-      }}
+    //tag::mapPartitions[]
+    rdd.mapPartitions{itr =>
+      // Only create once RNG per partitions
+      val r = new Random()
+      itr.filter(x => r.nextInt(10) == 0)
     }
+    //end::mapPartitions[]
   }
 }
