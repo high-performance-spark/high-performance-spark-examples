@@ -1,3 +1,5 @@
+package com.highperformancespark.examples.wordcount
+
 /**
  * What sort of big data book would this be if we didn't mention wordcount?
  */
@@ -20,4 +22,19 @@ object WordCount {
     val wordCounts = wordPairs.reduceByKey(_ + _)
     wordCounts
   }
+
+  /**
+    * Come up with word counts but filter out the illegal tokens and stop words
+    */
+  //tag::wordCountStopwords[]
+  def withStopWordsFiltered(rdd : RDD[String], illegalTokens : Array[Char],
+    stopWords : Set[String]): RDD[(String, Int)] = {
+    val tokens: RDD[String] = rdd.flatMap(_.split(illegalTokens ++ Array[Char](' ')).map(_.trim.toLowerCase))
+    val words = tokens.filter(token =>
+      !stopWords.contains(token) && (token.length > 0) )
+    val wordPairs = words.map((_, 1))
+    val wordCounts = wordPairs.reduceByKey(_ + _)
+    wordCounts
+  }
+  //end::wordCountStopwords[]
 }
