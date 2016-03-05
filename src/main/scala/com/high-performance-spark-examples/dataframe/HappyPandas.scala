@@ -255,4 +255,14 @@ object HappyPandas {
     df1.join(df2, df1("name") === df2("name"), "leftsemi")
     //end::leftsemiJoin[]
   }
+
+  // Self join
+  def selfJoin(df: DataFrame): DataFrame = {
+    val sqlCtx = df.sqlContext
+    import sqlCtx.implicits._
+    //tag::selfJoin[]
+    val joined = df.as("a").join(df.as("b")).where($"a.name" === $"b.name")
+    //end::selfJoin[]
+    joined
+  }
 }
