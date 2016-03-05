@@ -33,6 +33,15 @@ class HappyPandasTest extends DataFrameSuiteBase {
 
   val pandaPlaces = List(PandaPlace("toronto", rawPandaList.toArray))
 
+  test("simple self join test") {
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
+    val inputDF = sqlCtx.createDataFrame(pandasList)
+    val result = HappyPandas.selfJoin(inputDF).select($"a.name", $"b.name")
+    val rez = result.collect()
+    rez.foreach{x => assert(x(0) == x(1))}
+  }
+
   test("simple explode test") {
     val inputDF = sqlContext.createDataFrame(pandaPlaces)
     val pandaInfo = sqlContext.createDataFrame(rawPandaList)
