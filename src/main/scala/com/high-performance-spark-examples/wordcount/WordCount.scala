@@ -16,12 +16,14 @@ object WordCount {
   }
 
   // good idea: doesn't use group by key
-  def goodIdea(rdd: RDD[String]): RDD[(String, Int)] = {
+  //tag::simpleWordCount[]
+  def simpleWordCount(rdd: RDD[String]): RDD[(String, Int)] = {
     val words = rdd.flatMap(_.split(" "))
     val wordPairs = words.map((_, 1))
     val wordCounts = wordPairs.reduceByKey(_ + _)
     wordCounts
   }
+  //end::simpleWordCount
 
   /**
     * Come up with word counts but filter out the illegal tokens and stop words
