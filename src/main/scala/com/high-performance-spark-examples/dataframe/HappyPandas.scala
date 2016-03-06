@@ -4,6 +4,7 @@
 package com.highperformancespark.examples.dataframe
 
 import org.apache.spark._
+import org.apache.spark.rdd.RDD
 //tag::sparkSQLImports[]
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.catalyst.expressions.aggregate._
@@ -49,6 +50,14 @@ object HappyPandas {
     val rdd = sc.textFile(path)
     //tag::loadPandaJsonRDD[]
     val df3 = sqlCtx.read.json(rdd)
+    //end::loadPandaJSONRDD[]
+    df
+  }
+
+  def jsonLoadFromRDD(sc: SparkContext, sqlCtx: SQLContext, input: RDD[String]): DataFrame = {
+    //tag::loadPandaJSONRDD[]
+    val rdd: RDD[String] = input.filter(_.contains("panda"))
+    val df = sqlCtx.read.json(rdd)
     //end::loadPandaJSONRDD[]
     df
   }
