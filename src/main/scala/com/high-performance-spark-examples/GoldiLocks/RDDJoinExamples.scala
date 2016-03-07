@@ -22,8 +22,16 @@ object RDDJoinExamples {
    addressRDD : RDD[(Long, String )]) : RDD[(Long, (Double, String))]= {
      val joinedRDD = scoreRDD.join(addressRDD)
       joinedRDD.reduceByKey( (x, y) => if(x._1 > y._1) x else y )
- }
+  }
   //end::joinScoresWithAddress[]
+
+  //tag::leftOuterJoinScoresWithAddress[]
+  def outerJoinScoresWithAddress( scoreRDD : RDD[(Long, Double)],
+   addressRDD : RDD[(Long, String )]) : RDD[(Long, (Double, Option[String]))]= {
+     val joinedRDD = scoreRDD.leftOuterJoin(addressRDD)
+      joinedRDD.reduceByKey( (x, y) => if(x._1 > y._1) x else y )
+ }
+  //end::leftOuterJoinScoresWithAddress[]
 
   //tag::joinScoresWithAddressFast[]
   def joinScoresWithAddress2( scoreRDD : RDD[(Long, Double)],
