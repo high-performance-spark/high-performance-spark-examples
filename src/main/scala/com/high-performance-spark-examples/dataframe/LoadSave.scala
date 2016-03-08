@@ -62,6 +62,12 @@ case class LoadSave(sqlContext: SQLContext) {
   }
   //end::partitionedOutput[]
 
+  //tag::saveAppend[]
+  def writeAppend(input: DataFrame): Unit = {
+    input.write.mode(SaveMode.Append).save("output/")
+  }
+  //end::saveAppend[]
+
   def createJDBC() = {
     //tag::createJDBC[]
     sqlContext.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
