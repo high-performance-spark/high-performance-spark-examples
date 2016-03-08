@@ -47,7 +47,7 @@ object SimplePerfTest {
     val rddTimeings = 1.to(10).map(x => time(testOnRDD(pairRDD)))
     val groupTimeings = 1.to(10).map(x => time(groupOnRDD(pairRDD)))
     val df = inputRDD.toDF()
-    val inputDataFrame = df.select(df("zip").cast(IntegerType), df("attributes")(0).as("fuzzyness"))
+    val inputDataFrame = df.select(df("zip").cast(IntegerType), df("attributes")(0).as("fuzzyness").cast(DoubleType))
     inputDataFrame.cache()
     inputDataFrame.count()
     val dataFrameTimeings = 1.to(10).map(x => time(testOnDataFrame(inputDataFrame)))
