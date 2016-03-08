@@ -117,7 +117,9 @@ object HappyPandas {
           case Row(id: Long, zip: String, pt: String, happy: Boolean, attrs: Seq[Double]) =>
             RawPanda(id, zip, pt, happy, attrs.toArray)
         }}
-    pandaInfo.select((pandaInfo("attributes")(0) / pandaInfo("attributes")(1)).as("murh"))
+    pandaInfo.select(
+      (pandaInfo("attributes")(0) / pandaInfo("attributes")(1))
+        .as("squishyness"))
     //end::selectExplode[]
   }
 
