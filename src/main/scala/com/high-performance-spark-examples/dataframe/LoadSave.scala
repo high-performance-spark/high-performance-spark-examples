@@ -13,10 +13,10 @@ case class LoadSave(sqlContext: SQLContext) {
   import sqlContext.implicits._
   //tag::createFromRDD[]
   def createFromCaseClassRDD(input: RDD[PandaPlace]) = {
-    // Create DataFrame explicitly using sqlContext and schema inferance
+    // Create DataFrame explicitly using sqlContext and schema inference
     val df1 = sqlContext.createDataFrame(input)
 
-    // Create DataFrame using sqlContext implicits and schema inferance
+    // Create DataFrame using sqlContext implicits and schema inference
     val df2 = input.toDF()
 
     // Create a Row RDD from our RDD of case classes
