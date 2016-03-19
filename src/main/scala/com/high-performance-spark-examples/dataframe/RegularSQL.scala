@@ -16,7 +16,7 @@ case class RegularSQL(sqlContext: SQLContext) {
   // TODO: Holden: include a parquet example file and point this to that.
   //tag::queryRawFile[]
   def queryRawFile(): DataFrame = {
-    sqlContext.sql("SELECT * FROM parquet.`path_to_parquer_file`")
+    sqlContext.sql("SELECT * FROM parquet.`path_to_parquet_file`")
   }
   //end::queryRawFile[]
 
