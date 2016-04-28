@@ -13,6 +13,8 @@ apt:
       - gcc
       - binutils
       - python-pip
+r_packages:
+  - Imap
 before_install:
   - pip install --user codecov
 after_success:
