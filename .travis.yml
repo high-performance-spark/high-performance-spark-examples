@@ -4,7 +4,15 @@ cache:
   directories:
     - $HOME/.ivy2
 scala:
-   - 2.10.4
+   - 2.11.6
+apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gfortran
+      - gcc
+      - binutils
+      - python-pip
 before_install:
   - pip install --user codecov
 after_success:
