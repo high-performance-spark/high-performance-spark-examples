@@ -81,3 +81,7 @@ mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
 // JNI
 
 enablePlugins(JniNative)
+
+sourceDirectory in nativeCompile in Compile := sourceDirectory.value
+
+nativeLibraryPath in Compile := "com/highperformancespark/examples"

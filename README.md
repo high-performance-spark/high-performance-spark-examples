@@ -3,7 +3,7 @@ Examples for High Performance Spark
 
 # Building
 
-Most of the examples can be built with sbt, the C and Fortran components depend on gcc and g77 respectively.
+Most of the examples can be built with sbt, the C and Fortran components depend on gcc, g77, and cmake.
 
 # Tests
 
