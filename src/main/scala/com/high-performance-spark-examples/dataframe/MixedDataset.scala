@@ -102,6 +102,15 @@ class MixedDataset(sqlCtx: SQLContext) {
     result
   }
 
+  //tag::fromRDD[]
+  /**
+   * Illustrate converting an RDD to DS
+   */
+  def fromRDD(rdd: RDD[RawPanda]): Dataset[RawPanda] = {
+    rdd.toDS
+  }
+
+  //end::fromRDD[]
 
   //tag::toRDDDF[]
   /**
