@@ -10,7 +10,7 @@ project (high-performance-spark)
 set (VERSION_MAJOR 0)
 set (VERSION_MINOR 1)
 set (VERSION_PATCH 0)
-set (LIB_NAME flow${VERSION_MAJOR})
+set (LIB_NAME highPerformanceSpark${VERSION_MAJOR})
 
 # Command-line options
 #
