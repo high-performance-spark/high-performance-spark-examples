@@ -4,10 +4,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.storage.StorageLevel
 
-import scala.Predef
-import scala.collection.{mutable, Map}
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.MutableList
+import scala.collection.{Map, mutable}
 
 //tag::hashMap[]
 object GoldiLocksWithHashMap {
@@ -71,14 +69,15 @@ object GoldiLocksWithHashMap {
    * @return returns RDD of ((value, column index), count)
    */
   def getAggregatedValueColumnPairs(dataFrame : DataFrame) : RDD[((Double, Int), Long)] = {
+
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
       val valueColumnMap = new mutable.HashMap[(Double, Int), Long]()
       rows.foreach(row => {
-        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) => {
+        row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) =>
           val key = (value.toString.toDouble, columnIndex)
           val count = valueColumnMap.getOrElseUpdate(key, 0)
           valueColumnMap.update(key, count + 1)
-        }}
+        }
       })
 
       valueColumnMap.toIterator
@@ -148,21 +147,21 @@ object GoldiLocksWithHashMap {
 
     val runningTotal = Array.fill[Long](numOfColumns)(0)
 
-    partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq)=> {
-      val relevantIndexList = new MutableList[(Int, Long)]()
+    partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq)=>
+      val relevantIndexList = new mutable.MutableList[(Int, Long)]()
 
-      columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  => {
+      columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  =>
         val runningTotalCol = runningTotal(colIndex)
 
         val ranksHere: List[Long] = targetRanks.filter(rank =>
-          (runningTotalCol < rank && runningTotalCol + colCount >= rank))
+          runningTotalCol < rank && runningTotalCol + colCount >= rank)
         relevantIndexList ++= ranksHere.map(rank => (colIndex, rank - runningTotalCol))
 
         runningTotal(colIndex) += colCount
-      }}
+      }
 
       (partitionIndex, relevantIndexList.toList)
-    }}
+    }
   }
 
   /**
@@ -182,7 +181,7 @@ object GoldiLocksWithHashMap {
       aggregatedValueColumnPairs : Iterator[((Double, Int), Long)]) => {
 
       val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
-     if (!targetsInThisPart.isEmpty) {
+     if (targetsInThisPart.nonEmpty) {
         FindTargetsSubRoutine.asIteratorToIteratorTransformation(aggregatedValueColumnPairs,
           targetsInThisPart)
       }
@@ -192,12 +191,14 @@ object GoldiLocksWithHashMap {
   //end::mapPartitionsExample[]
   /**
    * We will want to use this in some chapter where we talk about check pointing
-   * @param valPairs
-   * @param colIndexList
-   * @param targetRanks
-   * @param storageLevel
-   * @param checkPoint
-   * @param directory
+   * @param valPairs - pairs with ((cell value, columnIndex), frequency). I.e. if in the 2nd column
+    *                 there are four instance of the value 0.5. One of these pairs would be ((0.5, 3), 4)
+   * @param colIndexList - a list of the indices of the parameters to find rank statistics for
+   * @param targetRanks - the desired rank statistics if we used List(25, 50, 75) we would be finding the 25th,
+    *                    50th and 75th element in each column specified by the colIndexList
+   * @param storageLevel The storage level to persist between sort and map partitions
+   * @param checkPoint true if we should checkpoint, false otherwise.
+   * @param directory- the directory to checkpoint in (must be a location on Hdfs)
    * @return
    */
   def findQuantilesWithCustomStorage(valPairs: RDD[((Double, Int), Long)],
