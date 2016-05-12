@@ -213,8 +213,10 @@ object GoldiLocksWithHashMap {
       sorted.persist(storageLevel)
 
     if (checkPoint) {
+      //tag::checkpointExample[]
       sorted.sparkContext.setCheckpointDir(directory)
       sorted.checkpoint()
+      //end::checkpointExample[]
     }
 
     val partitionColumnsFreq = getColumnsFreqPerPartition(sorted, n)
