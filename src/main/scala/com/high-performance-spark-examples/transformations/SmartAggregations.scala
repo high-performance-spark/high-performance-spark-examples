@@ -160,7 +160,7 @@ object MetricsCalculator_Arrays extends Serializable {
 object CollectionRoutines{
 
   //tag::implicitExample[]
-  def findWordMetrics[T <:Traversable[String]](collection : T ): (Int, Int)={
+  def findWordMetrics[T <:Seq[String]](collection : T ): (Int, Int)={
     val iterator = collection.toIterator
     var mentionsOfHappy = 0
     var longestWordSoFar = 0
@@ -185,7 +185,7 @@ object CollectionRoutines{
   val happyMentionsIndex =2
   val numberReportCardsIndex = 3
   def fasterSeqOp(reportCardMetrics : Array[Int], content  : String): Array[Int] = {
-    val words = content.split(" ")
+    val words: Seq[String] = content.split(" ")
     val (longestWord, happyMentions) = CollectionRoutines.findWordMetrics(words) //words is
     reportCardMetrics(totalWordIndex) += words.length
     reportCardMetrics(longestWordIndex) = longestWord
