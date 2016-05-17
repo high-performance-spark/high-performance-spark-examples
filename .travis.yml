@@ -4,10 +4,11 @@ cache:
   directories:
     - $HOME/.ivy2
     - $HOME/spark
+    - $HOME/.cache/pip
 scala:
    - 2.10.4
 before_install:
-  - pip install --user codecov unittest2
+  - pip install --user codecov unittest2 nose pep8 pylint scipy pandas
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt compile test
