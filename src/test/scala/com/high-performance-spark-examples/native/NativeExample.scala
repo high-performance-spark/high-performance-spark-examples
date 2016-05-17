@@ -29,7 +29,7 @@ class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers 
   }
 
   test("native call should find sum correctly") {
-    val property = forAll(RDDGenerator.genRDD[(String, Array[Int])](sc)) {
+    val property = forAll(RDDGenerator.genRDD(sc)(Arbitrary.arbitrary[(String, Array[Int])])) {
       rdd => rdd.mapValues(_.sum).collect() === NativeExample.jniSum(rdd)
     }
     //check(property)
