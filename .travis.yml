@@ -3,10 +3,19 @@ sudo: false
 cache:
   directories:
     - $HOME/.ivy2
+    - $HOME/spark
 scala:
    - 2.10.4
 before_install:
-  - pip install --user codecov
+  - pip install --user codecov unittest2
+script:
+  - "export SPARK_CONF_DIR=./log4j/"
+  - sbt compile test
+  - "[ -f spark] || mkdir spark && wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.1-bin-hadoop2.6.tgz && cd .."
+  - "tar -xvf ./spark/spark-1.6.1-bin-hadoop2.6.tgz"
+  - "export SPARK_HOME=`pwd`/spark-1.6.1-bin-hadoop2.6/"
+  - "export PYTHONPATH=$SPARK_HOME/python:`ls -1 $SPARK_HOME/python/lib/py4j-*-src.zip`:$PYTHONPATH"
+  - "nosetests --with-doctest --doctest-options=+ELLIPSIS --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov"
 after_success:
 # For now no coverage report
   - codecov
