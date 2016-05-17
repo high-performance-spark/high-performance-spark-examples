@@ -1,3 +1,10 @@
+################################################################
+# A minimal CMake file that is compatible with sbt-jni         #
+#                                                              #
+# All settings required by sbt-jni have been marked so, please #
+# add/modify/remove settings to build your specific library.   #
+################################################################
+
 cmake_minimum_required(VERSION 2.6)
 
 # Define project and related variables
@@ -5,19 +12,20 @@ cmake_minimum_required(VERSION 2.6)
 project (high-performance-spark)
 
 # Set versions and library name
-# Note: major version will be appended to library name
+# (required by sbt-jni) please use semantic versioning
 #
 set (VERSION_MAJOR 0)
-set (VERSION_MINOR 1)
+set (VERSION_MINOR 0)
 set (VERSION_PATCH 0)
-set (LIB_NAME highPerformanceSpark${VERSION_MAJOR})
+# (required by sbt-jni) major version will always be appended to library name
+set (LIB_NAME ${CMAKE_PROJECT_NAME}${VERSION_MAJOR})
 
 # Command-line options
 #
-# required by sbt-jni to install binaries to correct places
-set (LIB_INSTALL_DIR lib CACHE PATH "Path in which to install libraries (Autoconf equivalent to --libdir).")
-# required by sbt-jni to disable versioned libraries
-set (ENABLE_VERSIONED_LIB ON CACHE BOOLEAN "Generate versioned library files and symlinks.")
+# (set by sbt-jni)
+set (LIB_INSTALL_DIR lib CACHE PATH "Path in which to install libraries (equivalent to Autoconf --libdir).")
+# (set by sbt-jni)
+set (LIB_ENABLE_MINOR_VERSIONS ON CACHE BOOLEAN "Build libraries with minor and patch versions appended.")
 
 # Setup JNI
 find_package(JNI REQUIRED)
@@ -26,20 +34,31 @@ if (JNI_FOUND)
 endif()
 
 # Include directories
+include_directories(.)
+include_directories(./main/c)
 include_directories(include)
 include_directories(${JNI_INCLUDE_DIRS})
 
 # Setup main shared library
-# Note: major version is appended to library name
-add_library(${LIB_NAME} SHARED main/c/sum.c main/c/sum_wrapper.c)
-if (ENABLE_VERSIONED_LIB)
+file(GLOB LIB_SRC
+  "*.c"
+  "*.cpp"
+  "./main/c/*.c"
+  "./main/c/*.cpp"
+)
+add_library(${LIB_NAME} SHARED ${LIB_SRC})
+
+# By default, in a regular build, minor and patch versions are added to the generated files.
+# When built through sbt-jni however, LIB_ENABLE_MINOR_VERSIONS is deactivated and only a
+# major-versioned library file is built.
+if (LIB_ENABLE_MINOR_VERSIONS)
    set_target_properties(
 	${LIB_NAME}
 	PROPERTIES
-	VERSION 0.${VERSION_MINOR}.${VERSION_PATCH} # major version always 0, it is included in name
+	VERSION 0.${VERSION_MINOR}.${VERSION_PATCH} # major version always 0, it is included in library name
 	SOVERSION 0
    )
 endif()
 
 # Installation targets
-install(TARGETS ${LIB_NAME} LIBRARY DESTINATION ${LIB_INSTALL_DIR}) 
+install(TARGETS ${LIB_NAME} LIBRARY DESTINATION ${LIB_INSTALL_DIR})
