@@ -1,5 +1,8 @@
 language: scala
 sudo: false
+apt:
+  - pandas
+  - numpy
 cache:
   directories:
     - $HOME/.ivy2
@@ -8,7 +11,7 @@ cache:
 scala:
    - 2.10.4
 before_install:
-  - pip install --user codecov unittest2 nose pep8 pylint scipy pandas
+  - pip install --user codecov unittest2 nose pep8 pylint --download-cache $HOME/.pip-cache
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt compile test
