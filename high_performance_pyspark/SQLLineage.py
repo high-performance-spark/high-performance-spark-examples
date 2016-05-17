@@ -28,7 +28,10 @@ def cutLineage(df):
     jSchema = df._jdf.schema()
     jRDD.cache()
     sqlCtx = df.sql_ctx
-    javaSqlCtx = sqlCtx._jsqlContext
+    try:
+        javaSqlCtx = sqlCtx._jsqlContext
+    except:
+        javaSqlCtx = sqlCtx._ssql_ctx
     newJavaDF = javaSqlCtx.createDataFrame(jRDD, jSchema)
     newDF = DataFrame(newJavaDF, sqlCtx)
     return newDF
