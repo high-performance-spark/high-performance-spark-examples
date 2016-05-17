@@ -6,16 +6,17 @@ publishMavenStyle := true
 
 version := "0.0.1"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.6"
 
-crossScalaVersions := Seq("2.10.4", "2.11.6")
+crossScalaVersions := Seq("2.11.6")
 
 javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
-sparkVersion := "1.6.0"
+sparkVersion := "1.6.1"
 
 //tag::sparkComponents[]
-sparkComponents ++= Seq("core", "streaming", "hive-thriftserver", "mllib")
+// TODO(Holden): re-add hive-thriftserver post Spark 2.0
+sparkComponents ++= Seq("core", "streaming", "mllib")
 //end::sparkComponents[]
 //tag::addSQLHiveComponent[]
 sparkComponents ++= Seq("sql", "hive")
@@ -33,10 +34,12 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.4",
   "junit" % "junit" % "4.10",
+  // Temporary hack until Spark 2.0
+  "org.apache.spark" % "spark-hive-thriftserver_2.10" % "1.6.1" intransitive(),
   //tag::sparkCSV[]
   "com.databricks" % "spark-csv_2.10" % "1.3.0",
   //end::sparkCSV[]
-  "com.holdenkarau" % "spark-testing-base_2.10" % "1.5.1_0.2.1",
+  "com.holdenkarau" % "spark-testing-base_2.11" % "1.6.1_0.3.2",
   "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
   "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
   "com.novocode" % "junit-interface" % "0.10" % "test->default")
@@ -59,7 +62,9 @@ resolvers ++= Seq(
   "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
   "Second Typesafe repo" at "http://repo.typesafe.com/typesafe/maven-releases/",
   "Mesosphere Public Repository" at "http://downloads.mesosphere.io/maven",
-  Resolver.sonatypeRepo("public")
+  Resolver.sonatypeRepo("public"),
+  Resolver.bintrayRepo("jodersky", "sbt-jni-macros"),
+  "jodersky" at "https://dl.bintray.com/jodersky/maven/"
 )
 
 licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -82,6 +87,4 @@ mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
 
 enablePlugins(JniNative)
 
-sourceDirectory in nativeCompile in Compile := sourceDirectory.value
-
-nativeLibraryPath in Compile := "com/highperformancespark/examples"
+sourceDirectory in nativeCompile := sourceDirectory.value
