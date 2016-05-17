@@ -20,8 +20,7 @@ class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers 
     result === expected
   }
 
-  //  test("super simple test") {
-  def magic() {
+  test("super simple test") {
     val input = sc.parallelize(List(("hi", Array(1, 2, 3))))
     val result = NativeExample.jniSum(input).collect()
     val expected = List(("hi", 6))
@@ -29,9 +28,12 @@ class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers 
   }
 
   test("native call should find sum correctly") {
-    val property = forAll(RDDGenerator.genRDD(sc)(Arbitrary.arbitrary[(String, Array[Int])])) {
-      rdd => rdd.mapValues(_.sum).collect() === NativeExample.jniSum(rdd)
+    val property = forAll(RDDGenerator.genRDD[(String, Array[Int])](sc)(Arbitrary.arbitrary[(String, Array[Int])])) {
+      rdd =>
+        val expected = rdd.mapValues(_.sum)
+        val result = NativeExample.jniSum(rdd)
+        RDDComparisons.compareWithOrder(expected, result).isEmpty
     }
-    //check(property)
+    check(property)
   }
 }
