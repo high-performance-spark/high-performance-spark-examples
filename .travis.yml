@@ -8,6 +8,7 @@ cache:
     - $HOME/.ivy2
     - $HOME/spark
     - $HOME/.cache/pip
+    - $HOME/.sbt/launchers
 scala:
    - 2.10.4
 before_install:
