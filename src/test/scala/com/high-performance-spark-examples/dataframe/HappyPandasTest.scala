@@ -48,7 +48,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
     val expectedDf = pandaInfo.select((pandaInfo("attributes")(0) / pandaInfo("attributes")(1)).as("squishyness"))
     val result = HappyPandas.squishPandaFromPace(inputDF)
 
-    approxEqualDataFrames(expectedDf, result, 1E-5)
+    assertDataFrameApproximateEquals(expectedDf, result, 1E-5)
   }
 
   //tag::approxEqualDataFrames[]
@@ -61,7 +61,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
     val inputDF = sqlContext.createDataFrame(pandaInfoList)
     val result = HappyPandas.happyPandasPercentage(inputDF)
 
-    approxEqualDataFrames(expectedDf, result, 1E-5)
+    assertDataFrameApproximateEquals(expectedDf, result, 1E-5)
   }
   //end::approxEqualDataFrames[]
 
@@ -89,7 +89,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
     val expectedDF = createDF3(expectedRows, ("id", LongType, false),
                                              ("encodedType", IntegerType, false))
 
-    equalDataFrames(expectedDF, resultDF)
+    assertDataFrameEquals(expectedDF, resultDF)
   }
 
   //tag::exactEqualDataFrames[]
@@ -112,7 +112,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
                             PandaInfo(sandiego, "red", 2, 3))
     val expectedDF = sqlContext.createDataFrame(expectedRows)
 
-    equalDataFrames(expectedDF, resultDF)
+    assertDataFrameEquals(expectedDF, resultDF)
   }
 
   test("test maxPandaSizePerZip") {
@@ -125,7 +125,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
     val expectedDF = createDF(expectedRows, ("zip", StringType),
                                             ("max(pandaSize)", IntegerType))
 
-    equalDataFrames(expectedDF.orderBy("zip"), resultDF.orderBy("zip"))
+    assertDataFrameEquals(expectedDF.orderBy("zip"), resultDF.orderBy("zip"))
   }
 
   test("test minMaxPandaSizePerZip"){
@@ -141,7 +141,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
                                             ("min(pandaSize)", IntegerType),
                                             ("max(pandaSize)", IntegerType))
 
-    equalDataFrames(expectedDF.orderBy("zip"), resultDF.orderBy("zip"))
+    assertDataFrameEquals(expectedDF.orderBy("zip"), resultDF.orderBy("zip"))
   }
 
   test("test minPandaSizeMaxAgePerZip") {
@@ -157,7 +157,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
                                             ("min(pandaSize)", IntegerType),
                                             ("max(age)", IntegerType))
 
-    equalDataFrames(expectedDF.orderBy("zip"), resultDF.orderBy("zip"))
+    assertDataFrameEquals(expectedDF.orderBy("zip"), resultDF.orderBy("zip"))
   }
 
   test("test complexAggPerZip") {
@@ -173,7 +173,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
                                             ("min(pandaSize)", IntegerType),
                                             ("avg(pandaSize)", DoubleType))
 
-    approxEqualDataFrames(expectedDF.orderBy("zip"), resultDF.orderBy("zip"), 1e-5)
+    assertDataFrameApproximateEquals(expectedDF.orderBy("zip"), resultDF.orderBy("zip"), 1e-5)
   }
 
 
@@ -184,7 +184,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
     val expectedRows = List(pandasList(0), pandasList(2))
     val expectedDF = sqlContext.createDataFrame(expectedRows)
 
-    equalDataFrames(expectedDF, resultDF)
+    assertDataFrameEquals(expectedDF, resultDF)
   }
 
   test("test Order Pandas") {
@@ -195,7 +195,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
                             pandasList(4), pandasList(1))
     val expectedDF = sqlContext.createDataFrame(expectedRows)
 
-    equalDataFrames(expectedDF, resultDF)
+    assertDataFrameEquals(expectedDF, resultDF)
   }
 
 
@@ -207,7 +207,7 @@ class HappyPandasTest extends DataFrameSuiteBase {
 
     val expectedDF = getExpectedPandasRelativeSize(inputPandaList, -10, 10)
 
-    approxEqualDataFrames(expectedDF.orderBy("name"), resultDF.orderBy("name"), 1e-5)
+    assertDataFrameApproximateEquals(expectedDF.orderBy("name"), resultDF.orderBy("name"), 1e-5)
   }
 
   private def getExpectedPandasRelativeSize(pandaList: List[Pandas], start: Int, end: Int):DataFrame = {
