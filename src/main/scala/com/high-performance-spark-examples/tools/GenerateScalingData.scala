@@ -4,6 +4,7 @@ import com.highperformancespark.examples.dataframe.RawPanda
 
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 import org.apache.spark.mllib.random.RandomRDDs
 import org.apache.spark.mllib.linalg.Vector
 
@@ -31,6 +32,20 @@ object GenerateScalingData {
       }
     }.map{case (k, z, v) =>
       RawPanda(k, z, "giant", v(0) > 0.5, v.toArray)}
+  }
+
+  /**
+   * Transform it down to just the data used for the benchmark
+   */
+  def generateMiniScale(sc: SparkContext, rows: Long, numCols: Int): RDD[(Int, Double)] = {
+    generateFullGoldilocks(sc, rows, numCols).map(p => (p.zip.toInt, p.attributes(0)))
+  }
+
+    /**
+   * Transform it down to just the data used for the benchmark
+   */
+  def generateMiniScaleRows(sc: SparkContext, rows: Long, numCols: Int): RDD[Row] = {
+    generateMiniScale(sc, rows, numCols).map{case (zip, fuzzy) => Row(zip, fuzzy)}
   }
 
   // tag::MAGIC_PANDA[]
