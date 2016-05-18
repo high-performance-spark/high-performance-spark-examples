@@ -267,6 +267,18 @@ object HappyPandas {
     //end::leftsemiJoin[]
   }
 
+  /**
+   * Cut the lineage of a DataFrame which has too long a query plan.
+   */
+  def cutLineage(df: DataFrame): DataFrame = {
+    val sqlCtx = df.sqlContext
+    //tag::cutLineage[]
+    val rdd = df.rdd
+    rdd.cache()
+    sqlCtx.createDataFrame(rdd, df.schema)
+    //end::cutLineage[]
+  }
+
   // Self join
   def selfJoin(df: DataFrame): DataFrame = {
     val sqlCtx = df.sqlContext
