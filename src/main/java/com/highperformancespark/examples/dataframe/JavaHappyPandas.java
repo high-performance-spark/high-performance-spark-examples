@@ -12,9 +12,7 @@ import org.apache.spark.sql.expressions.WindowSpec;
 import org.apache.spark.sql.hive.HiveContext;
 import org.apache.spark.sql.hive.thriftserver.HiveThriftServer2;
 import scala.collection.JavaConversions;
-import scala.collection.Seq;
 import scala.collection.mutable.Buffer;
-import scala.reflect.ClassTag$;
 import scala.reflect.api.TypeTags;
 
 import java.util.Arrays;
@@ -22,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import scala.reflect.runtime.*;
 
 import static org.apache.spark.sql.functions.*;
 
@@ -254,112 +250,6 @@ public class JavaHappyPandas {
 
   public DataFrame selfJoin(DataFrame df) {
     return df.as("a").join(df.as("b")).where(df.col("name").equalTo(df.col("name")));
-  }
-
-  class JavaPandaInfo {
-    private String place;
-    private String pandaType;
-    private int happyPandas;
-    private int totalPandas;
-
-    /**
-     * @param place       name of place
-     * @param pandaType   type of pandas in this place
-     * @param happyPandas number of happy pandas in this place
-     * @param totalPandas total number of pandas in this place
-     */
-    public JavaPandaInfo(String place, String pandaType, int happyPandas, int totalPandas) {
-      this.place = place;
-      this.pandaType = pandaType;
-      this.happyPandas = happyPandas;
-      this.totalPandas = totalPandas;
-    }
-
-    public String getPlace() {
-      return place;
-    }
-
-    public void setPlace(String place) {
-      this.place = place;
-    }
-
-    public String getPandaType() {
-      return pandaType;
-    }
-
-    public void setPandaType(String pandaType) {
-      this.pandaType = pandaType;
-    }
-
-    public int getHappyPandas() {
-      return happyPandas;
-    }
-
-    public void setHappyPandas(int happyPandas) {
-      this.happyPandas = happyPandas;
-    }
-
-    public int getTotalPandas() {
-      return totalPandas;
-    }
-
-    public void setTotalPandas(int totalPandas) {
-      this.totalPandas = totalPandas;
-    }
-
-  }
-
-  class JavaPandas {
-    private String name;
-    private String zip;
-    private int pandaSize;
-    private int age;
-
-    /**
-     * @param name name of panda
-     * @param zip zip code
-     * @param pandaSize size of panda in KG
-     * @param age age of panda
-     */
-    public JavaPandas(String name, String zip, int pandaSize, int age) {
-      this.name = name;
-      this.zip = zip;
-      this.pandaSize = pandaSize;
-      this.age = age;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public String getZip() {
-      return zip;
-    }
-
-    public void setZip(String zip) {
-      this.zip = zip;
-    }
-
-    public int getPandaSize() {
-      return pandaSize;
-    }
-
-    public void setPandaSize(int pandaSize) {
-      this.pandaSize = pandaSize;
-    }
-
-    public int getAge() {
-      return age;
-    }
-
-    public void setAge(int age) {
-      this.age = age;
-    }
-
   }
 
 }
