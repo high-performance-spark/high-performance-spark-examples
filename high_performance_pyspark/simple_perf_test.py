@@ -7,6 +7,7 @@
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
 import timeit
+import time
 
 def generate_scale_data(sqlCtx, rows, numCols):
     """
@@ -16,7 +17,7 @@ def generate_scale_data(sqlCtx, rows, numCols):
 
     .. Note: This depends on many internal methods and may break between versions.
     """
-    sc = sqlCtx._csc
+    sc = sqlCtx._sc
     # Get the SQL Context, 2.0 and pre-2.0 syntax
     try:
         javaSqlCtx = sqlCtx._jsqlContext
@@ -51,7 +52,7 @@ def testOnDF(df):
 
 def testOnRDD(rdd):
     result = rdd.map(lambda (x, y): (x, (y, 1))). \
-             reduceByKey(lambda (x, y): (x[0] + y [0], x[1] + y[1])). \
+             reduceByKey(lambda x, y: (x[0] + y [0], x[1] + y[1])). \
              count()
     return result
 
@@ -61,10 +62,10 @@ def groupOnRDD(rdd):
 def run(sc, sqlCtx, scalingFactor, size):
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
-    rddTimeings = timeit.repeat(stmt=lambda: testOnRDD(input_rdd), repeat=10, number=1)
-    groupTimeings = timeit.repeat(stmt=lambda: groupOnRDD(input_rdd), repeat=10, number=1)
+    rddTimeings = timeit.repeat(stmt=lambda: testOnRDD(input_rdd), repeat=10, number=1, timer=time.time)
+    groupTimeings = timeit.repeat(stmt=lambda: groupOnRDD(input_rdd), repeat=10, number=1, timer=time.time)
     input_df.cache().count()
-    dfTimeings = timeit.repeat(stmt=lambda: testOnRDF(input_df), repeat=10, number=1)
+    dfTimeings = timeit.repeat(stmt=lambda: testOnDF(input_df), repeat=10, number=1, timer=time.time)
     print "RDD:"
     print rddTimeings
     print "group:"
@@ -78,6 +79,9 @@ if __name__ == "__main__":
     """
     Usage: simple_perf_test scalingFactor size
     """
+    import sys
+    from pyspark import SparkContext
+    from pyspark.sql import SQLContext
     scalingFactor = int(sys.argv[1])
     size = int(sys.argv[2])
     sc = SparkContext(appName="SimplePythonPerf")
