@@ -8,7 +8,6 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.expressions.Window;
 import org.apache.spark.sql.expressions.WindowSpec;
 import org.apache.spark.sql.hive.HiveContext;
-import org.apache.spark.sql.hive.thriftserver.HiveThriftServer2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -153,11 +152,6 @@ public class JavaHappyPandas {
 
     DataFrame miniPandas = sqlContext.sql("SELECT * FROM pandas WHERE pandaSize < 12");
     return miniPandas;
-  }
-
-  public void startJDBCServer(HiveContext sqlContext) {
-    sqlContext.setConf("hive.server2.thrift.port", "9090");
-    HiveThriftServer2.startWithContext(sqlContext);
   }
 
   /**
