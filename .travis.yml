@@ -11,6 +11,8 @@ cache:
     - $HOME/.sbt/launchers
 scala:
    - 2.11.6
+jdk:
+  - oraclejdk8
 apt:
     sources:
       - ubuntu-toolchain-r-test
