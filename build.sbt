@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.4",
   "junit" % "junit" % "4.10",
   // Temporary hack until Spark 2.0
-  "org.apache.spark" % "spark-hive-thriftserver_2.10" % "1.6.1" intransitive(),
+  "org.apache.spark" % "spark-hive-thriftserver_2.10" % "1.6.1" % "provided" intransitive(),
   //tag::sparkCSV[]
   "com.databricks" % "spark-csv_2.10" % "1.3.0",
   //end::sparkCSV[]
