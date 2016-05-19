@@ -62,10 +62,10 @@ def groupOnRDD(rdd):
 def run(sc, sqlCtx, scalingFactor, size):
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
-    rddTimeings = timeit.repeat(stmt=lambda: testOnRDD(input_rdd), repeat=10, number=1, timer=time.time)
-    groupTimeings = timeit.repeat(stmt=lambda: groupOnRDD(input_rdd), repeat=10, number=1, timer=time.time)
+    rddTimeings = timeit.repeat(stmt=lambda: testOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
+    groupTimeings = timeit.repeat(stmt=lambda: groupOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
     input_df.cache().count()
-    dfTimeings = timeit.repeat(stmt=lambda: testOnDF(input_df), repeat=10, number=1, timer=time.time)
+    dfTimeings = timeit.repeat(stmt=lambda: testOnDF(input_df), repeat=10, number=1, timer=time.time, setup='gc.enable()')
     print "RDD:"
     print rddTimeings
     print "group:"
