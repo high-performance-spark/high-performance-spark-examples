@@ -46,11 +46,11 @@ def generate_scale_data(sqlCtx, rows, numCols):
     pairRDD = python_dataframe.rdd.map(lambda row: (row[0], row[1]))
     return (python_dataframe, pairRDD)
 
-def testOnDF(df):
+def runOnDF(df):
     result = df.groupBy("zip").avg("fuzzyness").count()
     return result
 
-def testOnRDD(rdd):
+def runOnRDD(rdd):
     result = rdd.map(lambda (x, y): (x, (y, 1))). \
              reduceByKey(lambda x, y: (x[0] + y [0], x[1] + y[1])). \
              count()
@@ -62,10 +62,10 @@ def groupOnRDD(rdd):
 def run(sc, sqlCtx, scalingFactor, size):
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
-    rddTimeings = timeit.repeat(stmt=lambda: testOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
+    rddTimeings = timeit.repeat(stmt=lambda: runOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
     groupTimeings = timeit.repeat(stmt=lambda: groupOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
     input_df.cache().count()
-    dfTimeings = timeit.repeat(stmt=lambda: testOnDF(input_df), repeat=10, number=1, timer=time.time, setup='gc.enable()')
+    dfTimeings = timeit.repeat(stmt=lambda: runOnDF(input_df), repeat=10, number=1, timer=time.time, setup='gc.enable()')
     print "RDD:"
     print rddTimeings
     print "group:"
