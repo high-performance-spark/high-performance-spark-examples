@@ -62,7 +62,7 @@ public class JavaHappyPandas {
    */
   public static DataFrame happyPandasPercentage(DataFrame pandaInfo) {
     DataFrame happyPercentage = pandaInfo.select(pandaInfo.col("place"),
-      pandaInfo.col("happyPandas").divide(pandaInfo.col("totalPandas")).as("percentHappy"));
+      (pandaInfo.col("happyPandas").divide(pandaInfo.col("totalPandas"))).as("percentHappy"));
     return happyPercentage;
   }
 
@@ -204,7 +204,7 @@ public class JavaHappyPandas {
   }
 
   public static DataFrame selfJoin(DataFrame df) {
-    return df.as("a").join(df.as("b")).where(df.col("name").equalTo(df.col("name")));
+    return (df.as("a")).join(df.as("b")).where("a.name = b.name");
   }
 
 }
