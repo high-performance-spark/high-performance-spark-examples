@@ -1,8 +1,9 @@
 package com.highperformancespark.examples.objects;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class JavaRawPanda {
+public class JavaRawPanda implements Serializable {
   private long id;
   private String zip;
   private String pt;

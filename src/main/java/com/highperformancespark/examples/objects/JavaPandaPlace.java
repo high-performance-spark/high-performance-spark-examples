@@ -1,16 +1,17 @@
 package com.highperformancespark.examples.objects;
 
-import com.highperformancespark.examples.dataframe.RawPanda;
+import java.io.Serializable;
+import java.util.List;
 
-public class JavaPandaPlace {
+public class JavaPandaPlace implements Serializable {
   private String name;
-  private RawPanda[] pandas;
+  private List<JavaRawPanda> pandas;
 
   /**
    * @param name place name
    * @param pandas pandas in that place
    */
-  public JavaPandaPlace(String name, RawPanda[] pandas) {
+  public JavaPandaPlace(String name, List<JavaRawPanda> pandas) {
     this.name = name;
     this.pandas = pandas;
   }
@@ -23,11 +24,11 @@ public class JavaPandaPlace {
     this.name = name;
   }
 
-  public RawPanda[] getPandas() {
+  public List<JavaRawPanda> getPandas() {
     return pandas;
   }
 
-  public void setPandas(RawPanda[] pandas) {
+  public void setPandas(List<JavaRawPanda> pandas) {
     this.pandas = pandas;
   }
 }
