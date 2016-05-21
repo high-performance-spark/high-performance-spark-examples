@@ -1,6 +1,8 @@
 package com.highperformancespark.examples.objects;
 
-public class JavaCoffeeShop {
+import java.io.Serializable;
+
+public class JavaCoffeeShop implements Serializable {
   private String zip;
   private String name;
 

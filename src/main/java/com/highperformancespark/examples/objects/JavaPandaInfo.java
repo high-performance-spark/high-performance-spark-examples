@@ -1,6 +1,8 @@
 package com.highperformancespark.examples.objects;
 
-public class JavaPandaInfo {
+import java.io.Serializable;
+
+public class JavaPandaInfo implements Serializable {
   private String place;
   private String pandaType;
   private int happyPandas;
