@@ -23,13 +23,15 @@ case class LoadSave(sqlContext: SQLContext) {
     val rowRDD = input.map(pm => Row(pm.name,
       pm.pandas.map(pi => Row(pi.id, pi.zip, pi.happy, pi.attributes))))
 
+    val pandasType = ArrayType(StructType(List(
+      StructField("id", LongType, true),
+      StructField("zip", StringType, true),
+      StructField("happy", BooleanType, true),
+      StructField("attributes", ArrayType(FloatType), true))))
+
     // Create DataFrame explicitly with specified schema
     val schema = StructType(List(StructField("name", StringType, true),
-      StructField("pandas", ArrayType(StructType(List(
-        StructField("id", LongType, true),
-        StructField("zip", StringType, true),
-        StructField("happy", BooleanType, true),
-        StructField("attributes", ArrayType(FloatType), true)))))))
+      StructField("pandas", pandasType)))
 
     val df3 = sqlContext.createDataFrame(rowRDD, schema)
   }
@@ -72,6 +74,7 @@ case class LoadSave(sqlContext: SQLContext) {
     //tag::createJDBC[]
     sqlContext.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
       "table", new Properties)
+
     sqlContext.read.format("jdbc")
       .option("url", "jdbc:dialect:serverName")
       .option("dbtable", "table").load()
@@ -82,6 +85,7 @@ case class LoadSave(sqlContext: SQLContext) {
     //tag::writeJDBC[]
     df.write.jdbc("jdbc:dialect:serverName;user=user;password=pass",
       "table", new Properties)
+
     df.write.format("jdbc")
       .option("url", "jdbc:dialect:serverName")
       .option("user", "user")
@@ -94,6 +98,7 @@ case class LoadSave(sqlContext: SQLContext) {
   def loadParquet(path: String): DataFrame = {
     // Configure Spark to read binary data as string, note: must be configured on SQLContext
     sqlContext.setConf("spark.sql.parquet.binaryAsString", "true")
+
     // Load parquet data using merge schema (configured through option)
     sqlContext.read
       .option("mergeSchema", "true")
