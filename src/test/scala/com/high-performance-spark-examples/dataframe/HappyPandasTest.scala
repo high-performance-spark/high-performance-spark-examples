@@ -54,14 +54,14 @@ class HappyPandasTest extends DataFrameSuiteBase {
   //tag::approxEqualDataFrames[]
 
   test("verify simple happy pandas Percentage") {
-    val expectedResult = List(Row(toronto, 0.5), Row(sandiego, 2/3.0), Row(virginia, 1/10.0))
-    val expectedDf = createDF(expectedResult, ("place", StringType),
+    val expectedList = List(Row(toronto, 0.5), Row(sandiego, 2/3.0), Row(virginia, 1/10.0))
+    val expectedDf = createDF(expectedList, ("place", StringType),
                                               ("percentHappy", DoubleType))
 
     val inputDF = sqlContext.createDataFrame(pandaInfoList)
-    val result = HappyPandas.happyPandasPercentage(inputDF)
+    val resultDF = HappyPandas.happyPandasPercentage(inputDF)
 
-    assertDataFrameApproximateEquals(expectedDf, result, 1E-5)
+    assertDataFrameApproximateEquals(expectedDf, resultDF, 1E-5)
   }
   //end::approxEqualDataFrames[]
 
