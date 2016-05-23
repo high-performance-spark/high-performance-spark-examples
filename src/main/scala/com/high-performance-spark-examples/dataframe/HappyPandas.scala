@@ -19,7 +19,9 @@ import org.apache.spark.sql.hive.thriftserver._
 //end::sparkHiveImports[]
 
 object HappyPandas {
-  // create SQLContext with an existing SparkContext
+  /**
+   * Creates SQLContext with an existing SparkContext.
+   */
   def sqlContext(sc: SparkContext): SQLContext = {
     //tag::createSQLContext[]
     val sqlContext = new SQLContext(sc)
@@ -29,7 +31,9 @@ object HappyPandas {
     sqlContext
   }
 
-  // create HiveContext with an existing SparkContext
+  /**
+   * Creates HiveContext with an existing SparkContext.
+   */
   def hiveContext(sc: SparkContext): HiveContext = {
     //tag::createHiveContext[]
     val hiveContext = new HiveContext(sc)
@@ -39,22 +43,24 @@ object HappyPandas {
     hiveContext
   }
 
-  // Illustrate loading some JSON data
+  /**
+   * Illustrate loading some JSON data.
+   */
   def loadDataSimple(sc: SparkContext, sqlCtx: SQLContext, path: String): DataFrame = {
     //tag::loadPandaJSONSimple[]
-    val df = sqlCtx.read.json(path)
+    val df1 = sqlCtx.read.json(path)
     //end::loadPandaJSONSimple[]
     //tag::loadPandaJSONComplex[]
     val df2 = sqlCtx.read.format("json").option("samplingRatio", "1.0").load(path)
     //end::loadPandaJSONComplex[]
-    val rdd = sc.textFile(path)
+    val jsonRDD = sc.textFile(path)
     //tag::loadPandaJsonRDD[]
-    val df3 = sqlCtx.read.json(rdd)
+    val df3 = sqlCtx.read.json(jsonRDD)
     //end::loadPandaJSONRDD[]
-    df
+    df1
   }
 
-  def jsonLoadFromRDD(sc: SparkContext, sqlCtx: SQLContext, input: RDD[String]): DataFrame = {
+  def jsonLoadFromRDD(sqlCtx: SQLContext, input: RDD[String]): DataFrame = {
     //tag::loadPandaJSONRDD[]
     val rdd: RDD[String] = input.filter(_.contains("panda"))
     val df = sqlCtx.read.json(rdd)
@@ -76,11 +82,10 @@ object HappyPandas {
     * Gets the percentage of happy pandas per place.
     *
     * @param pandaInfo the input DataFrame
-    * @return Returns a pair of (place, percentage of happy pandas)
+    * @return Returns DataFrame of (place, percentage of happy pandas)
     */
   def happyPandasPercentage(pandaInfo: DataFrame): DataFrame = {
-    pandaInfo.select(pandaInfo("place"),
-      (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
+    pandaInfo.select(pandaInfo("place"), (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
   }
 
   //tag::encodePandaType[]
@@ -133,14 +138,16 @@ object HappyPandas {
   }
 
   /**
-   * Find pandas that are happy and fuzzier than squishy
+   * Find pandas that are happy and fuzzier than squishy.
    */
   def happyFuzzyPandas(pandaInfo: DataFrame): DataFrame = {
     //tag::complexFilter[]
-    pandaInfo.filter(pandaInfo("happy").and(
-      pandaInfo("attributes")(0) > pandaInfo("attributes")(1)))
+    pandaInfo.filter(
+      pandaInfo("happy").and(pandaInfo("attributes")(0) > pandaInfo("attributes")(1))
+    )
     //end::complexFilter[]
   }
+
   /**
     * Gets places that contains happy pandas more than unhappy pandas.
     */
@@ -150,7 +157,7 @@ object HappyPandas {
 
 
   /**
-   * Remove duplicate pandas by id
+   * Remove duplicate pandas by id.
    */
   def removeDuplicates(pandas: DataFrame): DataFrame = {
     //tag::dropDuplicatePandaIds[]
@@ -233,34 +240,38 @@ object HappyPandas {
     val windowSpec = Window
       .orderBy(pandas("age"))
       .partitionBy(pandas("zip"))
-      .rowsBetween(start = -10, end = 10) // use rangeBetween for range instead
+      .rowsBetween(start = -10, end = 10) // can use rangeBetween for range instead
     //end::relativePandaSizesWindow[]
 
     //tag::relativePandaSizesQuery[]
-    val pandaRelativeSizeFunc = pandas("pandaSize") -
+    val pandaRelativeSizeCol = pandas("pandaSize") -
       avg(pandas("pandaSize")).over(windowSpec)
 
     pandas.select(pandas("name"), pandas("zip"), pandas("pandaSize"), pandas("age"),
-      pandaRelativeSizeFunc.as("panda_relative_size"))
+      pandaRelativeSizeCol.as("panda_relative_size"))
     //end::relativePandaSizesQuery[]
   }
 
   // Join DataFrames of Pandas and Sizes with
   def joins(df1: DataFrame, df2: DataFrame): Unit = {
+
     //tag::innerJoin[]
     // Inner join implicit
     df1.join(df2, df1("name") === df2("name"))
     // Inner join explicit
     df1.join(df2, df1("name") === df2("name"), "inner")
     //end::innerJoin[]
+
     //tag::leftouterJoin[]
     // Left outer join explicit
     df1.join(df2, df1("name") === df2("name"), "left_outer")
     //end::leftouterJoin[]
+
     //tag::rightouterJoin[]
     // Right outer join explicit
     df1.join(df2, df1("name") === df2("name"), "right_outer")
     //end::rightouterJoin[]
+
     //tag::leftsemiJoin[]
     // Left semi join explicit
     df1.join(df2, df1("name") === df2("name"), "leftsemi")
