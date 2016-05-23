@@ -64,7 +64,7 @@ public class JavaUDFs {
 
       @Override
       public Object evaluate(Row buffer) {
-        return Math.pow(buffer.getDouble(1), 1.0 / buffer.getLong(0));
+        return buffer.getDouble(1) / buffer.getLong(0);
       }
     }
 

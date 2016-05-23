@@ -47,7 +47,7 @@ object UDFs {
       }
 
       def evaluate(buffer: Row): Any = {
-        math.pow(buffer.getDouble(1), 1.toDouble / buffer.getLong(0))
+        buffer.getDouble(1) / buffer.getLong(0)
       }
     }
     // Optionally register
