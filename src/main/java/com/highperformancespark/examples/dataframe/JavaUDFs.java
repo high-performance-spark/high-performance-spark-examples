@@ -9,7 +9,9 @@ import org.apache.spark.sql.types.*;
 public class JavaUDFs {
 
   public static void setupUDFs(SQLContext sqlContext) {
+    //tag::basicUDF[]
     sqlContext.udf().register("strlen", (String s) -> s.length(), DataTypes.StringType);
+    //end::basicUDF[]
   }
 
   public static void setupUDAFs(SQLContext sqlContext) {
