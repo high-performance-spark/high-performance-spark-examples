@@ -21,3 +21,6 @@ project/plugins/project/
 \.\#*
 *~
 sbt/*launch*.jar
+
+# python
+*.pyc
