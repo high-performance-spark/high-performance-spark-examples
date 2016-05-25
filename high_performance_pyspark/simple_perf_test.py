@@ -17,6 +17,7 @@ def generate_scale_data(sqlCtx, rows, numCols):
 
     .. Note: This depends on many internal methods and may break between versions.
     """
+    # tag::javaInterop[]
     sc = sqlCtx._sc
     # Get the SQL Context, 2.0 and pre-2.0 syntax
     try:
@@ -45,6 +46,7 @@ def generate_scale_data(sqlCtx, rows, numCols):
     # Convert the Python DataFrame into an RDD
     pairRDD = python_dataframe.rdd.map(lambda row: (row[0], row[1]))
     return (python_dataframe, pairRDD)
+    # end::javaInterop[]
 
 def runOnDF(df):
     result = df.groupBy("zip").avg("fuzzyness").count()
