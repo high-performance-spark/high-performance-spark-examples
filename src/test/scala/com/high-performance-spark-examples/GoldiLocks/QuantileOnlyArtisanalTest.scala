@@ -7,7 +7,8 @@ import org.scalatest.FunSuite
 // tag::MAGIC_PANDA[]
 class QuantileOnlyArtisanalTest extends FunSuite with SharedSparkContext {
 
-  val inputList = List(GoldiLocksRow(0.0, 4.5, 7.7, 5.0),
+  val inputList = List(
+    GoldiLocksRow(0.0, 4.5, 7.7, 5.0),
     GoldiLocksRow(1.0, 5.5, 6.7, 6.0),
     GoldiLocksRow(2.0, 5.5, 1.5, 7.0),
     GoldiLocksRow(3.0, 5.5, 0.5, 7.0),
@@ -93,4 +94,4 @@ class QuantileOnlyArtisanalTest extends FunSuite with SharedSparkContext {
 }
 // end::MAGIC_PANDA[]
 
-case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double  )
+case class GoldiLocksRow(pandaId: Double, softness: Double, fuzziness: Double, size: Double)

@@ -42,7 +42,7 @@ public class JavaGoldiLocksFirstTry {
    *
    * @return map of (column index, list of target ranks)
    */
-  public Map<Integer, Iterable<Double>> findRankStatistics(DataFrame dataframe, List<Long> targetRanks) {
+  public static Map<Integer, Iterable<Double>> findRankStatistics(DataFrame dataframe, List<Long> targetRanks) {
     JavaPairRDD<Double, Integer> valueColumnPairs = getValueColumnPairs(dataframe);
 
     JavaPairRDD<Double, Integer> sortedValueColumnPairs = valueColumnPairs.sortByKey();
@@ -55,9 +55,9 @@ public class JavaGoldiLocksFirstTry {
     List<Tuple2<Integer, List<Tuple2<Integer, Long>>>> ranksLocations =
       getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns);
 
-    findTargetRanksIteratively(sortedValueColumnPairs, ranksLocations);
+    JavaPairRDD<Integer, Double> targetRanksValues = findTargetRanksIteratively(sortedValueColumnPairs, ranksLocations);
 
-    return null;
+    return targetRanksValues.groupByKey().collectAsMap();
   }
 
   /**
@@ -76,7 +76,7 @@ public class JavaGoldiLocksFirstTry {
    *
    * @return RDD of pairs (value, column Index)
    */
-  private JavaPairRDD<Double, Integer> getValueColumnPairs(DataFrame dataframe) {
+  private static JavaPairRDD<Double, Integer> getValueColumnPairs(DataFrame dataframe) {
     JavaPairRDD<Double, Integer> value_ColIndex =
       dataframe.javaRDD().flatMapToPair((PairFlatMapFunction<Row, Double, Integer>) row -> {
         List<Double> rowList = (List<Double>) (Object) toList(row.toSeq());
@@ -106,11 +106,11 @@ public class JavaGoldiLocksFirstTry {
    *
    * @return Array that contains (partition index, number of elements from every column on this partition)
    */
-  private List<Tuple2<Integer, List<Long>>> getColumnsFreqPerPartition(JavaPairRDD<Double, Integer> sortedValueColumnPairs, int numOfColumns) {
+  private static List<Tuple2<Integer, List<Long>>> getColumnsFreqPerPartition(JavaPairRDD<Double, Integer> sortedValueColumnPairs, int numOfColumns) {
     List<Tuple2<Integer, List<Long>>> columsFreqPerPartition =
       sortedValueColumnPairs.mapPartitionsWithIndex((partitionIndex, valueColumnPairs) -> {
         Long[] freq = new Long[numOfColumns];
-        Arrays.fill(freq, 0);
+        Arrays.fill(freq, 0L);
 
         while(valueColumnPairs.hasNext()) {
           int colIndex = valueColumnPairs.next()._2;
@@ -141,7 +141,7 @@ public class JavaGoldiLocksFirstTry {
    * @return  Array that contains (partition index, relevantIndexList where relevantIndexList(i) = the index
    *          of an element on this partition that matches one of the target ranks)
    */
-  private List<Tuple2<Integer, List<Tuple2<Integer, Long>>>> getRanksLocationsWithinEachPart(List<Long> targetRanks,
+  private static List<Tuple2<Integer, List<Tuple2<Integer, Long>>>> getRanksLocationsWithinEachPart(List<Long> targetRanks,
       List<Tuple2<Integer, List<Long>>> partitionColumnsFreq, int numOfColumns) {
 
     long[] runningTotal = new long[numOfColumns];
@@ -187,7 +187,7 @@ public class JavaGoldiLocksFirstTry {
    *
    * @return returns RDD of the target ranks (column index, value)
    */
-  private JavaPairRDD<Integer, Double> findTargetRanksIteratively(JavaPairRDD<Double, Integer> sortedValueColumnPairs,
+  private static JavaPairRDD<Integer, Double> findTargetRanksIteratively(JavaPairRDD<Double, Integer> sortedValueColumnPairs,
       List<Tuple2<Integer, List<Tuple2<Integer, Long>>>> ranksLocations) {
 
     JavaRDD<Tuple2<Integer, Double>> targetRanks = sortedValueColumnPairs.mapPartitionsWithIndex(
@@ -227,7 +227,7 @@ public class JavaGoldiLocksFirstTry {
     return targetRanks.mapToPair((PairFunction<Tuple2<Integer, Double>, Integer, Double>) t -> t);
   }
 
-  private Map<Integer,Long> toMap(Set<Integer> set) {
+  private static Map<Integer,Long> toMap(Set<Integer> set) {
     Map<Integer, Long> map = new HashMap<>();
     for (int k: set)
       map.put(k, 0L);
@@ -235,7 +235,7 @@ public class JavaGoldiLocksFirstTry {
     return map;
   }
 
-  private Map<Integer, List<Long>> groupByKey(List<Tuple2<Integer, Long>> list) {
+  private static Map<Integer, List<Long>> groupByKey(List<Tuple2<Integer, Long>> list) {
     Map<Integer, List<Long>> map = new HashMap<>();
     for (int i = 0; i < list.size(); i++) {
       Tuple2<Integer, Long> curr = list.get(i);
@@ -248,11 +248,11 @@ public class JavaGoldiLocksFirstTry {
     return map;
   }
 
-  private<T> List<T> toList(scala.collection.Seq<T> seq) {
+  private static<T> List<T> toList(scala.collection.Seq<T> seq) {
     return scala.collection.JavaConversions.seqAsJavaList(seq);
   }
 
-  private<T> List<Tuple2<T, Integer>> zipWithIndex(List<T> list) {
+  private static<T> List<Tuple2<T, Integer>> zipWithIndex(List<T> list) {
     List<Tuple2<T, Integer>> indexedList = new ArrayList<>();
     for (int i = 0; i < list.size(); i++)
       indexedList.add(new Tuple2<>(list.get(i), i));
