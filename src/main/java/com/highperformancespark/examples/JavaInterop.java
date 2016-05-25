@@ -14,14 +14,14 @@ import java.util.Map;
 import static org.apache.spark.sql.functions.*;
 
 public class JavaInterop {
-  public static JavaPairRDD wrapPairRDD(RDD<Tuple2<String, Long>> rdd) {
+  public static JavaPairRDD wrapPairRDD(RDD<Tuple2<String, Object>> rdd) {
     // Construct the class tags
     ClassTag<String> strCt = ClassTag$.MODULE$.apply(String.class);
-    ClassTag<Long> longCt = ClassTag$.MODULE$.apply(Long.class);
+    ClassTag<Long> longCt = ClassTag$.MODULE$.apply(scala.Long.class);
     return new JavaPairRDD(rdd, strCt, longCt);
   }
 
-  public static JavaPairRDD wrapPairRDDFakeCt(RDD<Tuple2<String, Long>> rdd) {
+  public static JavaPairRDD wrapPairRDDFakeCt(RDD<Tuple2<String, Object>> rdd) {
     // Construct the class tags by casting AnyRef - this would be more commonly done with
     // generic or templated code where we can't explicitly construct the correct class tag
     // as using fake class tags may result in degraded performance.
