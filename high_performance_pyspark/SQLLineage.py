@@ -17,7 +17,7 @@ True
 
 from pyspark.sql import DataFrame
 
-#tag::cutLineage[]
+# tag::cutLineage[]
 def cutLineage(df):
     """
     Cut the lineage of a DataFrame - used for iterative algorithms
@@ -35,4 +35,4 @@ def cutLineage(df):
     newJavaDF = javaSqlCtx.createDataFrame(jRDD, jSchema)
     newDF = DataFrame(newJavaDF, sqlCtx)
     return newDF
-#end::cutLineage[]
+# end::cutLineage[]
