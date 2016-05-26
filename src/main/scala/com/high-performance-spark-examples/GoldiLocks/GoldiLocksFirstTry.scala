@@ -4,7 +4,7 @@ import scala.collection.{Map, mutable}
 import scala.collection.mutable.{ArrayBuffer, MutableList}
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 
 object GoldiLocksGroupByKey {
@@ -81,8 +81,8 @@ object GoldiLocksFirstTry {
    * @return RDD of pairs (value, column Index)
    */
   private def getValueColumnPairs(dataFrame : DataFrame): RDD[(Double, Int)] = {
-    dataFrame.flatMap(row => row.toSeq.zipWithIndex.map{ case (v, index) =>
-      (v.toString.toDouble, index)})
+    dataFrame.rdd.flatMap{row: Row => row.toSeq.zipWithIndex.map{ case (v, index) =>
+      (v.toString.toDouble, index)}}
   }
 
   /**
