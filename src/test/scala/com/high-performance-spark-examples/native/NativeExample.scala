@@ -12,7 +12,6 @@ import org.scalatest.Matchers._
 
 class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers {
   test("local sum") {
-  //def magic2() {
     val input = Array(1, 2, 3)
     val sumMagic = new SumJNI()
     val result = sumMagic.sum(input)
@@ -35,5 +34,10 @@ class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers 
         RDDComparisons.compareWithOrder(expected, result).isEmpty
     }
     check(property)
+  }
+
+  test("JNA support") {
+    val input = Array(1, 2, 3)
+    6 === SumJNA.sum(input, input.size)
   }
 }

@@ -42,7 +42,8 @@ libraryDependencies ++= Seq(
   "com.holdenkarau" % "spark-testing-base_2.11" % "1.6.1_0.3.3",
   "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
   "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
-  "com.novocode" % "junit-interface" % "0.10" % "test->default")
+  "com.novocode" % "junit-interface" % "0.10" % "test->default",
+  "net.java.dev.jna" % "jna" % "4.2.2")
 
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
