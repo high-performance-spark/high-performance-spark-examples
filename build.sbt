@@ -12,14 +12,14 @@ crossScalaVersions := Seq("2.11.6")
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
-sparkVersion := "1.6.1"
+sparkVersion := "2.0.0-preview"
 
 //tag::sparkComponents[]
 // TODO(Holden): re-add hive-thriftserver post Spark 2.0
 sparkComponents ++= Seq("core", "streaming", "mllib")
 //end::sparkComponents[]
 //tag::addSQLHiveComponent[]
-sparkComponents ++= Seq("sql", "hive")
+sparkComponents ++= Seq("sql", "hive", "hivecontext-compatibility", "hive-thriftserver")
 //end::addSQLHiveComponent[]
 
 
@@ -34,8 +34,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.4",
   "junit" % "junit" % "4.10",
-  // Temporary hack until Spark 2.0
-  "org.apache.spark" % "spark-hive-thriftserver_2.10" % "1.6.1" % "provided" intransitive(),
   //tag::sparkCSV[]
   "com.databricks" % "spark-csv_2.10" % "1.3.0",
   //end::sparkCSV[]
@@ -65,7 +63,8 @@ resolvers ++= Seq(
   "Mesosphere Public Repository" at "http://downloads.mesosphere.io/maven",
   Resolver.sonatypeRepo("public"),
   Resolver.bintrayRepo("jodersky", "sbt-jni-macros"),
-  "jodersky" at "https://dl.bintray.com/jodersky/maven/"
+  "jodersky" at "https://dl.bintray.com/jodersky/maven/",
+  "spark-2.0-snapshot" at "https://repository.apache.org/content/repositories/orgapachespark-1182/"
 )
 
 licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))

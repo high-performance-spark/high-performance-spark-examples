@@ -58,13 +58,13 @@ class MixedDataset(sqlCtx: SQLContext) {
 
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
-    ds.groupBy($"zip").keyAs[String].agg(max("attributes(2)").as[Double])
+    ds.groupByKey(rp => rp.zip).agg(max("attributes(2)").as[Double])
   }
   //end::maxPandaSizePerZip[]
 
   //tag::maxPandaSizePerZipScala[]
   def maxPandaSizePerZipScala(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
-    ds.groupBy($"zip").keyAs[String].mapGroups{ case (g, iter) =>
+    ds.groupByKey(rp => rp.zip).mapGroups{ case (g, iter) =>
       (g, iter.map(_.attributes(2)).reduceLeft(Math.max(_, _)))
     }
   }
