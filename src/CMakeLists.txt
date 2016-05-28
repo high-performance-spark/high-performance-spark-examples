@@ -11,6 +11,12 @@ cmake_minimum_required(VERSION 2.6)
 #
 project (high-performance-spark)
 
+# Enable fortan
+enable_language (Fortran)
+
+# FFLAGS depend on the compiler
+get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
+
 # Set versions and library name
 # (required by sbt-jni) please use semantic versioning
 #
@@ -45,6 +51,7 @@ file(GLOB LIB_SRC
   "*.cpp"
   "./main/c/*.c"
   "./main/c/*.cpp"
+  "./main/fortan/*.f"
 )
 add_library(${LIB_NAME} SHARED ${LIB_SRC})
 
