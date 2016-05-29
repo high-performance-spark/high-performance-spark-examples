@@ -23,6 +23,7 @@ addons:
       - python-numpy
       - gfortran
       - cmake
+      - perl
 r_packages:
   - Imap
 before_install:
