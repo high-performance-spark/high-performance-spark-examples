@@ -24,6 +24,7 @@ addons:
       - gfortran
       - cmake
       - perl
+      - cpanm
 r_packages:
   - Imap
 before_install:
