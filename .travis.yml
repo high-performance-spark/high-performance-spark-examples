@@ -28,6 +28,7 @@ r_packages:
   - Imap
 before_install:
   - pip install --user codecov unittest2 nose pep8 pylint --download-cache $HOME/.pip-cache
+  - cd ./src/main/perl; cpanm --quiet --installdeps --notest .; cd ../../../
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
