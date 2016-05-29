@@ -19,7 +19,6 @@ addons:
       - gcc
       - binutils
       - python-pip
-      - pandas
       - python-pandas
       - python-numpy
       - gfortran
