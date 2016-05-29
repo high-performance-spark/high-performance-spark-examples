@@ -24,3 +24,7 @@ sbt/*launch*.jar
 
 # python
 *.pyc
+
+# native
+*.o
+*.so
