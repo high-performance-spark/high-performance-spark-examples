@@ -1,8 +1,5 @@
 language: scala
 sudo: false
-apt:
-  - pandas
-  - numpy
 cache:
   directories:
     - $HOME/.ivy2
@@ -13,7 +10,8 @@ scala:
    - 2.11.6
 jdk:
   - oraclejdk8
-apt:
+addons:
+  apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
@@ -21,6 +19,10 @@ apt:
       - gcc
       - binutils
       - python-pip
+      - python-pandas
+      - python-numpy
+      - gfortran
+      - cmake
 r_packages:
   - Imap
 before_install:
