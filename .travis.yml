@@ -3,6 +3,10 @@ sudo: false
 apt:
   - pandas
   - numpy
+  - gfortran
+  - gcc
+  - g++
+  - cmake
 cache:
   directories:
     - $HOME/.ivy2
