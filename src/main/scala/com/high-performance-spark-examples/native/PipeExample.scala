@@ -20,7 +20,9 @@ import org.apache.spark.rdd._
 import org.apache.spark.{SparkContext, SparkFiles}
 
 object PipeExample {
+  //tag::pipeExample[]
   def lookupUserPRS(sc: SparkContext, input: RDD[Int]): RDD[(Int, List[String])] = {
+    // Copy our script to the worker nodes with sc.addFile
     // Add file requires absolute paths
     val distScriptName = "ghinfo.pl"
     val localScript = System.getProperty("user.dir") + "/src/main/perl/" + distScriptName
@@ -35,4 +37,5 @@ object PipeExample {
       (elems(0).toInt, elems.slice(1, elems.size).sorted.distinct.toList)
     }
   }
+  //end::pipeExample[]
 }
