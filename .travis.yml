@@ -29,7 +29,8 @@ r_packages:
   - Imap
 before_install:
   - pip install --user codecov unittest2 nose pep8 pylint --download-cache $HOME/.pip-cache
-  - cd ./src/main/perl; cpanm --force --quiet --installdeps --notest .; cd ../../../
+  - cpanm --force --quite Pithub
+  - cd ./src/main/perl; cpanm --force --quiet --installdeps --notest .; cd ../../../ || cat ~/.cpanm/build.log
   - PATH="/home/holden/perl5/bin${PATH:+:${PATH}}"; export PATH;
   - PERL5LIB="/home/holden/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
   - PERL_LOCAL_LIB_ROOT="/home/holden/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
