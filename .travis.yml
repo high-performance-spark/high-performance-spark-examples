@@ -6,6 +6,7 @@ cache:
     - $HOME/spark
     - $HOME/.cache/pip
     - $HOME/.sbt/launchers
+    - $HOME/perl5
 scala:
    - 2.11.6
 jdk:
@@ -23,10 +24,19 @@ addons:
       - python-numpy
       - gfortran
       - cmake
+      - perl
+      - cpanminus
 r_packages:
   - Imap
 before_install:
   - pip install --user codecov unittest2 nose pep8 pylint --download-cache $HOME/.pip-cache
+  - cpanm --force --local-lib $HOME/perl5  --quite --notest Pithub || cat ~/.cpanm/build.log
+  - cd ./src/main/perl; cpanm --local-lib $HOME/perl5 --force --quiet --installdeps --notest .; cd ../../../
+  - PATH="$HOME/perl5/bin${PATH:+:${PATH}}"; export PATH;
+  - PERL5LIB=":$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+  - PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+  - PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
+  - PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
