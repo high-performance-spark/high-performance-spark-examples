@@ -31,12 +31,12 @@ before_install:
   - pip install --user codecov unittest2 nose pep8 pylint --download-cache $HOME/.pip-cache
   - cpanm --force --local-lib --quite --notest Pithub || cat ~/.cpanm/build.log
   - cd ./src/main/perl; cpanm --local-lib --force --quiet --installdeps --notest .; cd ../../../
-  - find /home/holden/perl5/lib
-  - PATH="/home/holden/perl5/bin${PATH:+:${PATH}}"; export PATH;
-  - PERL5LIB="/home/holden/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-  - PERL_LOCAL_LIB_ROOT="/home/holden/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-  - PERL_MB_OPT="--install_base \"/home/holden/perl5\""; export PERL_MB_OPT;
-  - PERL_MM_OPT="INSTALL_BASE=/home/holden/perl5"; export PERL_MM_OPT;
+  - find /home/travis/perl5/lib
+  - PATH="/home/travis/perl5/bin${PATH:+:${PATH}}"; export PATH;
+  - PERL5LIB=":/home/travis/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+  - PERL_LOCAL_LIB_ROOT="/home/travis/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+  - PERL_MB_OPT="--install_base \"/home/travis/perl5\""; export PERL_MB_OPT;
+  - PERL_MM_OPT="INSTALL_BASE=/home/travis/perl5"; export PERL_MM_OPT;
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
