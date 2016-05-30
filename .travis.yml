@@ -35,7 +35,6 @@ before_install:
   - PERL_LOCAL_LIB_ROOT="/home/holden/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
   - PERL_MB_OPT="--install_base \"/home/holden/perl5\""; export PERL_MB_OPT;
   - PERL_MM_OPT="INSTALL_BASE=/home/holden/perl5"; export PERL_MM_OPT;
-  - find ~/
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
