@@ -199,7 +199,7 @@ public class JavaHappyPandas {
 
     //tag::leftsemiJoin[]
     // Left semi join explicit
-    df1.join(df2, df1.col("name").equalTo(df2.col("name")), "leftsemi");
+    df1.join(df2, df1.col("name").equalTo(df2.col("name")), "left_semi");
     //end::leftsemiJoin[]
   }
 

@@ -274,7 +274,7 @@ object HappyPandas {
 
     //tag::leftsemiJoin[]
     // Left semi join explicit
-    df1.join(df2, df1("name") === df2("name"), "leftsemi")
+    df1.join(df2, df1("name") === df2("name"), "left_semi")
     //end::leftsemiJoin[]
   }
 
