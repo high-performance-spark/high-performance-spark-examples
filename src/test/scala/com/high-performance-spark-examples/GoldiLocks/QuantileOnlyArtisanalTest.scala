@@ -1,22 +1,14 @@
 package com.highperformancespark.examples.goldilocks
 
-import org.apache.spark._
+import com.holdenkarau.spark.testing.SharedSparkContext
 import org.apache.spark.sql.SQLContext
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.FunSuite
 
 // tag::MAGIC_PANDA[]
-class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
-  @transient private var _sc: SparkContext = _
-  def sc: SparkContext = _sc
+class QuantileOnlyArtisanalTest extends FunSuite with SharedSparkContext {
 
-  val conf = new SparkConf().setMaster("local[4]").setAppName("test")
-
-  override def beforeAll() {
-    _sc = new SparkContext(conf)
-    super.beforeAll()
-  }
-
-  val inputList = List(GoldiLocksRow(0.0, 4.5, 7.7, 5.0),
+  val inputList = List(
+    GoldiLocksRow(0.0, 4.5, 7.7, 5.0),
     GoldiLocksRow(1.0, 5.5, 6.7, 6.0),
     GoldiLocksRow(2.0, 5.5, 1.5, 7.0),
     GoldiLocksRow(3.0, 5.5, 0.5, 7.0),
@@ -99,14 +91,7 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     })
   }
 
-  override def afterAll() {
-    // We clear the driver port so that we don't try and bind to the same port on restart
-    sc.stop()
-    System.clearProperty("spark.driver.port")
-    _sc = null
-    super.afterAll()
-  }
 }
 // end::MAGIC_PANDA[]
 
-case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double  )
+case class GoldiLocksRow(pandaId: Double, softness: Double, fuzziness: Double, size: Double)

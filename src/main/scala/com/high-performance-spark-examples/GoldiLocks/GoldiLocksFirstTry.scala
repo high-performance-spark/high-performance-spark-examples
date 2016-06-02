@@ -44,19 +44,18 @@ object GoldiLocksFirstTry {
     *   2 -> (7.7, 1.5)
     *   3 -> (5.0, 7.0)
     *
-    * @param dataFrame dataframe of doubles
+    * @param dataframe dataframe of doubles
     * @param targetRanks the required ranks for every column
-    *
     * @return map of (column index, list of target ranks)
     */
-  def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
+  def findRankStatistics(dataframe: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
 
-    val valueColumnPairs: RDD[(Double, Int)] = getValueColumnPairs(dataFrame)
+    val valueColumnPairs: RDD[(Double, Int)] = getValueColumnPairs(dataframe)
     val sortedValueColumnPairs = valueColumnPairs.sortByKey()
     sortedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
-    val numOfColumns = dataFrame.schema.length
+    val numOfColumns = dataframe.schema.length
     val partitionColumnsFreq = getColumnsFreqPerPartition(sortedValueColumnPairs, numOfColumns)
     val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
 
@@ -76,12 +75,12 @@ object GoldiLocksFirstTry {
    * The output RDD will be:
    *    (1.5, 0) (1.25, 1) (2.0, 2) (5.25, 0) (2.5, 1) (1.5, 2)
    *
-   * @param dataFrame dateframe of doubles
+   * @param dataframe dateframe of doubles
    *
    * @return RDD of pairs (value, column Index)
    */
-  private def getValueColumnPairs(dataFrame : DataFrame): RDD[(Double, Int)] = {
-    dataFrame.flatMap(row => row.toSeq.zipWithIndex.map{ case (v, index) =>
+  private def getValueColumnPairs(dataframe : DataFrame): RDD[(Double, Int)] = {
+    dataframe.flatMap(row => row.toSeq.zipWithIndex.map{ case (v, index) =>
       (v.toString.toDouble, index)})
   }
 
@@ -135,7 +134,7 @@ object GoldiLocksFirstTry {
    *    numOfColumns: 2
    *
    * The output will be:
-   *    [(0, []), (1, [(0, 3)]), (2, [(1, 1)])]
+   *    [(0, []), (1, [(colIdx=0, rankLocation=3)]), (2, [(colIndex=1, rankLocation=1)])]
    *
    * @param partitionColumnsFreq Array of (partition index, columns frequencies per this partition)
    *
@@ -182,12 +181,12 @@ object GoldiLocksFirstTry {
       val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
       if (targetsInThisPart.nonEmpty) {
         val columnsRelativeIndex: Map[Int, List[Long]] = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
-        val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+        val columnsInThisPart = targetsInThisPart.map(_._1)
 
         val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
         runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
-        //filter this iterator, so that it contains only those (value, columnIndex) that are the ranks statistics on this partition
+        // filter this iterator, so that it contains only those (value, columnIndex) that are the ranks statistics on this partition
         // I.e. Keep track of the number of elements we have seen for each columnIndex using the
         // running total hashMap. Keep those pairs for which value is the nth element for that columnIndex that appears on this partition
         // and the map contains (columnIndex, n).
