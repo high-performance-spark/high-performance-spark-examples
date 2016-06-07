@@ -55,7 +55,7 @@ object SampleData {
 
   //tag::broadcast[]
   class LazyPrng {
-    lazy val r = new Random()
+    @transient lazy val r = new Random()
   }
   def customSampleBroadcast[T: ClassTag](sc: SparkContext, rdd: RDD[T]): RDD[T]= {
     val bcastprng = sc.broadcast(new LazyPrng())
