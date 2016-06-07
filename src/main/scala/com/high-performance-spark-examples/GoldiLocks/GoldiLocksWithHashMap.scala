@@ -100,10 +100,12 @@ object GoldiLocksWithHashMap {
     * The output will be:
     *    [(0, [3, 0]), (1, [3, 1])]
     *
-    * @param sortedAggregatedValueColumnPairs - sortedAggregatedValueColumnPairs RDD of ((value, column index), count)
+    * @param sortedAggregatedValueColumnPairs - sortedAggregatedValueColumnPairs RDD of
+    *                                         ((value, column index), count)
     * @param numOfColumns the number of columns
     *
-    * @return Array that contains (partition index, number of elements from every column on this partition)
+    * @return Array that contains
+    *         (partition index, number of elements from every column on this partition)
     */
   private def getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
                                         numOfColumns : Int): Array[(Int, Array[Long])] = {
@@ -126,7 +128,8 @@ object GoldiLocksWithHashMap {
   }
 
   /**
-    * Step 3: For each Partition determine the index of the elements that are desired rank statistics
+    * Step 3: For each Partition determine the index of the elements
+    * that are desired rank statistics
     *
     * For Example:
     *    targetRanks: 5
@@ -136,9 +139,11 @@ object GoldiLocksWithHashMap {
     * The output will be:
     *    [(0, []), (1, [(0, 3)]), (2, [(1, 1)])]
     *
-    * @param partitionColumnsFreq Array of (partition index, columns frequencies per this partition)
+    * @param partitionColumnsFreq Array of
+    *                             (partition index, columns frequencies per this partition)
     *
-    * @return  Array that contains (partition index, relevantIndexList where relevantIndexList(i) = the index
+    * @return  Array that contains
+    *          (partition index, relevantIndexList where relevantIndexList(i) = the index
     *          of an element on this partition that matches one of the target ranks)
     */
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
@@ -168,7 +173,8 @@ object GoldiLocksWithHashMap {
     * Finds rank statistics elements using ranksLocations.
     *
     * @param sortedAggregatedValueColumnPairs - sorted RDD of (value, colIndex) pairs
-    * @param ranksLocations Array of (partition Index, list of (column index, rank index of this column at this partition))
+    * @param ranksLocations Array of (partition Index, list of
+    *                       (column index, rank index of this column at this partition))
     *
     * @return returns RDD of the target ranks (column index, value)
     */
@@ -190,22 +196,28 @@ object GoldiLocksWithHashMap {
   }
   //end::mapPartitionsExample[]
   /**
-   * We will want to use this in some chapter where we talk about check pointing
-   * @param valPairs - pairs with ((cell value, columnIndex), frequency). I.e. if in the 2nd column
-    *                 there are four instance of the value 0.5. One of these pairs would be ((0.5, 3), 4)
+    *
+    * Find nth target rank for every column.
+    * Given an RDD of
+    * (value, columnindex) countPairs)
+   * @param valPairs - pairs with ((cell value, columnIndex), frequency).
+    *                 I.e. if in the 2nd column there are four instance of the value 0.5.
+    *                 One of these pairs would be ((0.5, 3), 4)
    * @param colIndexList - a list of the indices of the parameters to find rank statistics for
-   * @param targetRanks - the desired rank statistics if we used List(25, 50, 75) we would be finding the 25th,
+   * @param targetRanks - the desired rank statistics
+    *                    If we used List(25, 50, 75) we would be finding the 25th,
     *                    50th and 75th element in each column specified by the colIndexList
    * @param storageLevel The storage level to persist between sort and map partitions
    * @param checkPoint true if we should checkpoint, false otherwise.
    * @param directory- the directory to checkpoint in (must be a location on Hdfs)
-   * @return
+   * @return (ColumnIndex, Iterator of ordered rank statistics))
    */
+  //tag::checkpointExample[]
   def findQuantilesWithCustomStorage(valPairs: RDD[((Double, Int), Long)],
     colIndexList: List[Int],
     targetRanks: List[Long],
     storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK,
-    checkPoint : Boolean, directory : String = "") = {
+    checkPoint : Boolean, directory : String = ""): Map[Int, Iterable[Double]] = {
 
     val n = colIndexList.last+1
     val sorted  = valPairs.sortByKey()
@@ -213,10 +225,8 @@ object GoldiLocksWithHashMap {
       sorted.persist(storageLevel)
 
     if (checkPoint) {
-      //tag::checkpointExample[]
       sorted.sparkContext.setCheckpointDir(directory)
       sorted.checkpoint()
-      //end::checkpointExample[]
     }
 
     val partitionColumnsFreq = getColumnsFreqPerPartition(sorted, n)
@@ -224,13 +234,14 @@ object GoldiLocksWithHashMap {
     val targetRanksValues = findTargetRanksIteratively(sorted, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
   }
+  //end::checkpointExample[]
 }
 //end::hashMap[]
 
 
 object FindTargetsSubRoutine extends Serializable {
 
-  //tag::notIter[]
+
   /**
     * This sub routine returns an Iterator of (columnIndex, value) that correspond to one of the
     desired rank statistics on this partition.
@@ -250,6 +261,7 @@ object FindTargetsSubRoutine extends Serializable {
     *                          index 4 on this partition and the 3rd element.
     * @return All of the rank statistics that live in this partition as an iterator of (columnIndex, value pairs)
     */
+  //tag::notIter[]
   def withArrayBuffer(valueColumnPairsIter : Iterator[((Double, Int), Long)],
     targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
 
@@ -288,11 +300,12 @@ object FindTargetsSubRoutine extends Serializable {
   }
    //end::notIter[]
 
-   //tag::iterToIter[]
+
   /**
     * Same function as above but rather than building the result from an array buffer we use
     * a flatMap on the iterator to get the resulting iterator.
     */
+  //tag::iterToIter[]
   def asIteratorToIteratorTransformation(valueColumnPairsIter : Iterator[((Double, Int), Long)],
     targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
 
@@ -316,9 +329,11 @@ object FindTargetsSubRoutine extends Serializable {
 
           val total = runningTotals(colIndex)
           val ranksPresent: List[Long] = columnsRelativeIndex(colIndex)
-                                         .filter(index => (index <= count + total) && (index > total))
+                                         .filter(index => (index <= count + total)
+                                           && (index > total))
 
-          val nextElems: Iterator[(Int, Double)] = ranksPresent.map(r => (colIndex, value)).toIterator
+          val nextElems: Iterator[(Int, Double)] =
+            ranksPresent.map(r => (colIndex, value)).toIterator
 
           //update the running totals
           runningTotals.update(colIndex, total + count)

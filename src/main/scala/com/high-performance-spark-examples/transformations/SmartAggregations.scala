@@ -35,7 +35,8 @@ class SmartAggregations {
 
     rdd.aggregateByKey(new MetricsCalculator_ReuseObjects(totalWords = 0,
       longestWord = 0, happyMentions = 0, numberReportCards = 0))(
-      seqOp = (reportCardMetrics, reportCardText) => reportCardMetrics.sequenceOp(reportCardText),
+      seqOp = (reportCardMetrics, reportCardText) =>
+        reportCardMetrics.sequenceOp(reportCardText),
       combOp = (x, y) => x.compOp(y))
     .mapValues(_.toReportCardMetrics)
   }
@@ -44,9 +45,14 @@ class SmartAggregations {
   def calculateReportCardStatistics_withArrays(rdd : RDD[(String, String)]
   ): RDD[(String, ReportCardMetrics)] = {
 
-    rdd.aggregateByKey(Array.fill[Int](4)(0))( //the zero value is a four element array of zeros
+    rdd.aggregateByKey(
+      //the zero value is a four element array of zeros
+      Array.fill[Int](4)(0)
+    )(
+    //seqOp adds the relevant values to the array
       seqOp = (reportCardMetrics, reportCardText) =>
         MetricsCalculator_Arrays.sequenceOp(reportCardMetrics, reportCardText),
+    //combo defines how the arrays should be combinewd
       combOp = (x, y) => MetricsCalculator_Arrays.compOp(x, y))
     .mapValues(MetricsCalculator_Arrays.toReportCardMetrics)
   }
@@ -55,7 +61,7 @@ class SmartAggregations {
 }
 //tag::caseClass[]
 case class ReportCardMetrics(longestWord : Int, happyMentions : Int, averageWords : Double)
-//tag::caseClass[]
+//end::caseClass[]
 
 
 //tag::firstCalculator[]
@@ -125,7 +131,7 @@ class MetricsCalculator_ReuseObjects(
 object MetricsCalculator_Arrays extends Serializable {
   val totalWordIndex = 0
   val longestWordIndex = 1
-  val happyMentionsIndex =2
+  val happyMentionsIndex = 2
   val numberReportCardsIndex = 3
 
   def sequenceOp(reportCardMetrics : Array[Int],
@@ -150,9 +156,12 @@ object MetricsCalculator_Arrays extends Serializable {
     x
   }
 
-  def toReportCardMetrics(ar : Array[Int]) : ReportCardMetrics = ReportCardMetrics(
-    ar(longestWordIndex), ar(happyMentionsIndex), ar(totalWordIndex)/ar(numberReportCardsIndex)
-  )
+  def toReportCardMetrics(ar : Array[Int]) : ReportCardMetrics =
+    ReportCardMetrics(
+      ar(longestWordIndex),
+      ar(happyMentionsIndex),
+      ar(totalWordIndex)/ar(numberReportCardsIndex)
+    )
 }
 //end::calculator_array[]
 
@@ -182,18 +191,18 @@ object CollectionRoutines{
   //tag::fasterSeqOp[]
   val totalWordIndex = 0
   val longestWordIndex = 1
-  val happyMentionsIndex =2
+  val happyMentionsIndex = 2
   val numberReportCardsIndex = 3
   def fasterSeqOp(reportCardMetrics : Array[Int], content  : String): Array[Int] = {
     val words: Seq[String] = content.split(" ")
-    val (longestWord, happyMentions) = CollectionRoutines.findWordMetrics(words) //words is
+    val (longestWord, happyMentions) = CollectionRoutines.findWordMetrics(words)
     reportCardMetrics(totalWordIndex) += words.length
     reportCardMetrics(longestWordIndex) = longestWord
     reportCardMetrics(happyMentionsIndex) += happyMentions
     reportCardMetrics(numberReportCardsIndex) +=1
     reportCardMetrics
   }
-  //end:fasterSeqOp[]
+  //end::fasterSeqOp[]
 }
 
 

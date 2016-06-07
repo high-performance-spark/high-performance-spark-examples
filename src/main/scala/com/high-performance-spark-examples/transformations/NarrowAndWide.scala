@@ -13,7 +13,7 @@ object NarrowAndWide {
     //tag::narrowWide[]
 
     //Narrow dependency. Map the rdd to tuples  of (x, 1)
-    val rdd2 = rdd1.map((_, 1))
+    val rdd2 = rdd1.map(x => (x, 1))
     //wide dependency groupByKey
     val rdd3 = rdd2.groupByKey()
     //end::narrowWide[]
