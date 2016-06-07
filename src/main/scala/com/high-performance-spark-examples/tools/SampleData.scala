@@ -1,6 +1,7 @@
 import scala.util.Random
 import scala.reflect.{ClassTag}
 
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
 /**
@@ -51,4 +52,14 @@ object SampleData {
     }
     //end::mapPartitions[]
   }
+
+  //tag::broadcast[]
+  class LazyPrng {
+    lazy val r = new Random()
+  }
+  def customSampleBroadcast[T: ClassTag](sc: SparkContext, rdd: RDD[T]): RDD[T]= {
+    val bcastprng = sc.broadcast(new LazyPrng())
+    rdd.filter(x => bcastprng.value.r.nextInt(10) == 0)
+  }
+  //end::broadcast[]
 }
