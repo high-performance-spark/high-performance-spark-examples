@@ -8,6 +8,7 @@ import com.highperformancespark.examples.dataframe.RawPanda
 import org.apache.spark._
 import org.apache.spark.rdd._
 
+import scala.collection.mutable.HashSet
 object Accumulators {
   /**
    * Compute the total fuzzyness with an accumulator while generating an id and zip pair for sorting
@@ -43,4 +44,27 @@ object Accumulators {
     (transformed, acc.value)
   }
   //end::maxFuzzyAcc[]
+
+  //tag::uniquePandaAcc[]
+  def uniquePandas(sc: SparkContext, rdd: RDD[RawPanda]): HashSet[Long] = {
+    object UniqParam extends AccumulableParam[HashSet[Long], Long] {
+      override def zero(initValue: HashSet[Long]) = initValue
+      // For adding new values
+      override def addAccumulator(r: HashSet[Long], t: Long): HashSet[Long] = {
+        r += t
+        r
+      }
+      // For merging accumulators
+      override def addInPlace(r1: HashSet[Long], r2: HashSet[Long]): HashSet[Long] = {
+        r1 ++ r2
+      }
+    }
+    // Create an accumulator with the initial value of Double.MinValue
+    val acc = sc.accumulable(new HashSet[Long]())(UniqParam)
+    val transformed = rdd.map{x => acc += x.id; (x.zip, x.id)}
+    // accumulator still has Double.MinValue
+    transformed.count() // force evaluation
+    acc.value
+  }
+  //end::uniquePandaAcc[]
 }
