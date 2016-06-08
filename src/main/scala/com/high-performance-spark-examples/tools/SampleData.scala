@@ -44,16 +44,16 @@ object SampleData {
    * Custom random sample with RNG. This is intended as an example of how to save setup overhead.
    */
   def customSampleInput[T: ClassTag](rdd: RDD[T]): RDD[T] = {
-    //tag::mapPartitions[]
+    // tag::mapPartitions[]
     rdd.mapPartitions{itr =>
       // Only create once RNG per partitions
       val r = new Random()
       itr.filter(x => r.nextInt(10) == 0)
     }
-    //end::mapPartitions[]
+    // end::mapPartitions[]
   }
 
-  //tag::broadcast[]
+  // tag::broadcast[]
   class LazyPrng {
     @transient lazy val r = new Random()
   }
@@ -61,5 +61,5 @@ object SampleData {
     val bcastprng = sc.broadcast(new LazyPrng())
     rdd.filter(x => bcastprng.value.r.nextInt(10) == 0)
   }
-  //end::broadcast[]
+  // end::broadcast[]
 }
