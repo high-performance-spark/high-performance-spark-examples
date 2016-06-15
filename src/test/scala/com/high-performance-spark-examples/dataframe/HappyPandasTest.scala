@@ -8,11 +8,12 @@ import com.holdenkarau.spark.testing._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.scalatest.Matchers._
+import org.scalatest.FunSuite
 
 import scala.collection.mutable
 import scala.util.Random
 
-class HappyPandasTest extends DataFrameSuiteBase {
+class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
   val toronto = "toronto"
   val sandiego = "san diego"
   val virginia = "virginia"
