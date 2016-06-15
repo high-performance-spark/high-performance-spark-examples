@@ -22,12 +22,11 @@ sparkComponents ++= Seq("core", "streaming", "mllib")
 sparkComponents ++= Seq("sql", "hive", "hivecontext-compatibility", "hive-thriftserver")
 //end::addSQLHiveComponent[]
 
-
 parallelExecution in Test := false
 
 fork := true
 
-javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled")
+javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled", "-Djna.nosys=true")
 
 // additional libraries
 libraryDependencies ++= Seq(
