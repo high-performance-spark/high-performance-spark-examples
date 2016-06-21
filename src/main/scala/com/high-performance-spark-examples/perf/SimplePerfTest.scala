@@ -21,8 +21,7 @@ import com.highperformancespark.examples.tools._
 
 import org.apache.spark.rdd._
 import org.apache.spark.{SparkContext, SparkConf}
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
-import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.sql.{SparkSession, DataFrame, Dataset, Row}
 import org.apache.spark.sql.types._
 
 /**
@@ -31,15 +30,15 @@ import org.apache.spark.sql.types._
 object SimplePerfTest {
   def main(args: Array[String]) = {
     val sparkConf = new SparkConf().setAppName("simple-perf-test")
-    val sc = new SparkContext(sparkConf)
-    val sqlCtx = new HiveContext(sc)
+    val sparkSession = SparkSession.builder().enableHiveSupport().getOrCreate()
+    val sc = sparkSession.sparkContext
     val scalingFactor = if (args.length > 0) args(0).toLong else 100L
     val size = if (args.length > 1) args(1).toInt else 50
-    run(sc, sqlCtx, scalingFactor, size)
+    run(sc, sparkSession, scalingFactor, size)
   }
 
-  def run(sc: SparkContext, sqlCtx: HiveContext, scalingFactor: Long, size: Int) = {
-    import sqlCtx.implicits._
+  def run(sc: SparkContext, session: SparkSession, scalingFactor: Long, size: Int) = {
+    import session.implicits._
     val inputRDD = GenerateScalingData.generateFullGoldilocks(sc, scalingFactor, size)
     val pairRDD = inputRDD.map(p => (p.zip.toInt, p.attributes(0)))
     pairRDD.cache()

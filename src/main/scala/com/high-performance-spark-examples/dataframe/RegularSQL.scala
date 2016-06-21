@@ -23,7 +23,7 @@ case class RegularSQL(sqlContext: SQLContext) {
   //tag::registerTable[]
   def registerTable(df: DataFrame): Unit = {
     df.registerTempTable("pandas")
-    df.saveAsTable("perm_pandas")
+    df.write.saveAsTable("perm_pandas")
   }
   //end::registerTable[]
 }

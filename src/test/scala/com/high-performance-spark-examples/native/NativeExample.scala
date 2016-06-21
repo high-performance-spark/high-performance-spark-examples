@@ -10,7 +10,7 @@ import org.scalatest.FunSuite
 import org.scalatest.prop.Checkers
 import org.scalatest.Matchers._
 
-class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers {
+class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers with RDDComparisons {
 
   test("local sum") {
     val input = Array(1, 2, 3)
@@ -32,7 +32,7 @@ class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers 
       rdd =>
         val expected = rdd.mapValues(_.sum)
         val result = NativeExample.jniSum(rdd)
-        RDDComparisons.compareWithOrder(expected, result).isEmpty
+        compareRDDWithOrder(expected, result).isEmpty
     }
     check(property)
   }
