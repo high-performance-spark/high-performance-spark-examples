@@ -4,7 +4,7 @@ import com.highperformancespark.examples.objects.JavaPandaInfo;
 import com.highperformancespark.examples.objects.JavaPandas;
 import com.highperformancespark.examples.objects.JavaRawPanda;
 import com.holdenkarau.spark.testing.JavaDataFrameSuiteBase;
-import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.types.*;
@@ -41,8 +41,8 @@ public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
 
   @Test
   public void simpleSelfJoinTest() {
-    DataFrame inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
-    DataFrame result = JavaHappyPandas.selfJoin(inputDF).select("a.name", "b.name");
+    Dataset<Row> inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
+    Dataset<Row> result = JavaHappyPandas.selfJoin(inputDF).select("a.name", "b.name");
     List<Row> resultList = result.collectAsList();
 
     resultList.stream().forEach(row -> assertEquals(row.getString(0), row.getString(1)));
@@ -52,26 +52,26 @@ public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
   public void verifyhappyPandasPercentage() {
     List<Row> expectedList = Arrays.asList(RowFactory.create(toronto, 0.5),
       RowFactory.create(sandiego, 2 / 3.0), RowFactory.create(virginia, 1/10.0));
-    DataFrame expectedDF = sqlContext().createDataFrame(
+    Dataset<Row> expectedDF = sqlContext().createDataFrame(
       expectedList, new StructType(
         new StructField[]{
           new StructField("place", DataTypes.StringType, true, Metadata.empty()),
           new StructField("percentHappy", DataTypes.DoubleType, true, Metadata.empty())
         }));
 
-    DataFrame inputDF = sqlContext().createDataFrame(pandaInfoList, JavaPandaInfo.class);
-    DataFrame resultDF = JavaHappyPandas.happyPandasPercentage(inputDF);
+    Dataset<Row> inputDF = sqlContext().createDataFrame(pandaInfoList, JavaPandaInfo.class);
+    Dataset<Row> resultDF = JavaHappyPandas.happyPandasPercentage(inputDF);
 
     assertDataFrameApproximateEquals(expectedDF, resultDF, 1E-5);
   }
 
   @Test
   public void encodePandaType() {
-    DataFrame inputDF = sqlContext().createDataFrame(rawPandaList, JavaRawPanda.class);
-    DataFrame resultDF = JavaHappyPandas.encodePandaType(inputDF);
+    Dataset<Row> inputDF = sqlContext().createDataFrame(rawPandaList, JavaRawPanda.class);
+    Dataset<Row> resultDF = JavaHappyPandas.encodePandaType(inputDF);
 
     List<Row> expectedRows = Arrays.asList(RowFactory.create(10L, 0), RowFactory.create(11L, 1));
-    DataFrame expectedDF = sqlContext().createDataFrame(expectedRows, new StructType(new StructField[]{
+    Dataset<Row> expectedDF = sqlContext().createDataFrame(expectedRows, new StructType(new StructField[]{
       new StructField("id", DataTypes.LongType, false, Metadata.empty()),
       new StructField("encodedType", DataTypes.IntegerType, false, Metadata.empty())
     }));
@@ -81,28 +81,28 @@ public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
 
   @Test
   public void happyPandasPlaces() {
-    DataFrame inputDF = sqlContext().createDataFrame(pandaInfoList, JavaPandaInfo.class);
-    DataFrame resultDF = JavaHappyPandas.happyPandasPlaces(inputDF);
+    Dataset<Row> inputDF = sqlContext().createDataFrame(pandaInfoList, JavaPandaInfo.class);
+    Dataset<Row> resultDF = JavaHappyPandas.happyPandasPlaces(inputDF);
 
     List<JavaPandaInfo> expectedRows = Arrays.asList(
       new JavaPandaInfo(toronto, "giant", 1, 2),
       new JavaPandaInfo(sandiego, "red", 2, 3));
-    DataFrame expectedDF = sqlContext().createDataFrame(expectedRows, JavaPandaInfo.class);
+    Dataset<Row> expectedDF = sqlContext().createDataFrame(expectedRows, JavaPandaInfo.class);
 
     assertDataFrameEquals(expectedDF, resultDF);
   }
 
   @Test
   public void maxPandaSizePerZip() {
-    DataFrame inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
-    DataFrame resultDF = JavaHappyPandas.maxPandaSizePerZip(inputDF);
+    Dataset<Row> inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
+    Dataset<Row> resultDF = JavaHappyPandas.maxPandaSizePerZip(inputDF);
 
     List<Row> expectedRows = Arrays.asList(
       RowFactory.create(pandasList.get(1).getZip(), pandasList.get(1).getPandaSize()),
       RowFactory.create(pandasList.get(3).getZip(), pandasList.get(3).getPandaSize()),
       RowFactory.create(pandasList.get(4).getZip(), pandasList.get(4).getPandaSize())
     );
-    DataFrame expectedDF = sqlContext().createDataFrame(expectedRows,
+    Dataset<Row> expectedDF = sqlContext().createDataFrame(expectedRows,
       new StructType(
         new StructField[]{
           new StructField("zip", DataTypes.StringType, true, Metadata.empty()),
@@ -115,15 +115,15 @@ public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
 
   @Test
   public void complexAggPerZip() {
-    DataFrame inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
-    DataFrame resultDF = JavaHappyPandas.minMeanSizePerZip(inputDF);
+    Dataset<Row> inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
+    Dataset<Row> resultDF = JavaHappyPandas.minMeanSizePerZip(inputDF);
 
     List<Row> expectedRows = Arrays.asList(
       RowFactory.create(pandasList.get(1).getZip(), pandasList.get(0).getPandaSize(), 15.0),
       RowFactory.create(pandasList.get(3).getZip(), pandasList.get(2).getPandaSize(), 11.5),
       RowFactory.create(pandasList.get(4).getZip(), pandasList.get(4).getPandaSize(), 20.0));
 
-    DataFrame expectedDF = sqlContext().createDataFrame(expectedRows,
+    Dataset<Row> expectedDF = sqlContext().createDataFrame(expectedRows,
       new StructType(
         new StructField[]{
           new StructField("zip", DataTypes.StringType, true, Metadata.empty()),
@@ -137,13 +137,13 @@ public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
 
   @Test
   public void simpleSQLExample() {
-    DataFrame inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
-    DataFrame resultDF = JavaHappyPandas.simpleSqlExample(inputDF);
+    Dataset<Row> inputDF = sqlContext().createDataFrame(pandasList, JavaPandas.class);
+    Dataset<Row> resultDF = JavaHappyPandas.simpleSqlExample(inputDF);
 
     List<JavaPandas> expectedList = Arrays.asList(
       pandasList.get(0), pandasList.get(2)
     );
-    DataFrame expectedDF = sqlContext().createDataFrame(expectedList, JavaPandas.class);
+    Dataset<Row> expectedDF = sqlContext().createDataFrame(expectedList, JavaPandas.class);
 
     assertDataFrameEquals(expectedDF, resultDF);
   }
