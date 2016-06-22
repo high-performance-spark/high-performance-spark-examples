@@ -26,6 +26,11 @@ addons:
       - cmake
       - perl
       - cpanminus
+      - r-base
+      - libcurl4-gnutls-dev
+      - libxml2-dev
+      - libssl-dev
+      - r-base-dev
 r_packages:
   - Imap
 before_install:
