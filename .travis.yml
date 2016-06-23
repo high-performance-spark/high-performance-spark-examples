@@ -15,6 +15,7 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - ppa:marutter/rdev
     packages:
       - gfortran
       - gcc
@@ -26,6 +27,11 @@ addons:
       - cmake
       - perl
       - cpanminus
+      - r-base
+      - libcurl4-gnutls-dev
+      - libxml2-dev
+      - libssl-dev
+      - r-base-dev
 r_packages:
   - Imap
 before_install:
@@ -40,11 +46,13 @@ before_install:
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
-  - "[ -f spark] || mkdir spark && cd spark && wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.1-bin-hadoop2.6.tgz && cd .."
-  - "tar -xf ./spark/spark-1.6.1-bin-hadoop2.6.tgz"
-  - "export SPARK_HOME=`pwd`/spark-1.6.1-bin-hadoop2.6"
+  - "[ -f spark] || mkdir spark && cd spark && wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-preview-bin-hadoop2.6.tgz && cd .."
+  - "tar -xf ./spark/spark-2.0.0-preview-bin-hadoop2.6.tgz"
+  - "export SPARK_HOME=`pwd`/spark-2.0.0-preview-bin-hadoop2.6"
   - "export PYTHONPATH=$SPARK_HOME/python:`ls -1 $SPARK_HOME/python/lib/py4j-*-src.zip`:$PYTHONPATH"
   - "nosetests --with-doctest --doctest-options=+ELLIPSIS --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov"
+  - # $SPARK_HOME/bin/spark-submit ./src/main/r/wc.R $SPARK_HOME/README.md
+  - # $SPARK_HOME/bin/spark-submit ./src/main/r/dapply.R
 after_success:
 # For now no coverage report
   - codecov
