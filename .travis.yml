@@ -40,7 +40,6 @@ addons:
 r_packages:
   - Imap
 before_install:
-  - find $HOME
   - # Setup Python
   - pip install --user codecov unittest2 nose pep8 pylint --download-cache $HOME/.pip-cache
   - # Setup perl
