@@ -8,6 +8,7 @@ cache:
     - $HOME/.sbt/launchers
     - $HOME/perl5
     - $HOME/julia
+    - $HOME/.julia
 scala:
    - 2.11.6
 jdk:
@@ -54,6 +55,8 @@ before_install:
   - "[ -f julia ] || mkdir julia && cd julia && wget https://julialang.s3.amazonaws.com/bin/linux/x64/0.4/julia-0.4.6-linux-x86_64.tar.gz && cd .."
   - tar -xf ./julia/julia-0.4.6-linux-x86_64.tar.gz
   - export PATH=$PATH:`pwd`/julia-2e358ce975/bin/
+  - # Setup Julia Spark
+  - julia ./src/main/julia/setup.jl
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
