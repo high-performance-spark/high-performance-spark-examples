@@ -15,6 +15,7 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - ppa:marutter/rdev
     packages:
       - gfortran
       - gcc
