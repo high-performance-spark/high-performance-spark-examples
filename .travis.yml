@@ -38,6 +38,7 @@ addons:
       - libxml2-dev
       - libssl-dev
       - r-base-dev
+      - axel
 r_packages:
   - Imap
 before_install:
@@ -52,7 +53,7 @@ before_install:
   - PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
   - PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
   - # Setup Julia
-  - "[ -f julia ] || mkdir julia && cd julia && wget https://julialang.s3.amazonaws.com/bin/linux/x64/0.4/julia-0.4.6-linux-x86_64.tar.gz && cd .."
+  - "[ -f julia ] || mkdir julia && cd julia && axel https://julialang.s3.amazonaws.com/bin/linux/x64/0.4/julia-0.4.6-linux-x86_64.tar.gz && cd .."
   - tar -xf ./julia/julia-0.4.6-linux-x86_64.tar.gz
   - export PATH=$PATH:`pwd`/julia-2e358ce975/bin/
   - # Setup Julia Spark
@@ -60,7 +61,7 @@ before_install:
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
-  - "[ -f spark] || mkdir spark && cd spark && wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-preview-bin-hadoop2.6.tgz && cd .."
+  - "[ -f spark] || mkdir spark && cd spark && axel http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-preview-bin-hadoop2.6.tgz && cd .."
   - "tar -xf ./spark/spark-2.0.0-preview-bin-hadoop2.6.tgz"
   - "export SPARK_HOME=`pwd`/spark-2.0.0-preview-bin-hadoop2.6"
   - "export PYTHONPATH=$SPARK_HOME/python:`ls -1 $SPARK_HOME/python/lib/py4j-*-src.zip`:$PYTHONPATH"
