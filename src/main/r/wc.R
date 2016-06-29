@@ -24,6 +24,8 @@ if (length(args) != 1) {
 
 fileName <- args(1)
 
+# tag:example[]
+
 library(SparkR)
 
 # Setup SparkContext & SQLContext
@@ -55,3 +57,4 @@ wc <- agg(groupBy(explodedWords, "words"), "words" = "count")
 
 # Display the result
 showDF(wc)
+# end:example[]
