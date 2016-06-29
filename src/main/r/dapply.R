@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+# tag:example[]
 library(SparkR)
 
 # Setup SparkContext & SQLContext
@@ -36,3 +37,4 @@ result <- dapply(df, function(row) {
   y <- cbind(y, nchar(row[[3]]))
 }, resultingSchema)
 showDF(result)
+# end:example[]
