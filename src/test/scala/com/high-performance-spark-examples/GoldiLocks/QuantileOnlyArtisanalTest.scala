@@ -1,5 +1,6 @@
 package com.highperformancespark.examples.goldilocks
 
+import com.highperformancespark.examples.goldilocks.GoldiLocksGroupByKey.{GoldiLocksWhileLoop, GoldiLocksFirstTry}
 import org.apache.spark._
 import org.apache.spark.sql.SQLContext
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
@@ -23,15 +24,28 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     GoldiLocksRow(4.0, 5.5, 0.5, 8.0)
   )
 
+  val expectedResult = Map[Int, Set[Double]](
+    0 -> Set(1.0, 2.0),
+    1 -> Set(5.5, 5.5),
+    2 -> Set(0.5, 1.5),
+    3 -> Set(6.0, 7.0))
+
+  test("Goldilocks naive Solution"){
+    val sqlContext = new SQLContext(sc)
+    val input = sqlContext.createDataFrame(inputList)
+    val whileLoopSolution = GoldiLocksWhileLoop.findRankStatistics(input, List(2L, 3L)).mapValues(_.toSet)
+    val inputAsKeyValuePairs = GoldiLocksGroupByKey.mapToKeyValuePairs(input)
+    val groupByKeySolution = GoldiLocksGroupByKey.findRankStatistics(
+      inputAsKeyValuePairs, List(2L,3L)).mapValues(_.toSet)
+    assert(whileLoopSolution == expectedResult)
+    assert(groupByKeySolution == expectedResult)
+  }
+
   test("Goldilocks first try ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
     val secondAndThird = GoldiLocksFirstTry.findRankStatistics(input, targetRanks = List(2L, 3L))
-    val expectedResult = Map[Int, Set[Double]](
-      0 -> Set(1.0, 2.0),
-      1 -> Set(5.5, 5.5),
-      2 -> Set(0.5, 1.5),
-      3 -> Set(6.0, 7.0))
+
     secondAndThird.foreach(x => println( x._1 +"," + x._2.mkString(" ")))
     assert(expectedResult.forall{case ((index, expectedRanks)) =>
       secondAndThird.get(index).get.toSet.equals(expectedRanks)})
