@@ -4,20 +4,62 @@ import scala.collection.{Map, mutable}
 import scala.collection.mutable.{ArrayBuffer, MutableList}
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{Dataset, DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 
 object GoldiLocksGroupByKey {
   //tag::groupByKey[]
   def findRankStatistics(
     pairRDD: RDD[(Int, Double)],
-    ranks: List[Long]): Map[Int, List[Double]] = {
+    ranks: List[Long]): Map[Int, Iterable[Double]] = {
     pairRDD.groupByKey().mapValues(iter => {
-      val ar = iter.toArray.sorted
-      ranks.map(n => ar(n.toInt))
+      iter.zipWithIndex.flatMap({
+        case (colValue, index) =>
+          if (ranks.contains(index))
+            Iterator(colValue)
+          else
+            Iterator.empty
+      })
     }).collectAsMap()
   }
   //end::groupByKey[]
+
+
+  //tag::toKeyValPairs
+  def mapToKeyValuePairs(dataFrame: DataFrame): RDD[(Int, Double)] = {
+    val rowLength = dataFrame.schema.length
+    dataFrame.rdd.flatMap(
+      row => Range(0, rowLength).map(i => (i, row.getDouble(i)))
+    )
+  }
+  //end::toKeyValPairs[]
+}
+
+
+object GoldiLocksWhileLoop{
+
+  //tag::rankstatsLoop
+  def findRankStatistics(
+    dataFrame: DataFrame ,
+    ranks: List[Long]): Map[Int, Iterable[Double]] = {
+
+    val numberOfColumns = dataFrame.schema.length
+    var i = 0
+    var  result = Map[Int, Iterable[Double]]()
+
+    while(i < numberOfColumns){
+      val col = dataFrame.rdd.map(row => row.getDouble(i))
+      val sortedCol : RDD[(Double, Long)] = col.sortBy(v => v).zipWithIndex()
+      val ranksOnly = sortedCol.filter{
+        case (colValue, index) =>  ranks.contains(index)
+      }.keys
+      val list = ranksOnly.collect()
+       result += (i -> list)
+       i+=1
+    }
+    result
+  }
+  //end::rankstatsLoop
 }
 
 //tag::firstTry[]
