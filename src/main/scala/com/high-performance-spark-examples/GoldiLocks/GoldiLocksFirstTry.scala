@@ -1,31 +1,58 @@
 package com.highperformancespark.examples.goldilocks
 
-import scala.collection.{Map, mutable}
-import scala.collection.mutable.{ArrayBuffer, MutableList}
-
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Dataset, DataFrame, Row}
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 
-object GoldiLocksGroupByKey {
+import scala.collection.mutable.MutableList
+import scala.collection.{Map, mutable}
+
+object GoldilocksGroupByKey {
   //tag::groupByKey[]
   def findRankStatistics(
-    pairRDD: RDD[(Int, Double)],
+    dataFrame: DataFrame ,
     ranks: List[Long]): Map[Int, Iterable[Double]] = {
-    pairRDD.groupByKey().mapValues(iter => {
-      iter.zipWithIndex.flatMap({
+    require(ranks.forall(_ > 0))
+    //Map to column index, value pairs
+    val pairRDD: RDD[(Int, Double)] = mapToKeyValuePairs(dataFrame)
+
+    val groupColumns: RDD[(Int, Iterable[Double])] = pairRDD.groupByKey()
+    groupColumns.mapValues(
+      iter => {
+        //convert to an array and sort
+        val sortedIter = iter.toArray.sorted
+
+        sortedIter.toIterable.zipWithIndex.flatMap({
         case (colValue, index) =>
-          if (ranks.contains(index))
+          if (ranks.contains(index + 1))
             Iterator(colValue)
           else
             Iterator.empty
       })
     }).collectAsMap()
   }
+
+  def findRankStatistics(
+    pairRDD: RDD[(Int, Double)],
+    ranks: List[Long]): Map[Int, Iterable[Double]] = {
+    assert(ranks.forall(_ > 0))
+    pairRDD.groupByKey().mapValues(iter => {
+      val sortedIter  = iter.toArray.sorted
+      sortedIter.zipWithIndex.flatMap(
+        {
+        case (colValue, index) =>
+          if (ranks.contains(index + 1))
+            Iterator(colValue)  //this is one of the desired rank statistics
+          else
+            Iterator.empty
+        }
+      ).toIterable //convert to more generic iterable type to match out spec
+    }).collectAsMap()
+  }
   //end::groupByKey[]
 
 
-  //tag::toKeyValPairs
+  //tag::toKeyValPairs[]
   def mapToKeyValuePairs(dataFrame: DataFrame): RDD[(Int, Double)] = {
     val rowLength = dataFrame.schema.length
     dataFrame.rdd.flatMap(
@@ -36,13 +63,13 @@ object GoldiLocksGroupByKey {
 }
 
 
-object GoldiLocksWhileLoop{
+object GoldilocksWhileLoop{
 
-  //tag::rankstatsLoop
+  //tag::rankstatsLoop[]
   def findRankStatistics(
-    dataFrame: DataFrame ,
+    dataFrame: DataFrame,
     ranks: List[Long]): Map[Int, Iterable[Double]] = {
-
+    require(ranks.forall(_ > 0))
     val numberOfColumns = dataFrame.schema.length
     var i = 0
     var  result = Map[Int, Iterable[Double]]()
@@ -51,7 +78,7 @@ object GoldiLocksWhileLoop{
       val col = dataFrame.rdd.map(row => row.getDouble(i))
       val sortedCol : RDD[(Double, Long)] = col.sortBy(v => v).zipWithIndex()
       val ranksOnly = sortedCol.filter{
-        case (colValue, index) =>  ranks.contains(index)
+        case (colValue, index) =>  ranks.contains(index + 1) //rank statistics are indexed from one. e.g. first element is 0
       }.keys
       val list = ranksOnly.collect()
        result += (i -> list)
@@ -59,11 +86,11 @@ object GoldiLocksWhileLoop{
     }
     result
   }
-  //end::rankstatsLoop
+  //end::rankstatsLoop[]
 }
 
 //tag::firstTry[]
-object GoldiLocksFirstTry {
+object GoldilocksFirstTry {
 
   /**
     * Find nth target rank for every column.
@@ -99,8 +126,10 @@ object GoldiLocksFirstTry {
     sortedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
     val numOfColumns = dataFrame.schema.length
-    val partitionColumnsFreq = getColumnsFreqPerPartition(sortedValueColumnPairs, numOfColumns)
-    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
+    val partitionColumnsFreq =
+      getColumnsFreqPerPartition(sortedValueColumnPairs, numOfColumns)
+    val ranksLocations =
+      getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
 
     val targetRanksValues = findTargetRanksIteratively(sortedValueColumnPairs, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
