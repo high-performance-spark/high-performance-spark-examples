@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Map, mutable}
 
 //tag::hashMap[]
-object GoldiLocksWithHashMap {
+object GoldilocksWithHashMap {
 
   /**
     * Find nth target rank for every column.                 
