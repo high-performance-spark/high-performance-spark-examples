@@ -56,4 +56,13 @@ class GoldilocksMLlib(sc: SparkContext) {
         Vectors.dense(combined))
     }
   }
+
+  def trainModel(rdd: RDD[LabeledPoint]) = {
+  }
+
+  def predict(rdd: RDD[SparkVector]) = {
+  }
+
+  def saveToPMML() = {
+  }
 }
