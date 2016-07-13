@@ -12,7 +12,7 @@ import org.apache.spark.mllib.linalg.Vectors
 // Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.feature.HashingTF
+import org.apache.spark.mllib.feature._
 //end::imports[]
 
 class GoldilocksMLlib(sc: SparkContext) {
