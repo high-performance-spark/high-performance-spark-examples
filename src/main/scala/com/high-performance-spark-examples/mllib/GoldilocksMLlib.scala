@@ -44,6 +44,15 @@ class GoldilocksMLlib(sc: SparkContext) {
     }
   }
 
+  //tag::createLabelLookup[]
+  def createLabelLookup[T](rdd: RDD[T]): Map[T, Double] = {
+    val distinctLabels: Array[T] = rdd.distinct().collect()
+    distinctLabels.zipWithIndex
+      .map{case (label, x) => (label, x.toDouble)}.toMap
+  }
+  //end::createLabelLookup[]
+
+
   //tag::hashingTFSimple[]
   def hashingTf(rdd: RDD[String]): RDD[SparkVector] = {
     val ht = new HashingTF()
