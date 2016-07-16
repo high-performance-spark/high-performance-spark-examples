@@ -8,6 +8,7 @@ import scala.collection.mutable.{ArrayBuffer, MutableList}
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
 //tag::imports[]
+import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import org.apache.spark.mllib.linalg.Vectors
 // Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
@@ -61,6 +62,39 @@ class GoldilocksMLlib(sc: SparkContext) {
   }
   //end::hashingTFSimple[]
 
+  //tag::word2vecSimple[]
+  def word2vec(rdd: RDD[String]): RDD[SparkVector] = {
+    // Tokenize our data
+    val tokenized = rdd.map(_.split(" ").toIterable)
+    // Construct our word2vec model
+    val wv = new Word2Vec()
+    val wvm = wv.fit(tokenized)
+    // WVM can now transform single words
+    println(wvm.transform("panda"))
+    // Vector size is 100 - we use this to build a transformer on top of WVM that
+    // works on sentences.
+    val vectorSize = 100
+    // The transform function works on a per-word basis, but we have sentences as input.
+    tokenized.map{words =>
+      // If there is nothing in the sentence output a null vector
+      if (words.isEmpty) {
+        Vectors.sparse(vectorSize, Array.empty[Int], Array.empty[Double])
+      } else {
+        // If there are sentences construct a running sum of the vectors for each word
+        val sum = Array[Double](vectorSize)
+        words.foreach { word =>
+          blas.daxpy(
+            vectorSize, 1.0, wvm.transform(word).toArray, 1, sum, 1)
+        }
+        // Then scale it by the number of words
+        blas.dscal(sum.length, 1.0 / words.size, sum, 1)
+        // And wrap it in a Spark vector
+        Vectors.dense(sum)
+      }
+    }
+  }
+  //end::word2vecSimple[]
+
   //tag::hashingTFPreserve[]
   def toVectorPerserving(rdd: RDD[RawPanda]): RDD[(RawPanda, SparkVector)] = {
     val ht = new HashingTF()
@@ -81,6 +115,7 @@ class GoldilocksMLlib(sc: SparkContext) {
   }
   //end::hashingTFPreserveZip[]
 
+  //tag::toLabeledPointWithHashing[]
   def toLabeledPointWithHashing(rdd: RDD[RawPanda]): RDD[LabeledPoint] = {
     val ht = new HashingTF()
     rdd.map{rp =>
@@ -90,6 +125,7 @@ class GoldilocksMLlib(sc: SparkContext) {
         Vectors.dense(combined))
     }
   }
+  //end::toLabeledPointWithHashing[]
 
   def trainModel(rdd: RDD[LabeledPoint]) = {
   }
