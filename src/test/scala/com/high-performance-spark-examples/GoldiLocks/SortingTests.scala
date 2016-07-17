@@ -16,12 +16,9 @@ class SortingTests extends FunSuite with SharedSparkContext {
        Range(50, 100).map(i => (( x, i.toChar), Math.random()))
     ).toArray
 
-    val unsorted = scramble(sc.parallelize(sortedData),6)
+    val unsorted = scramble(sc.parallelize(sortedData),2)
     val sortedSimple: Array[((Int, Char), Double)]  = unsorted.sortByKey().collect()
- //   val secondarySortRDD =
-   //   SecondarySort.groupByKeyAndSortBySecondaryKey(unsorted, 6)
- //   val secondarySortResult: Array[(Int, List[(Char, Double)])] = secondarySortRDD.collect()
-   // assert(secondarySortResult sameElements sortedData)
+
     assert(sortedSimple sameElements sortedData)
     }
 
@@ -46,7 +43,6 @@ class SortingTests extends FunSuite with SharedSparkContext {
       ("Joe", StreetAddress("Seattle","Grove", 52 ), 94440, 0.5),
         ("Kobe", StreetAddress("Seattle","Grove", 52 ), 94440, 0.5),
         ("Lacy", StreetAddress("Seattle","Grove", 52 ), 94440, 0.5),
-      ("Lacy", StreetAddress("Seattle","Grove", 80 ), 94440, 0.5),
         ("Morris", StreetAddress("Seattle","Grove", 52 ), 94440, 0.5),
       ("Joe", StreetAddress("Tacoma","Grove", 52 ), 94440, 0.5),
       ("Kobe", StreetAddress("Tacoma","Grove", 52 ), 94440, 0.5),
