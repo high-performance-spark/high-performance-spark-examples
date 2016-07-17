@@ -19,7 +19,6 @@ object PandaSecondarySort {
           (fullName, address, zip, happiness))
     }
 
-    val pandaPartitioner = new PandaKeyPartitioner(rdd.partitions.length)
      //tag::implicitOrdering[]
     implicit def orderByLocationAndName[A <: PandaKey]: Ordering[A] = {
       Ordering.by(pandaKey => (pandaKey.city, pandaKey.zip, pandaKey.name))
