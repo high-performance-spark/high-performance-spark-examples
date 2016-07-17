@@ -6,12 +6,73 @@ import scala.reflect.ClassTag
 import org.apache.spark.{HashPartitioner, Partitioner}
 import org.apache.spark.rdd.RDD
 
+object PandaSecondarySort {
+
+  //Sort first by panda Id (a tuple of four things). Then by city, zip, and name ,
+  // Name, address, zip, happiness
+
+  //We want to sort the pandas by location and then by names
+   def secondarySort(rdd : RDD[(String, StreetAddress, Int, Double)]) = {
+    val keyedRDD: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = rdd.map {
+      case (fullName, address, zip, happiness) =>
+        (PandaKey(address.city, zip, address.houseNumber, fullName),
+          (fullName, address, zip, happiness))
+    }
+
+     //tag::implicitOrdering[]
+    implicit def orderByLocationAndName[A <: PandaKey]: Ordering[A] = {
+      Ordering.by(pandaKey => (pandaKey.city, pandaKey.zip, pandaKey.name))
+    }
+    //end::implicitOrdering[]
+
+    keyedRDD.sortByKey().values
+  }
+
+  def groupByCityAndSortWithinGroups(rdd : RDD[(String, StreetAddress, Int, Double)]) = {
+    val keyedRDD: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = rdd.map {
+      case (fullName, address, zip, happiness) =>
+        (PandaKey(address.city, zip, address.houseNumber, fullName),
+          (fullName, address, zip, happiness))
+    }
+
+    val pandaPartitioner = new PandaKeyPartitioner(rdd.partitions.length)
+    implicit def orderByLocationAndName[A <: PandaKey]: Ordering[A] = {
+      Ordering.by(pandaKey => (pandaKey.city, pandaKey.zip, pandaKey.name))
+    }
+    keyedRDD.repartitionAndSortWithinPartitions(pandaPartitioner)
+    val sortedOnPartitions: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = keyedRDD.repartitionAndSortWithinPartitions(pandaPartitioner)
+    sortedOnPartitions.mapPartitions(
+      iter => {
+      val typedIter 
+      = iter.map(x => (x, 1))
+        SecondarySort.groupSorted(typedIter)
+      })
+  }
+}
+
+case class PandaKey(city : String, zip : Int, addressNumber : Long, name : String )
+case class StreetAddress(city : String, streetName : String, houseNumber : Long )
+
+class PandaKeyPartitioner(override val numPartitions: Int) extends Partitioner {
+  require(numPartitions >= 0, s"Number of partitions ($numPartitions) cannot be negative.")
+
+  override def getPartition(key: Any): Int = {
+    val k = key.asInstanceOf[PandaKey]
+     Math.abs(k.city.hashCode) % numPartitions //hashcode of city
+  }
+}
+
+
 object SecondarySort {
 
   //tag::sortByTwoKeys[]
-  def sortByTwoKeys[K : Ordering : ClassTag , S, V : ClassTag](pairRDD : RDD[((K, S), V)], partitions : Int ) = {
+  def sortByTwoKeys[K : Ordering : ClassTag , S, V : ClassTag](
+    pairRDD : RDD[((K, S), V)], partitions : Int ) = {
     val colValuePartitioner = new PrimaryKeyPartitioner[K, S](partitions)
+
+   //tag::implicitOrdering[]
     implicit val ordering: Ordering[(K, S)] = Ordering.by(_._1)
+    //end::implicitOrdering[]
     val sortedWithinParts = pairRDD.repartitionAndSortWithinPartitions(
       colValuePartitioner)
     sortedWithinParts
@@ -100,3 +161,4 @@ object CoPartitioningLessons {
     //end::notCoLocated[]
     }
 }
+
