@@ -1,6 +1,5 @@
 package  com.highperformancespark.examples.goldilocks
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
@@ -9,7 +8,7 @@ import org.apache.spark.rdd.RDD
 
 object PandaSecondarySort {
 
-  //Sort first by panda Id (a tuple of four things). Then by happiness,
+  //Sort first by panda Id (a tuple of four things). Then by city, zip, and name ,
   // Name, address, zip, happiness
 
   //We want to sort the pandas by location and then by names
@@ -26,11 +25,32 @@ object PandaSecondarySort {
       Ordering.by(pandaKey => (pandaKey.city, pandaKey.zip, pandaKey.name))
     }
     //end::implicitOrdering[]
- //  keyedRDD.repartitionAndSortWithinPartitions(pandaPartitioner).values   I don't think this works
+
     keyedRDD.sortByKey().values
   }
 
+  def groupByCityAndSortWithinGroups(rdd : RDD[(String, StreetAddress, Int, Double)]) = {
+    val keyedRDD: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = rdd.map {
+      case (fullName, address, zip, happiness) =>
+        (PandaKey(address.city, zip, address.houseNumber, fullName),
+          (fullName, address, zip, happiness))
+    }
+
+    val pandaPartitioner = new PandaKeyPartitioner(rdd.partitions.length)
+    implicit def orderByLocationAndName[A <: PandaKey]: Ordering[A] = {
+      Ordering.by(pandaKey => (pandaKey.city, pandaKey.zip, pandaKey.name))
+    }
+    keyedRDD.repartitionAndSortWithinPartitions(pandaPartitioner)
+    val sortedOnPartitions: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = keyedRDD.repartitionAndSortWithinPartitions(pandaPartitioner)
+    sortedOnPartitions.mapPartitions(
+      iter => {
+      val typedIter 
+      = iter.map(x => (x, 1))
+        SecondarySort.groupSorted(typedIter)
+      })
+  }
 }
+
 case class PandaKey(city : String, zip : Int, addressNumber : Long, name : String )
 case class StreetAddress(city : String, streetName : String, houseNumber : Long )
 
@@ -39,7 +59,7 @@ class PandaKeyPartitioner(override val numPartitions: Int) extends Partitioner {
 
   override def getPartition(key: Any): Int = {
     val k = key.asInstanceOf[PandaKey]
-     k.city.hashCode //hashcode of city
+     Math.abs(k.city.hashCode) % numPartitions //hashcode of city
   }
 }
 
