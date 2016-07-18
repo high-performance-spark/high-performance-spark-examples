@@ -30,7 +30,7 @@ class GoldilocksMLlib(sc: SparkContext) {
 
   //tag::selectTopTen[]
   def selectTopTenFeatures(rdd: RDD[LabeledPoint]):
-      (String, RDD[SparkVector]) = {
+      (ChiSqSelectorModel, Array[Int], RDD[SparkVector]) = {
     val selector = new ChiSqSelector(10)
     val model = selector.fit(rdd)
     val topFeatures = model.selectedFeatures
