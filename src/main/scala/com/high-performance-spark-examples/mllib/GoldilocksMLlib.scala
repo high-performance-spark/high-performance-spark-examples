@@ -181,6 +181,7 @@ class GoldilocksMLlib(sc: SparkContext) {
 
   //tag::load[]
   def load(sc: SparkContext, path: String): LogisticRegressionModel = {
+    LogisticRegressionModel.load(sc, path + "/internal")
   }
   //end::load[]
 }
