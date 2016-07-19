@@ -11,6 +11,7 @@ import org.apache.spark.rdd.RDD
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import org.apache.spark.mllib.linalg.Vectors
 // Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
+import org.apache.spark.mllib.classification.{LogisticRegressionWithSGD, LogisticRegressionModel}
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.feature._
@@ -153,12 +154,33 @@ class GoldilocksMLlib(sc: SparkContext) {
   }
   //end::toLabeledPointWithHashing[]
 
-  def trainModel(rdd: RDD[LabeledPoint]) = {
+  //tag::train[]
+  def trainModel(rdd: RDD[LabeledPoint]): LogisticRegressionModel = {
+    val km = new LogisticRegressionWithSGD()
+    val kmn = km.run(rdd)
+    kmn
   }
+  //end::train[]
 
-  def predict(rdd: RDD[SparkVector]) = {
+  //tag::predict[]
+  def predict(model: LogisticRegressionModel, rdd: RDD[SparkVector]): RDD[Double] = {
+    model.predict(rdd)
   }
+  //end::predict[]
 
-  def saveToPMML() = {
+  //tag::save[]
+  def save(sc: SparkContext, path: String, model: LogisticRegressionModel) = {
+    // Save to PMML - remote path
+    model.toPMML(sc, path + "/pmml")
+    // Save to PMML local path
+    model.toPMML(path + "/pmml")
+    // Save to internal - remote path
+    model.save(sc, path + "/internal")
   }
+  //end::save[]
+
+  //tag::load[]
+  def load(sc: SparkContext, path: String): LogisticRegressionModel = {
+  }
+  //end::load[]
 }
