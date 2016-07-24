@@ -43,7 +43,7 @@ object PandaSecondarySort {
     val sortedOnPartitions: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = keyedRDD.repartitionAndSortWithinPartitions(pandaPartitioner)
     sortedOnPartitions.mapPartitions(
       iter => {
-      val typedIter 
+      val typedIter
       = iter.map(x => (x, 1))
         SecondarySort.groupSorted(typedIter)
       })
@@ -136,7 +136,7 @@ object CoPartitioningLessons {
   def coLocated(a : RDD[(Int, String)], b : RDD[(Int, String)],
     partitionerX : Partitioner, partitionerY :Partitioner): Unit = {
 
-    //tag::coLocated
+    //tag::coLocated[]
     val rddA = a.partitionBy(partitionerX)
     rddA.cache()
     val rddB = b.partitionBy(partitionerY)
@@ -149,7 +149,7 @@ object CoPartitioningLessons {
   def notCoLocated(a : RDD[(Int, String)], b : RDD[(Int, String )],
     partitionerX : Partitioner, partitionerY :Partitioner): Unit = {
 
-    //tag::notCoLocated
+    //tag::notCoLocated[]
     val rddA = a.partitionBy(partitionerX)
     rddA.cache()
     val rddB = b.partitionBy(partitionerY)
@@ -161,4 +161,3 @@ object CoPartitioningLessons {
     //end::notCoLocated[]
     }
 }
-
