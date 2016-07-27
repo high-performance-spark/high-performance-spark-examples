@@ -18,7 +18,7 @@ sparkVersion := "2.0.0"
 sparkComponents ++= Seq("core", "streaming", "mllib")
 //end::sparkComponents[]
 //tag::addSQLHiveComponent[]
-sparkComponents ++= Seq("sql", "hive", "hivecontext-compatibility", "hive-thriftserver", "hive-thriftserver")
+sparkComponents ++= Seq("sql", "hive", "hive-thriftserver", "hive-thriftserver")
 //end::addSQLHiveComponent[]
 
 parallelExecution in Test := false
