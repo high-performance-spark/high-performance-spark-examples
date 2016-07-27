@@ -7,14 +7,10 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.sbt/launchers
     - $HOME/perl5
-    - $HOME/julia
-    - $HOME/.julia
 scala:
    - 2.11.6
 jdk:
   - oraclejdk8
-julia:
-  - release
 r:
   - release
 addons:
@@ -22,8 +18,6 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
       - ppa:marutter/rdev
-      - ppa:staticfloat/juliareleases
-      - ppa:staticfloat/julia-deps
     packages:
       - gfortran
       - gcc
@@ -54,12 +48,6 @@ before_install:
   - PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
   - PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
   - PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
-  - # Setup Julia
-  - "[ -f julia ] || mkdir julia && cd julia && axel https://julialang.s3.amazonaws.com/bin/linux/x64/0.4/julia-0.4.6-linux-x86_64.tar.gz && cd .."
-  - tar -xf ./julia/julia-0.4.6-linux-x86_64.tar.gz
-  - export PATH=$PATH:`pwd`/julia-2e358ce975/bin/
-  - # Setup Julia Spark
-  - julia ./src/main/julia/setup.jl || echo "Julia Spark installed hopefully"
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile test
