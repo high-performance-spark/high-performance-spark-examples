@@ -15,7 +15,6 @@ javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 sparkVersion := "2.0.0"
 
 //tag::sparkComponents[]
-// TODO(Holden): re-add hive-thriftserver post Spark 2.0
 sparkComponents ++= Seq("core", "streaming", "mllib")
 //end::sparkComponents[]
 //tag::addSQLHiveComponent[]
