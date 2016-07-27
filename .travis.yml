@@ -5,6 +5,7 @@ cache:
     - $HOME/.ivy2
     - $HOME/spark
     - $HOME/.cache/pip
+    - $HOME/.pip-cache
     - $HOME/.sbt/launchers
     - $HOME/perl5
 scala:
