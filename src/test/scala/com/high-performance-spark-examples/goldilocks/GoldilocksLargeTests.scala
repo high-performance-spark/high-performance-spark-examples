@@ -19,6 +19,9 @@ class GoldilocksLargeTests extends FunSuite with SharedSparkContext{
     val groupByKey = GoldilocksGroupByKey.findRankStatistics(data, targetRanks)
     val firstTry = GoldilocksFirstTry.findRankStatistics(data, targetRanks)
     val hashMap = GoldilocksWithHashMap.findRankStatistics(data, targetRanks)
+    val secondarySort = GoldilocksSecondarySort.findRankStatistics(data, targetRanks)
+    val secondarySortV2 = GoldilocksSecondarySortV2.findRankStatistics(data, targetRanks)
+
     expectedResult.foreach {
       case((i, ranks)) =>
         assert(iterative(i).equals(ranks),
@@ -26,6 +29,9 @@ class GoldilocksLargeTests extends FunSuite with SharedSparkContext{
         assert(groupByKey(i).equals(ranks), "Group by key solution was incorrect")
         assert(firstTry(i).equals(ranks), "GoldilocksFirstTry incorrect for column " + i )
         assert(hashMap(i).equals(ranks), "GoldilocksWithhashMap incorrect for column " + i)
+        assert(secondarySort(i).equals(ranks))
+        assert(secondarySortV2(i).equals(ranks))
+
     }
   }
 
