@@ -12,6 +12,8 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.ml._
+import org.apache.spark.ml.classification._
+import org.apache.spark.ml.linalg._
 //tag::extraImports[]
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.util.Identifiable
@@ -89,12 +91,11 @@ trait SimpleIndexerParams extends Params {
   final val outputCol = new Param[String](this, "outputCol", "The output column")
 }
 
-class SimpleIndexer(override val uid: String) extends
-    Estimator[SimpleIndexerModel] with SimpleIndexerParams {
+class SimpleIndexer(override val uid: String) extends Estimator[SimpleIndexerModel] with SimpleIndexerParams {
 
-  def setInputCol(value: String): this.type = set(inputCol, value)
+  def setInputCol(value: String) = set(inputCol, value)
 
-  def setOutputCol(value: String): this.type = set(outputCol, value)
+  def setOutputCol(value: String) = set(outputCol, value)
 
   def this() = this(Identifiable.randomUID("simpleindexer"))
 
@@ -122,8 +123,7 @@ class SimpleIndexer(override val uid: String) extends
 }
 
 class SimpleIndexerModel(
-  override val uid: String, words: Array[String])
-    extends Model[SimpleIndexerModel] with SimpleIndexerParams {
+  override val uid: String, words: Array[String]) extends Model[SimpleIndexerModel] with SimpleIndexerParams {
 
   override def copy(extra: ParamMap): SimpleIndexerModel = {
     defaultCopy(extra)
@@ -150,3 +150,80 @@ class SimpleIndexerModel(
   }
 }
 //end::SimpleIndexer[]
+
+case class LabeledToken(label: Double, index: Integer, value: Double)
+//tag::SimpleNaiveBayes[]
+// Simple Bernouli Naive Bayes classifier - no sanity checks for brevity
+class SimpleNaiveBayes extends Classifier[Vector, SimpleNaiveBayes, SimpleNaiveBayesModel] {
+  override def fit(ds: Dataset[_]): SimpleNaiveBayesModel = {
+    import ds.sparkSession.implicits._
+    ds.cache()
+    // Note: you can use getNumClasses & extractLabeledPoints to get an RDD instead
+    // Using the RDD approach is common when integrating with legacy machine learning code
+    // or iterative algorithms which can create large query plans.
+    val numDocs = ds.count
+    val numClasses = getNumClasses(ds)
+    val numFeatures: Integer = ds.select(col($(featuresCol))).head
+      .get(0).asInstanceOf[Vector].size
+    val classCounts = ds.select(col($(labelCol)).as[Double])
+      .groupByKey(x => x).agg(count("*").as[Integer])
+      .sort(col($(labelCol))).collect().toMap
+    val df = ds.select(col($(labelCol)).cast(DoubleType), col($(featuresCol)))
+    // Figure out the non-zero frequency of each feature for each label
+    val labelCounts: Dataset[LabeledToken] = df.flatMap {
+      case Row(label: Double, features: Vector) =>
+        features.toArray.zip(Stream from 1)
+          .filter{vIdx => vIdx._2 != 1}
+          .map{case (v, idx) => LabeledToken(label, idx, v)}
+    }
+    val aggregatedCounts: Array[((Double, Integer), Integer)] = labelCounts
+      .groupByKey(x => (x.label, x.index))
+      .agg(count("value").as[Integer]).collect()
+
+    val theta = Array.fill(numClasses)(new Array[Double](numFeatures))
+
+    val piLogDenom = math.log(numDocs + numClasses)
+    val pi = classCounts.map{case(_, cc) => math.log(cc.toDouble) - piLogDenom }.toArray
+
+    aggregatedCounts.foreach{case ((label, featureIndex), count) =>
+      // log of number of documents for this label + 2.0 (smoothing)
+      val thetaLogDenom = math.log(
+        classCounts.get(label).map(_.toDouble).getOrElse(0.0) + 2.0)
+      theta(label.toInt)(featureIndex) = math.log(count + 1.0) - thetaLogDenom
+    }
+    // Unpersist now
+    ds.unpersist()
+    new SimpleNaiveBayesModel(uid, numClasses, numFeatures, Vectors.dense(pi),
+      new DenseMatrix(numClasses, theta(0).length, theta.flatten, true))
+  }
+}
+
+// Simplified Naive Bayes Model
+case class SimpleNaiveBayesModel(
+  override val uid: String,
+  override val numClasses: Int,
+  override val numFeatures: Int,
+  val pi: Vector,
+  val theta: DenseMatrix) extends
+    ClassificationModel[Vector, SimpleNaiveBayesModel] {
+
+  val negThetaArray = theta.values.map(v => math.log(1.0 - math.exp(v)))
+  val negTheta = new DenseMatrix(numClasses, numFeatures, negThetaArray, true)
+  val thetaMinusNegThetaArray = theta.values.zip(negThetaArray)
+    .map{case (v, nv) => v - nv}
+  val thetaMinusNegTheta = new DenseMatrix(
+    numClasses, numFeatures, thetaMinusNegThetaArray, true)
+  val onesVec = Vectors.dense(Array.fill(theta.numCols)(1.0))
+  val negThetaSum: Array[Double] = negTheta.multiply(onesVec).toArray
+
+  // Here is the prediciton functionality you need to implement - for ClassificationModels
+  // transform automatically wraps this - but if you might benefit from broadcasting your model or
+  // other optimizations you can also override transform.
+  def predictRaw(features: Vector): Vector = {
+    // Toy implementation - use BLAS or similar instead
+    Vectors.dense(thetaMinusNegTheta.multiply(features).toArray.zip(pi.toArray)
+      .map{case (x, y) => x + y}.zip(negThetaSum).map{case (x, y) => x + y}
+      )
+  }
+}
+//end::SimpleNaiveBayes[]
