@@ -42,9 +42,9 @@ class SimpleNaiveBayes(val uid: String)
     val numFeatures: Integer = ds.select(col($(featuresCol))).head
       .get(0).asInstanceOf[Vector].size
     // Determine the number of records for each class
-    val classCounts = ds.select(col($(labelCol)).as[Double])
-      .groupByKey(x => x).agg(count("*").as[Integer])
-      .sort(col($(labelCol))).collect().toMap
+    val groupedByLabel = ds.select(col($(labelCol)).as[Double]).groupByKey(x => x)
+    val classCounts = groupedByLabel.agg(count("*").as[Long])
+      .sort(col("value")).collect().toMap
     // Select the labels and features so we can more easily map over them.
     // Note: we do this as a DataFrame using the untyped API because the Vector
     // UDT is no longer public.
@@ -59,9 +59,9 @@ class SimpleNaiveBayes(val uid: String)
     }
     // Use the typed Dataset aggregation API to count the number of non-zero
     // features for each label-feature index.
-    val aggregatedCounts: Array[((Double, Integer), Integer)] = labelCounts
+    val aggregatedCounts: Array[((Double, Integer), Long)] = labelCounts
       .groupByKey(x => (x.label, x.index))
-      .agg(count("*").as[Integer]).collect()
+      .agg(count("*").as[Long]).collect()
 
     val theta = Array.fill(numClasses)(new Array[Double](numFeatures))
 
