@@ -131,7 +131,7 @@ object GoldilocksWithHashMap {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
-  //end::hashMap_step1
+  //end::hashMap_step2
 
   /**
     * Step 3: For each Partition determine the index of the elements
