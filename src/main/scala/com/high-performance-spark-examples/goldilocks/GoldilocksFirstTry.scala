@@ -89,7 +89,7 @@ object GoldilocksWhileLoop{
   //end::rankstatsLoop[]
 }
 
-//tag::firstTry[]
+
 object GoldilocksFirstTry {
 
   /**
@@ -118,6 +118,7 @@ object GoldilocksFirstTry {
     *
     * @return map of (column index, list of target ranks)
     */
+  //tag::firstTry[]
   def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
 
@@ -134,6 +135,7 @@ object GoldilocksFirstTry {
     val targetRanksValues = findTargetRanksIteratively(sortedValueColumnPairs, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
   }
+  //end::firstTry[]
 
   /**
    * Step 1. Map the rows to pairs of (value, column Index).
@@ -151,10 +153,12 @@ object GoldilocksFirstTry {
    *
    * @return RDD of pairs (value, column Index)
    */
+  //tag::firstTry_Step1[]
   private def getValueColumnPairs(dataFrame : DataFrame): RDD[(Double, Int)] = {
     dataFrame.rdd.flatMap{row: Row => row.toSeq.zipWithIndex.map{ case (v, index) =>
       (v.toString.toDouble, index)}}
   }
+  //end::firstTry_Step1[]
 
   /**
    * Step 2. Find the number of elements for each column in each partition.
@@ -175,6 +179,7 @@ object GoldilocksFirstTry {
    *
    * @return Array that contains (partition index, number of elements from every column on this partition)
    */
+  //tag::firstTry_Step2[]
   private def getColumnsFreqPerPartition(sortedValueColumnPairs: RDD[(Double, Int)], numOfColumns : Int):
     Array[(Int, Array[Long])] = {
 
@@ -196,6 +201,7 @@ object GoldilocksFirstTry {
 
     sortedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
+  //end::firstTry_Step2[]
 
   /**
    * Step 3: For each Partition determine the index of the elements that are desired rank statistics
@@ -213,6 +219,7 @@ object GoldilocksFirstTry {
    * @return  Array that contains (partition index, relevantIndexList where relevantIndexList(i) = the index
    *          of an element on this partition that matches one of the target ranks)
    */
+  //tag::firstTry_Step3[]
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
                                               partitionColumnsFreq : Array[(Int, Array[Long])],
                                               numOfColumns : Int) : Array[(Int, List[(Int, Long)])] = {
@@ -237,15 +244,17 @@ object GoldilocksFirstTry {
       (partitionIndex, relevantIndexList.toList)
     }
   }
+  //end::firstTry_Step3[]
 
   /**
-    * Finds rank statistics elements using ranksLocations.
+    * Step 4: Finds rank statistics elements using ranksLocations.
     *
     * @param sortedValueColumnPairs - sorted RDD of (value, colIndex) pairs
     * @param ranksLocations Array of (partition Index, list of (column index, rank index of this column at this partition))
     *
     * @return returns RDD of the target ranks (column index, value)
     */
+  //tag::firstTry_Step4[]
   private def findTargetRanksIteratively(sortedValueColumnPairs : RDD[(Double, Int)],
                                       ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
 
@@ -279,5 +288,6 @@ object GoldilocksFirstTry {
       }
     })
   }
+  //end::firstTry_Step4[]
 }
-//end::firstTry[]
+

@@ -7,7 +7,7 @@ import org.apache.spark.storage.StorageLevel
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Map, mutable}
 
-//tag::hashMap[]
+
 object GoldilocksWithHashMap {
 
   /**
@@ -36,6 +36,7 @@ object GoldilocksWithHashMap {
     *
     * @return map of (column index, list of target ranks)    
     */
+  //tag::hashMap[]
   def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
     
@@ -50,6 +51,7 @@ object GoldilocksWithHashMap {
     val targetRanksValues = findTargetRanksIteratively(sortedAggregatedValueColumnPairs, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
   }
+  //end::hashMap[]
 
   /**
    * Step 1. Map the rows to pairs of ((value, colIndex), count) where count is the number of times
@@ -68,6 +70,7 @@ object GoldilocksWithHashMap {
    *
    * @return returns RDD of ((value, column index), count)
    */
+  //tag::hashMap_step1
   def getAggregatedValueColumnPairs(dataFrame : DataFrame) : RDD[((Double, Int), Long)] = {
 
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
@@ -85,6 +88,7 @@ object GoldilocksWithHashMap {
 
     aggregatedValueColumnRDD
   }
+  //end::hashMap_step1
 
   /**
     * Step 2. Find the number of elements for each column in each partition.
@@ -107,6 +111,7 @@ object GoldilocksWithHashMap {
     * @return Array that contains
     *         (partition index, number of elements from every column on this partition)
     */
+  //tag::hashMap_step2
   private def getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
                                         numOfColumns : Int): Array[(Int, Array[Long])] = {
 
@@ -126,6 +131,7 @@ object GoldilocksWithHashMap {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
+  //end::hashMap_step1
 
   /**
     * Step 3: For each Partition determine the index of the elements
@@ -146,6 +152,7 @@ object GoldilocksWithHashMap {
     *          (partition index, relevantIndexList where relevantIndexList(i) = the index
     *          of an element on this partition that matches one of the target ranks)
     */
+  //tag::hashMap_step3
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
                                               partitionColumnsFreq : Array[(Int, Array[Long])],
                                               numOfColumns : Int) : Array[(Int, List[(Int, Long)])]  = {
@@ -168,6 +175,7 @@ object GoldilocksWithHashMap {
       (partitionIndex, relevantIndexList.toList)
     }
   }
+  //tag::hashMap_step3
 
   /**
     * Finds rank statistics elements using ranksLocations.
@@ -236,7 +244,7 @@ object GoldilocksWithHashMap {
   }
   //end::checkpointExample[]
 }
-//end::hashMap[]
+
 
 
 object FindTargetsSubRoutine extends Serializable {
