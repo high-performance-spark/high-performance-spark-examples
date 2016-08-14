@@ -74,7 +74,7 @@ object GoldilocksWithHashMap {
    *
    * @return returns RDD of ((value, column index), count)
    */
-  //tag::hashMap_step1
+  //tag::hashMap_step1[]
   def getAggregatedValueColumnPairs(dataFrame : DataFrame) : RDD[((Double, Int), Long)] = {
 
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
@@ -92,7 +92,7 @@ object GoldilocksWithHashMap {
 
     aggregatedValueColumnRDD
   }
-  //end::hashMap_step1
+  //end::hashMap_step1[]
 
   /**
     * Step 2. Find the number of elements for each column in each partition.
@@ -115,7 +115,7 @@ object GoldilocksWithHashMap {
     * @return Array that contains
     *         (partition index, number of elements from every column on this partition)
     */
-  //tag::hashMap_step2
+  //tag::hashMap_step2[]
   private def getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
                                         numOfColumns : Int): Array[(Int, Array[Long])] = {
 
@@ -135,7 +135,7 @@ object GoldilocksWithHashMap {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
-  //end::hashMap_step2
+  //end::hashMap_step2[]
 
   /**
     * Step 3: For each Partition determine the index of the elements
@@ -179,7 +179,7 @@ object GoldilocksWithHashMap {
       (partitionIndex, relevantIndexList.toList)
     }
   }
-  //tag::hashMap_step3
+  //tag::hashMap_step3[]
 
   /**
     * Finds rank statistics elements using ranksLocations.

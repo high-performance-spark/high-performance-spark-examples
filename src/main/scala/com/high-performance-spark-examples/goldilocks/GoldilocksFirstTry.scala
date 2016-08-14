@@ -262,7 +262,7 @@ object GoldilocksFirstTry {
     */
   //tag::firstTry_Step4[]
   private def findTargetRanksIteratively(sortedValueColumnPairs : RDD[(Double, Int)],
-                                      ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
+                                        ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
 
     sortedValueColumnPairs.mapPartitionsWithIndex(
       (partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
