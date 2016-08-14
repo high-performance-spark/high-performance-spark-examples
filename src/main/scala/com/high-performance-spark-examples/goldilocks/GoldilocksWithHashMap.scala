@@ -40,15 +40,19 @@ object GoldilocksWithHashMap {
   def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
     
-    val aggregatedValueColumnPairs: RDD[((Double, Int), Long)] = getAggregatedValueColumnPairs(dataFrame)
+    val aggregatedValueColumnPairs: RDD[((Double, Int), Long)] =
+      getAggregatedValueColumnPairs(dataFrame)
     val sortedAggregatedValueColumnPairs = aggregatedValueColumnPairs.sortByKey()
     sortedAggregatedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
     val numOfColumns =  dataFrame.schema.length
-    val partitionColumnsFreq = getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs, numOfColumns)
-    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
+    val partitionColumnsFreq =
+      getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs, numOfColumns)
+    val ranksLocations  =
+      getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
 
-    val targetRanksValues = findTargetRanksIteratively(sortedAggregatedValueColumnPairs, ranksLocations)
+    val targetRanksValues =
+      findTargetRanksIteratively(sortedAggregatedValueColumnPairs, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
   }
   //end::hashMap[]
@@ -273,7 +277,8 @@ object FindTargetsSubRoutine extends Serializable {
   def withArrayBuffer(valueColumnPairsIter : Iterator[((Double, Int), Long)],
     targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
 
-      val columnsRelativeIndex: Predef.Map[Int, List[Long]] = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+      val columnsRelativeIndex: Predef.Map[Int, List[Long]] =
+        targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
 
     //the column indices of the pairs that are desired rank statistics that live in this partition.
       val columnsInThisPart: List[Int] = targetsInThisPart.map(_._1).distinct
@@ -284,7 +289,8 @@ object FindTargetsSubRoutine extends Serializable {
       runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
     //we use an array buffer to build the resulting iterator
-      val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+      val result: ArrayBuffer[(Int, Double)] =
+      new scala.collection.mutable.ArrayBuffer()
 
       valueColumnPairsIter.foreach {
         case ((value, colIndex), count) =>
