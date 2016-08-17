@@ -7,6 +7,7 @@ import org.apache.spark.sql._
 import scala.collection.Map
 import scala.collection.mutable.ArrayBuffer
 
+//tag::colIndex_partition
 class ColumnIndexPartition(override val numPartitions: Int)
   extends Partitioner {
   require(numPartitions >= 0, s"Number of partitions " +
@@ -17,6 +18,7 @@ class ColumnIndexPartition(override val numPartitions: Int)
     Math.abs(k._1) % numPartitions //hashcode of column index
   }
 }
+//end::colIndex_partition
 
 object GoldilocksSecondarySort {
   /**
@@ -40,64 +42,58 @@ object GoldilocksSecondarySort {
     *   2 -> (7.7, 1.5)
     *   3 -> (5.0, 7.0)
     *
-    * @param dataFrame dataframe of doubles
-    * @param ranks the required ranks for every column
-    * @param partitions - the number of partitions to use when sorting
-    * @return map of (column index, list of target ranks)
-    */
-  def findRankStatistics(
-    dataFrame: DataFrame,
-    ranks: List[Long], partitions: Int = 2): Map[Int, Iterable[Double]] = {
-    val pairs = GoldilocksGroupByKey.mapToKeyValuePairs(dataFrame)
-    findRankStatistics(pairs, ranks, partitions)
-  }
-
-  /**
+    * This process is executed as follows
     *
-    * Helper Function for Secondary sort implementation of the goldilocks problem.
-    * 0. Map to ((columnIndex, cellValue), 1) tripples.
+    * 0. Map to ((columnIndex, cellValue), 1) triples.
     * 1. Define a custom partitioner which partitions according to the first half of the key.
     *  (column Index)
     * 1. uses repartitionAndSortWithinPartitions with the custom partitioner. This will partition
     * according to column index and then sort by column index and value.
     * 2. mapPartitions on each partition which is sorted. Filter for correct rank stats in one pass.
-    * 3. collect result
-    * 4. group result so that each key has an iterator of elements.
-    * @param pairRDD - an RDD of (columnIndex , cellValue) pairs
+    * 3. Locally: group result so that each key has an iterator of elements.
+    *
+    * @param dataFrame - dataFrame of values
     * @param targetRanks the rank statistics to find for every column.
+    * @return map of (column index, list of target ranks)
     */
-  def findRankStatistics(pairRDD: RDD[(Int, Double)],
+  //tag::goldilocksSecondarySort[]
+  def findRankStatistics(dataFrame: DataFrame,
     targetRanks: List[Long], partitions: Int) = {
+
+    val  pairRDD: RDD[((Int, Double), Int)] =
+      GoldilocksGroupByKey.mapToKeyValuePairs(dataFrame).map((_, 1))
+
     val partitioner = new ColumnIndexPartition(partitions)
-    val sorted = pairRDD.map((_, 1)).repartitionAndSortWithinPartitions(partitioner)
-    val filterForTargetIndex = sorted.mapPartitions(iter => {
-      var currentColumnIndex = -1
-      var runningTotal = 0
-      iter.flatMap({
-        case (((colIndex, value), _)) =>
-          if (colIndex != currentColumnIndex) {
-            currentColumnIndex = colIndex //reset to the new column index
-            runningTotal = 1
-          } else {
-            runningTotal += 1
-          }
+     //sort by the existing implicit ordering on tuples first key, second key
+    val sorted = pairRDD.repartitionAndSortWithinPartitions(partitioner)
+
+    //filter for target ranks
+    val filterForTargetIndex: RDD[(Int, Double)] =
+      sorted.mapPartitions(iter => {
+        var currentColumnIndex = -1
+        var runningTotal = 0
+        iter.filter({
+          case (((colIndex, value), _)) =>
+            if (colIndex != currentColumnIndex) {
+              currentColumnIndex = colIndex //reset to the new column index
+              runningTotal = 1
+            } else {
+              runningTotal += 1
+            }
           //if the running total corresponds to one of the rank statistics.
           //keep this ((colIndex, value)) pair.
-          if (targetRanks.contains(runningTotal)) {
-            Iterator((colIndex, value))
-
-          } else {
-            Iterator.empty
-          }
+          targetRanks.contains(runningTotal)
       })
-    }, preservesPartitioning = true)
+    }.map(_._1), preservesPartitioning = true)
     groupSorted(filterForTargetIndex.collect())
   }
+  //end::goldilocksSecondarySort[]
 
   /**
     * Given an array of (columnIndex, value) pairs that are already sorted.
     * Groups the pairs with the same column index, creating an iterator of values.
     */
+  //tag::groupSortedGoldilocks[]
   private def groupSorted(
     it: Array[(Int, Double)]): Map[Int, Iterable[Double]] = {
     val res = List[(Int, ArrayBuffer[Double])]()
@@ -105,7 +101,6 @@ object GoldilocksSecondarySort {
       case Nil =>
         val (firstKey, value) = next
         List((firstKey, ArrayBuffer(value)))
-
       case head :: rest =>
         val (curKey, valueBuf) = head
         val (firstKey, value) = next
@@ -115,13 +110,13 @@ object GoldilocksSecondarySort {
           valueBuf.append(value)
           list
         }
-
     }).map { case (key, buf) => (key, buf.toIterable) }.toMap
   }
+  //end::groupSortedGoldilocks[]
 }
 
 object GoldilocksSecondarySortV2{
-  //tag::goldilocksSecondarySort[]
+
   def findRankStatistics(dataFrame: DataFrame,
   ranks: List[Long], partitions : Int = 2) : Map[Int, Iterable[Double]] = {
     val pairRDD = GoldilocksGroupByKey.mapToKeyValuePairs(dataFrame)
@@ -133,8 +128,6 @@ object GoldilocksSecondarySortV2{
     filterForTargetIndex.collectAsMap()
   }
 
-  //end::goldilocksSecondarySort[]
-
   /**
     * Precondintion: Iterator must be sorted by (columnIndex, value). Groups by column index and filters
     * the values so that only those that correspond to the desired rank statistics are included.
@@ -142,7 +135,7 @@ object GoldilocksSecondarySortV2{
     * @param targetRanks
     * @return
     */
-  //tag::groupSortedGoldilocks[]
+
   def filterAndGroupRanks(
     it: Iterator[(Int, Double)], targetRanks : List[Long]): Iterator[(Int, Iterable[Double])] = {
     val res = List[(Int, Long, ArrayBuffer[Double])]()
@@ -173,7 +166,7 @@ object GoldilocksSecondarySortV2{
 
     }).map { case (key, total, buf) => (key, buf.toIterable) }.iterator
   }
-  //end::groupSortedGoldilocks[]
+
 }
 
 
