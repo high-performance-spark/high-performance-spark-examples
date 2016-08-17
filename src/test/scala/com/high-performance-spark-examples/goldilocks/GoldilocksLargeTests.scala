@@ -19,7 +19,7 @@ class GoldilocksLargeTests extends FunSuite with SharedSparkContext{
     val groupByKey = GoldilocksGroupByKey.findRankStatistics(data, targetRanks)
     val firstTry = GoldilocksFirstTry.findRankStatistics(data, targetRanks)
     val hashMap = GoldilocksWithHashMap.findRankStatistics(data, targetRanks)
-    val secondarySort = GoldilocksSecondarySort.findRankStatistics(data, targetRanks)
+    val secondarySort = GoldilocksSecondarySort.findRankStatistics(data, targetRanks, data.rdd.partitions.length)
     val secondarySortV2 = GoldilocksSecondarySortV2.findRankStatistics(data, targetRanks)
 
     expectedResult.foreach {
@@ -83,7 +83,7 @@ object DataCreationUtils {
                        (
                          randomNumber,
                          (partIndex * elementsPerPartition.toLong + rowValue, //index of element
-                           List((rowValue + partIndex * elementsPerPartition))))
+                           List(rowValue + partIndex * elementsPerPartition)))
                    }
         rows.toIterator
     }.sortByKey().values
