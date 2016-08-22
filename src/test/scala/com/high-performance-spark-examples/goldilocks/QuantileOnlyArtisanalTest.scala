@@ -1,8 +1,9 @@
 package com.highperformancespark.examples.goldilocks
 
 import org.apache.spark._
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{Row, SQLContext}
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
+
 
 // tag::MAGIC_PANDA[]
 class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
@@ -17,21 +18,38 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
   }
 
   val inputList = List(GoldiLocksRow(0.0, 4.5, 7.7, 5.0),
+    GoldiLocksRow(4.0, 5.5, 0.5, 8.0),
     GoldiLocksRow(1.0, 5.5, 6.7, 6.0),
-    GoldiLocksRow(2.0, 5.5, 1.5, 7.0),
     GoldiLocksRow(3.0, 5.5, 0.5, 7.0),
-    GoldiLocksRow(4.0, 5.5, 0.5, 8.0)
+    GoldiLocksRow(2.0, 5.5, 1.5, 7.0)
   )
+
+  val expectedResult = Map[Int, Set[Double]](
+    0 -> Set(1.0, 2.0),
+    1 -> Set(5.5, 5.5),
+    2 -> Set(0.5, 1.5),
+    3 -> Set(6.0, 7.0))
+
+
+
+
+
+  test("Goldilocks naive Solution"){
+    val sqlContext = new SQLContext(sc)
+    val input = sqlContext.createDataFrame(inputList)
+    val whileLoopSolution = GoldilocksWhileLoop.findRankStatistics(input, List(2L, 3L)).mapValues(_.toSet)
+    val inputAsKeyValuePairs = GoldilocksGroupByKey.mapToKeyValuePairs(input)
+    val groupByKeySolution = GoldilocksGroupByKey.findRankStatistics(
+      inputAsKeyValuePairs, List(2L,3L)).mapValues(_.toSet)
+    assert(whileLoopSolution == expectedResult)
+    assert(groupByKeySolution == expectedResult)
+  }
 
   test("Goldilocks first try ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
-    val secondAndThird = GoldiLocksFirstTry.findRankStatistics(input, targetRanks = List(2L, 3L))
-    val expectedResult = Map[Int, Set[Double]](
-      0 -> Set(1.0, 2.0),
-      1 -> Set(5.5, 5.5),
-      2 -> Set(0.5, 1.5),
-      3 -> Set(6.0, 7.0))
+    val secondAndThird = GoldilocksFirstTry.findRankStatistics(input, targetRanks = List(2L, 3L))
+
     secondAndThird.foreach(x => println( x._1 +"," + x._2.mkString(" ")))
     assert(expectedResult.forall{case ((index, expectedRanks)) =>
       secondAndThird.get(index).get.toSet.equals(expectedRanks)})
@@ -48,13 +66,13 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     }
 
     val getColumnsFreqPerPartition = PrivateMethod[ Array[(Int, Array[Long])]]('getColumnsFreqPerPartition)
-    val totals = GoldiLocksFirstTry invokePrivate getColumnsFreqPerPartition(mapPartitions, 2)
+    val totals = GoldilocksFirstTry invokePrivate getColumnsFreqPerPartition(mapPartitions, 2)
 
     totals.foreach(x => println(x._1 + " : " + x._2.mkString(" ")))
     val getRanksLocationsWithinEachPart =
       PrivateMethod[Array[(Int, List[(Int, Long)])]]('getRanksLocationsWithinEachPart)
 
-    val locations = GoldiLocksFirstTry invokePrivate getRanksLocationsWithinEachPart(List(1L), totals, 2)
+    val locations = GoldilocksFirstTry invokePrivate getRanksLocationsWithinEachPart(List(1L), totals, 2)
     locations.foreach(x => println(x._1 + " : " + x._2.mkString(" ")))
 
     //assert that there is nothing in the column with index 1 on the second partition
@@ -74,10 +92,11 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     assert(locations.length == 3)
   }
 
+
   test("GoldiLocks With Hashmap ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
-    val secondAndThird = GoldiLocksWithHashMap.findRankStatistics(input, targetRanks = List(2L, 3L))
+    val secondAndThird = GoldilocksWithHashMap.findRankStatistics(input, targetRanks = List(2L, 3L))
     val expectedResult = Map[Int, Set[Double]](
       0 -> Set(1.0, 2.0),
       1 -> Set(5.5, 5.5),
@@ -86,6 +105,15 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     secondAndThird.foreach(x => println( x._1 +"," + x._2.mkString(" ")))
     assert(expectedResult.forall{case ((index, expectedRanks)) =>
       secondAndThird.get(index).get.toSet.equals(expectedRanks)})
+  }
+
+  test("Goldilocks Secondary Sort"){
+    val sqlContext = new SQLContext(sc)
+    val input = sqlContext.createDataFrame(inputList)
+    val secondarySortSolution =
+      GoldilocksWithHashMap.findRankStatistics(
+        input, targetRanks = List(2L, 3L)).mapValues(_.toSet)
+    assert(secondarySortSolution == expectedResult)
   }
 
   test("Secondary Sort"){
@@ -109,4 +137,5 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
 }
 // end::MAGIC_PANDA[]
 
-case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double  )
+case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double)
+case class LongPandaRow( args : Double*)

@@ -12,14 +12,13 @@ crossScalaVersions := Seq("2.11.6")
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
-sparkVersion := "2.0.0-preview"
+sparkVersion := "2.0.0"
 
 //tag::sparkComponents[]
-// TODO(Holden): re-add hive-thriftserver post Spark 2.0
 sparkComponents ++= Seq("core", "streaming", "mllib")
 //end::sparkComponents[]
 //tag::addSQLHiveComponent[]
-sparkComponents ++= Seq("sql", "hive", "hivecontext-compatibility", "hive-thriftserver", "hive-thriftserver")
+sparkComponents ++= Seq("sql", "hive", "hive-thriftserver", "hive-thriftserver")
 //end::addSQLHiveComponent[]
 
 parallelExecution in Test := false
@@ -36,7 +35,7 @@ libraryDependencies ++= Seq(
   //tag::sparkCSV[]
   "com.databricks" % "spark-csv_2.10" % "1.3.0",
   //end::sparkCSV[]
-  "com.holdenkarau" % "spark-testing-base_2.11" % "2.0.0-preview_0.4.1-preview",
+  "com.holdenkarau" % "spark-testing-base_2.11" % "2.0.0_0.4.4",
   "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
   "com.novocode" % "junit-interface" % "0.10" % "test->default",
   "net.java.dev.jna" % "jna" % "4.2.2")

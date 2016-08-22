@@ -1,27 +1,96 @@
 package com.highperformancespark.examples.goldilocks
 
-import scala.collection.{Map, mutable}
-import scala.collection.mutable.{ArrayBuffer, MutableList}
-
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 
-object GoldiLocksGroupByKey {
+import scala.collection.mutable.MutableList
+import scala.collection.{Map, mutable}
+
+object GoldilocksGroupByKey {
   //tag::groupByKey[]
   def findRankStatistics(
+    dataFrame: DataFrame ,
+    ranks: List[Long]): Map[Int, Iterable[Double]] = {
+    require(ranks.forall(_ > 0))
+    //Map to column index, value pairs
+    val pairRDD: RDD[(Int, Double)] = mapToKeyValuePairs(dataFrame)
+
+    val groupColumns: RDD[(Int, Iterable[Double])] = pairRDD.groupByKey()
+    groupColumns.mapValues(
+      iter => {
+        //convert to an array and sort
+        val sortedIter = iter.toArray.sorted
+
+        sortedIter.toIterable.zipWithIndex.flatMap({
+        case (colValue, index) =>
+          if (ranks.contains(index + 1))
+            Iterator(colValue)
+          else
+            Iterator.empty
+      })
+    }).collectAsMap()
+  }
+
+  def findRankStatistics(
     pairRDD: RDD[(Int, Double)],
-    ranks: List[Long]): Map[Int, List[Double]] = {
+    ranks: List[Long]): Map[Int, Iterable[Double]] = {
+    assert(ranks.forall(_ > 0))
     pairRDD.groupByKey().mapValues(iter => {
-      val ar = iter.toArray.sorted
-      ranks.map(n => ar(n.toInt))
+      val sortedIter  = iter.toArray.sorted
+      sortedIter.zipWithIndex.flatMap(
+        {
+        case (colValue, index) =>
+          if (ranks.contains(index + 1))
+            Iterator(colValue)  //this is one of the desired rank statistics
+          else
+            Iterator.empty
+        }
+      ).toIterable //convert to more generic iterable type to match out spec
     }).collectAsMap()
   }
   //end::groupByKey[]
+
+
+  //tag::toKeyValPairs[]
+  def mapToKeyValuePairs(dataFrame: DataFrame): RDD[(Int, Double)] = {
+    val rowLength = dataFrame.schema.length
+    dataFrame.rdd.flatMap(
+      row => Range(0, rowLength).map(i => (i, row.getDouble(i)))
+    )
+  }
+  //end::toKeyValPairs[]
 }
 
-//tag::firstTry[]
-object GoldiLocksFirstTry {
+
+object GoldilocksWhileLoop{
+
+  //tag::rankstatsLoop[]
+  def findRankStatistics(
+    dataFrame: DataFrame,
+    ranks: List[Long]): Map[Int, Iterable[Double]] = {
+    require(ranks.forall(_ > 0))
+    val numberOfColumns = dataFrame.schema.length
+    var i = 0
+    var  result = Map[Int, Iterable[Double]]()
+
+    while(i < numberOfColumns){
+      val col = dataFrame.rdd.map(row => row.getDouble(i))
+      val sortedCol : RDD[(Double, Long)] = col.sortBy(v => v).zipWithIndex()
+      val ranksOnly = sortedCol.filter{
+        case (colValue, index) =>  ranks.contains(index + 1) //rank statistics are indexed from one. e.g. first element is 0
+      }.keys
+      val list = ranksOnly.collect()
+       result += (i -> list)
+       i+=1
+    }
+    result
+  }
+  //end::rankstatsLoop[]
+}
+
+
+object GoldilocksFirstTry {
 
   /**
     * Find nth target rank for every column.
@@ -49,6 +118,7 @@ object GoldiLocksFirstTry {
     *
     * @return map of (column index, list of target ranks)
     */
+  //tag::firstTry[]
   def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
 
@@ -57,12 +127,15 @@ object GoldiLocksFirstTry {
     sortedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
     val numOfColumns = dataFrame.schema.length
-    val partitionColumnsFreq = getColumnsFreqPerPartition(sortedValueColumnPairs, numOfColumns)
-    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
+    val partitionColumnsFreq =
+      getColumnsFreqPerPartition(sortedValueColumnPairs, numOfColumns)
+    val ranksLocations =
+      getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
 
     val targetRanksValues = findTargetRanksIteratively(sortedValueColumnPairs, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
   }
+  //end::firstTry[]
 
   /**
    * Step 1. Map the rows to pairs of (value, column Index).
@@ -80,10 +153,15 @@ object GoldiLocksFirstTry {
    *
    * @return RDD of pairs (value, column Index)
    */
+  //tag::firstTry_Step1[]
   private def getValueColumnPairs(dataFrame : DataFrame): RDD[(Double, Int)] = {
-    dataFrame.rdd.flatMap{row: Row => row.toSeq.zipWithIndex.map{ case (v, index) =>
-      (v.toString.toDouble, index)}}
+    dataFrame.rdd.flatMap{
+      row: Row => row.toSeq.zipWithIndex
+                  .map{
+                    case (v, index) => (v.toString.toDouble, index)}
+    }
   }
+  //end::firstTry_Step1[]
 
   /**
    * Step 2. Find the number of elements for each column in each partition.
@@ -104,6 +182,7 @@ object GoldiLocksFirstTry {
    *
    * @return Array that contains (partition index, number of elements from every column on this partition)
    */
+  //tag::firstTry_Step2[]
   private def getColumnsFreqPerPartition(sortedValueColumnPairs: RDD[(Double, Int)], numOfColumns : Int):
     Array[(Int, Array[Long])] = {
 
@@ -113,6 +192,7 @@ object GoldiLocksFirstTry {
       val columnsFreq : Array[Long] = valueColumnPairs.aggregate(zero)(
         (a : Array[Long], v : (Double ,Int)) => {
           val (value, colIndex) = v
+          //increment the cell in the zero array corresponding to this column index
           a(colIndex) = a(colIndex) + 1L
           a
         },
@@ -125,10 +205,11 @@ object GoldiLocksFirstTry {
 
     sortedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
+  //end::firstTry_Step2[]
 
   /**
    * Step 3: For each Partition determine the index of the elements that are desired rank statistics
-   *
+   * This is done locally by the driver.
    * For Example:
    *    targetRanks: 5
    *    partitionColumnsFreq: [(0, [2, 3]), (1, [4, 1]), (2, [5, 2])]
@@ -139,15 +220,18 @@ object GoldiLocksFirstTry {
    *
    * @param partitionColumnsFreq Array of (partition index, columns frequencies per this partition)
    *
-   * @return  Array that contains (partition index, relevantIndexList where relevantIndexList(i) = the index
+   * @return  Array that contains
+    *         (partition index, relevantIndexList where relevantIndexList(i) = the index
    *          of an element on this partition that matches one of the target ranks)
    */
+  //tag::firstTry_Step3[]
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
                                               partitionColumnsFreq : Array[(Int, Array[Long])],
                                               numOfColumns : Int) : Array[(Int, List[(Int, Long)])] = {
 
     val runningTotal = Array.fill[Long](numOfColumns)(0)
-
+    //the partition indices are not necessarily in sorted order, so we need to sort the
+    //partitionsColumnsFreq array by the partition index (the first value in the tuple)
     partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq) =>
       val relevantIndexList = new MutableList[(Int, Long)]()
 
@@ -166,30 +250,36 @@ object GoldiLocksFirstTry {
       (partitionIndex, relevantIndexList.toList)
     }
   }
+  //end::firstTry_Step3[]
 
   /**
-    * Finds rank statistics elements using ranksLocations.
+    * Step 4: Finds rank statistics elements using ranksLocations.
     *
     * @param sortedValueColumnPairs - sorted RDD of (value, colIndex) pairs
     * @param ranksLocations Array of (partition Index, list of (column index, rank index of this column at this partition))
     *
     * @return returns RDD of the target ranks (column index, value)
     */
+  //tag::firstTry_Step4[]
   private def findTargetRanksIteratively(sortedValueColumnPairs : RDD[(Double, Int)],
-                                      ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
+                                        ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
 
-    sortedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
-      val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
-      if (targetsInThisPart.nonEmpty) {
-        val columnsRelativeIndex: Map[Int, List[Long]] = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
-        val columnsInThisPart = targetsInThisPart.map(_._1).distinct
+    sortedValueColumnPairs.mapPartitionsWithIndex(
+      (partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
+        val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
+        if (targetsInThisPart.nonEmpty) {
+          val columnsRelativeIndex: Map[Int, List[Long]] =
+          targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+          val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 
-        val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
-        runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
+          val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+          runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
-        //filter this iterator, so that it contains only those (value, columnIndex) that are the ranks statistics on this partition
+        //filter this iterator, so that it contains only those (value, columnIndex)
+        // that are the ranks statistics on this partition
         // I.e. Keep track of the number of elements we have seen for each columnIndex using the
-        // running total hashMap. Keep those pairs for which value is the nth element for that columnIndex that appears on this partition
+        // running total hashMap. Keep those pairs for which value is the nth element
+        // for that columnIndex that appears on this partition
         // and the map contains (columnIndex, n).
         valueColumnPairs.filter{
           case(value, colIndex) =>
@@ -208,5 +298,6 @@ object GoldiLocksFirstTry {
       }
     })
   }
+  //end::firstTry_Step4[]
 }
-//end::firstTry[]
+

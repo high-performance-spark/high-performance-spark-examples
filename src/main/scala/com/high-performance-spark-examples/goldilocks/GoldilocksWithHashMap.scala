@@ -7,8 +7,8 @@ import org.apache.spark.storage.StorageLevel
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Map, mutable}
 
-//tag::hashMap[]
-object GoldiLocksWithHashMap {
+
+object GoldilocksWithHashMap {
 
   /**
     * Find nth target rank for every column.                 
@@ -36,20 +36,26 @@ object GoldiLocksWithHashMap {
     *
     * @return map of (column index, list of target ranks)    
     */
+  //tag::hashMap[]
   def findRankStatistics(dataFrame: DataFrame, targetRanks: List[Long]):
     Map[Int, Iterable[Double]] = {
     
-    val aggregatedValueColumnPairs: RDD[((Double, Int), Long)] = getAggregatedValueColumnPairs(dataFrame)
+    val aggregatedValueColumnPairs: RDD[((Double, Int), Long)] =
+      getAggregatedValueColumnPairs(dataFrame)
     val sortedAggregatedValueColumnPairs = aggregatedValueColumnPairs.sortByKey()
     sortedAggregatedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
     val numOfColumns =  dataFrame.schema.length
-    val partitionColumnsFreq = getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs, numOfColumns)
-    val ranksLocations  = getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
+    val partitionColumnsFreq =
+      getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs, numOfColumns)
+    val ranksLocations  =
+      getRanksLocationsWithinEachPart(targetRanks, partitionColumnsFreq, numOfColumns)
 
-    val targetRanksValues = findTargetRanksIteratively(sortedAggregatedValueColumnPairs, ranksLocations)
+    val targetRanksValues =
+      findTargetRanksIteratively(sortedAggregatedValueColumnPairs, ranksLocations)
     targetRanksValues.groupByKey().collectAsMap()
   }
+  //end::hashMap[]
 
   /**
    * Step 1. Map the rows to pairs of ((value, colIndex), count) where count is the number of times
@@ -68,6 +74,7 @@ object GoldiLocksWithHashMap {
    *
    * @return returns RDD of ((value, column index), count)
    */
+  //tag::hashMap_step1[]
   def getAggregatedValueColumnPairs(dataFrame : DataFrame) : RDD[((Double, Int), Long)] = {
 
     val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
@@ -85,6 +92,7 @@ object GoldiLocksWithHashMap {
 
     aggregatedValueColumnRDD
   }
+  //end::hashMap_step1[]
 
   /**
     * Step 2. Find the number of elements for each column in each partition.
@@ -107,6 +115,7 @@ object GoldiLocksWithHashMap {
     * @return Array that contains
     *         (partition index, number of elements from every column on this partition)
     */
+  //tag::hashMap_step2[]
   private def getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
                                         numOfColumns : Int): Array[(Int, Array[Long])] = {
 
@@ -126,6 +135,7 @@ object GoldiLocksWithHashMap {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex(aggregateColumnFrequencies).collect()
   }
+  //end::hashMap_step2[]
 
   /**
     * Step 3: For each Partition determine the index of the elements
@@ -146,6 +156,7 @@ object GoldiLocksWithHashMap {
     *          (partition index, relevantIndexList where relevantIndexList(i) = the index
     *          of an element on this partition that matches one of the target ranks)
     */
+  //tag::hashMap_step3
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
                                               partitionColumnsFreq : Array[(Int, Array[Long])],
                                               numOfColumns : Int) : Array[(Int, List[(Int, Long)])]  = {
@@ -168,6 +179,7 @@ object GoldiLocksWithHashMap {
       (partitionIndex, relevantIndexList.toList)
     }
   }
+  //tag::hashMap_step3[]
 
   /**
     * Finds rank statistics elements using ranksLocations.
@@ -236,7 +248,7 @@ object GoldiLocksWithHashMap {
   }
   //end::checkpointExample[]
 }
-//end::hashMap[]
+
 
 
 object FindTargetsSubRoutine extends Serializable {
@@ -265,7 +277,8 @@ object FindTargetsSubRoutine extends Serializable {
   def withArrayBuffer(valueColumnPairsIter : Iterator[((Double, Int), Long)],
     targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
 
-      val columnsRelativeIndex: Predef.Map[Int, List[Long]] = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+      val columnsRelativeIndex: Predef.Map[Int, List[Long]] =
+        targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
 
     //the column indices of the pairs that are desired rank statistics that live in this partition.
       val columnsInThisPart: List[Int] = targetsInThisPart.map(_._1).distinct
@@ -276,7 +289,8 @@ object FindTargetsSubRoutine extends Serializable {
       runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
     //we use an array buffer to build the resulting iterator
-      val result: ArrayBuffer[(Int, Double)] = new scala.collection.mutable.ArrayBuffer()
+      val result: ArrayBuffer[(Int, Double)] =
+      new scala.collection.mutable.ArrayBuffer()
 
       valueColumnPairsIter.foreach {
         case ((value, colIndex), count) =>
