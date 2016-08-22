@@ -8,8 +8,8 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
   val doubleList = Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0)
   val keyValuePairs =  Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0).zipWithIndex
   val path = "target/testResults"
-  test("MapValues preserves Partitioning "){
 
+  test("MapValues preserves Partitioning "){
     val data: RDD[(Double, Int )] = sc.parallelize(keyValuePairs)
     // tag::MapValues[]
     val sortedData = data.sortByKey()
@@ -17,14 +17,14 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     assert(mapValues.partitioner.isDefined, "Using Map Values preserves partitioning")
 
     val map = sortedData.map( pair => (pair._1, pair._2.toString))
-    assert(!map.partitioner.isDefined, "Using map does not preserve partitioning")
+    assert(map.partitioner.isEmpty, "Using map does not preserve partitioning")
     // end::MapValues[]
   }
 
   test( "Subtract Behavior "){
     // tag::Subtract[]
-    val a = Array(1, 2, 3 ,4 ,4 ,4 ,4 )
-    val b = Array(3, 4 )
+    val a = Array(1, 2, 3, 4, 4, 4, 4)
+    val b = Array(3, 4)
     val rddA = sc.parallelize(a)
     val rddB = sc.parallelize(b)
     val rddC =  rddA.subtract(rddB)
@@ -34,14 +34,14 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
 
   test( "Intersection Behavior "){
     // tag::Intersect[]
-    val a = Array(1, 2, 3 ,4 ,4 ,4 ,4 )
-    val b = Array(3, 4 )
+    val a = Array(1, 2, 3, 4, 4, 4, 4)
+    val b = Array(3, 4)
     val rddA = sc.parallelize(a)
     val rddB = sc.parallelize(b)
     val intersection =  rddA.intersection(rddB)
     val subtraction = rddA.subtract(rddB)
     val union = intersection.union(subtraction)
-     assert(!rddA.collect().sorted.sameElements(union.collect().sorted))
+    assert(!rddA.collect().sorted.sameElements(union.collect().sorted))
     // end::Intersect[]
   }
 
@@ -66,7 +66,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
 
   }
 
-  test( "Two actions without caching  ") {
+  test( "Two actions without caching ") {
     val rddA: RDD[(Double, Int)] = sc.parallelize(keyValuePairs)
 
     // tag::TwoActions[]

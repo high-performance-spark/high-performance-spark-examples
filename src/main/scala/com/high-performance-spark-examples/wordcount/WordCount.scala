@@ -23,7 +23,7 @@ object WordCount {
     val wordCounts = wordPairs.reduceByKey(_ + _)
     wordCounts
   }
-  //end::simpleWordCount
+  //end::simpleWordCount[]
 
   /**
     * Come up with word counts but filter out the illegal tokens and stop words
