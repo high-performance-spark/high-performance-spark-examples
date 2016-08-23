@@ -116,11 +116,14 @@ object GoldilocksWithHashMap {
     *         (partition index, number of elements from every column on this partition)
     */
   //tag::hashMap_step2[]
-  private def getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
-                                        numOfColumns : Int): Array[(Int, Array[Long])] = {
+  private def getColumnsFreqPerPartition(
+    sortedAggregatedValueColumnPairs: RDD[((Double, Int), Long)],
+    numOfColumns : Int): Array[(Int, Array[Long])] = {
 
     val zero = Array.fill[Long](numOfColumns)(0)
-    def aggregateColumnFrequencies(partitionIndex : Int, pairs : Iterator[((Double, Int), Long)]) = {
+
+    def aggregateColumnFrequencies(
+      partitionIndex : Int, pairs : Iterator[((Double, Int), Long)]) = {
       val columnsFreq : Array[Long] = pairs.aggregate(zero)(
         (a : Array[Long], v : ((Double,Int), Long)) => {
           val ((value, colIndex), count) = v
@@ -156,10 +159,10 @@ object GoldilocksWithHashMap {
     *          (partition index, relevantIndexList where relevantIndexList(i) = the index
     *          of an element on this partition that matches one of the target ranks)
     */
-  //tag::hashMap_step3
+  //tag::hashMap_step3[]
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
-                                              partitionColumnsFreq : Array[(Int, Array[Long])],
-                                              numOfColumns : Int) : Array[(Int, List[(Int, Long)])]  = {
+         partitionColumnsFreq : Array[(Int, Array[Long])],
+         numOfColumns : Int) : Array[(Int, List[(Int, Long)])]  = {
 
     val runningTotal = Array.fill[Long](numOfColumns)(0)
 
@@ -191,9 +194,9 @@ object GoldilocksWithHashMap {
     * @return returns RDD of the target ranks (column index, value)
     */
   //tag::mapPartitionsExample[]
-  private def findTargetRanksIteratively(sortedAggregatedValueColumnPairs : RDD[((Double, Int), Long)],
-                                         ranksLocations : Array[(Int, List[(Int, Long)])]
-  ): RDD[(Int, Double)] = {
+  private def findTargetRanksIteratively(
+          sortedAggregatedValueColumnPairs : RDD[((Double, Int), Long)],
+          ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
 
     sortedAggregatedValueColumnPairs.mapPartitionsWithIndex((partitionIndex : Int,
       aggregatedValueColumnPairs : Iterator[((Double, Int), Long)]) => {
