@@ -7,7 +7,7 @@ import org.apache.spark.sql._
 import scala.collection.Map
 import scala.collection.mutable.ArrayBuffer
 
-//tag::colIndex_partition
+//tag::colIndex_partition[]
 class ColumnIndexPartition(override val numPartitions: Int)
   extends Partitioner {
   require(numPartitions >= 0, s"Number of partitions " +
@@ -18,7 +18,7 @@ class ColumnIndexPartition(override val numPartitions: Int)
     Math.abs(k._1) % numPartitions //hashcode of column index
   }
 }
-//end::colIndex_partition
+//end::colIndex_partition[]
 
 object GoldilocksSecondarySort {
   /**
@@ -60,7 +60,7 @@ object GoldilocksSecondarySort {
   def findRankStatistics(dataFrame: DataFrame,
     targetRanks: List[Long], partitions: Int) = {
 
-    val  pairRDD: RDD[((Int, Double), Int)] =
+    val pairRDD: RDD[((Int, Double), Int)] =
       GoldilocksGroupByKey.mapToKeyValuePairs(dataFrame).map((_, 1))
 
     val partitioner = new ColumnIndexPartition(partitions)
@@ -131,11 +131,7 @@ object GoldilocksSecondarySortV2{
   /**
     * Precondintion: Iterator must be sorted by (columnIndex, value). Groups by column index and filters
     * the values so that only those that correspond to the desired rank statistics are included.
-    * @param it
-    * @param targetRanks
-    * @return
     */
-
   def filterAndGroupRanks(
     it: Iterator[(Int, Double)], targetRanks : List[Long]): Iterator[(Int, Iterable[Double])] = {
     val res = List[(Int, Long, ArrayBuffer[Double])]()

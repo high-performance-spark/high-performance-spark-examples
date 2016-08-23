@@ -78,7 +78,8 @@ object GoldilocksWhileLoop{
       val col = dataFrame.rdd.map(row => row.getDouble(i))
       val sortedCol : RDD[(Double, Long)] = col.sortBy(v => v).zipWithIndex()
       val ranksOnly = sortedCol.filter{
-        case (colValue, index) =>  ranks.contains(index + 1) //rank statistics are indexed from one. e.g. first element is 0
+        //rank statistics are indexed from one. e.g. first element is 0
+        case (colValue, index) =>  ranks.contains(index + 1)
       }.keys
       val list = ranksOnly.collect()
        result += (i -> list)
@@ -180,15 +181,18 @@ object GoldilocksFirstTry {
    * @param sortedValueColumnPairs - sorted RDD of (value, column Index) pairs
    * @param numOfColumns the number of columns
    *
-   * @return Array that contains (partition index, number of elements from every column on this partition)
+   * @return Array that contains
+    *         (partition index, number of elements from every column on this partition)
    */
   //tag::firstTry_Step2[]
-  private def getColumnsFreqPerPartition(sortedValueColumnPairs: RDD[(Double, Int)], numOfColumns : Int):
+  private def getColumnsFreqPerPartition(sortedValueColumnPairs: RDD[(Double, Int)],
+    numOfColumns : Int):
     Array[(Int, Array[Long])] = {
 
     val zero = Array.fill[Long](numOfColumns)(0)
 
-    def aggregateColumnFrequencies (partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) = {
+    def aggregateColumnFrequencies (partitionIndex : Int,
+      valueColumnPairs : Iterator[(Double, Int)]) = {
       val columnsFreq : Array[Long] = valueColumnPairs.aggregate(zero)(
         (a : Array[Long], v : (Double ,Int)) => {
           val (value, colIndex) = v
@@ -226,8 +230,8 @@ object GoldilocksFirstTry {
    */
   //tag::firstTry_Step3[]
   private def getRanksLocationsWithinEachPart(targetRanks : List[Long],
-                                              partitionColumnsFreq : Array[(Int, Array[Long])],
-                                              numOfColumns : Int) : Array[(Int, List[(Int, Long)])] = {
+         partitionColumnsFreq : Array[(Int, Array[Long])],
+         numOfColumns : Int) : Array[(Int, List[(Int, Long)])] = {
 
     val runningTotal = Array.fill[Long](numOfColumns)(0)
     //the partition indices are not necessarily in sorted order, so we need to sort the
@@ -240,8 +244,8 @@ object GoldilocksFirstTry {
         val ranksHere: List[Long] = targetRanks.filter(rank =>
           runningTotalCol < rank && runningTotalCol + colCount >= rank)
 
-        // for each of the rank statistics present add this column index and the index it will be at
-        // on this partition (the rank - the running total)
+   // for each of the rank statistics present add this column index and the index it will be at
+   // on this partition (the rank - the running total)
         relevantIndexList ++= ranksHere.map(rank => (colIndex, rank - runningTotalCol))
 
         runningTotal(colIndex) += colCount
@@ -256,13 +260,15 @@ object GoldilocksFirstTry {
     * Step 4: Finds rank statistics elements using ranksLocations.
     *
     * @param sortedValueColumnPairs - sorted RDD of (value, colIndex) pairs
-    * @param ranksLocations Array of (partition Index, list of (column index, rank index of this column at this partition))
+    * @param ranksLocations Array of (partition Index, list of (column index,
+    *                       rank index of this column at this partition))
     *
     * @return returns RDD of the target ranks (column index, value)
     */
   //tag::firstTry_Step4[]
   private def findTargetRanksIteratively(sortedValueColumnPairs : RDD[(Double, Int)],
-                                        ranksLocations : Array[(Int, List[(Int, Long)])]): RDD[(Int, Double)] = {
+                                        ranksLocations : Array[(Int, List[(Int, Long)])]
+  ): RDD[(Int, Double)] = {
 
     sortedValueColumnPairs.mapPartitionsWithIndex(
       (partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
@@ -275,16 +281,12 @@ object GoldilocksFirstTry {
           val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
           runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
-        //filter this iterator, so that it contains only those (value, columnIndex)
-        // that are the ranks statistics on this partition
-        // I.e. Keep track of the number of elements we have seen for each columnIndex using the
-        // running total hashMap. Keep those pairs for which value is the nth element
-        // for that columnIndex that appears on this partition
-        // and the map contains (columnIndex, n).
+  //filter this iterator, so that it contains only those (value, columnIndex)
+  //that are the ranks statistics on this partition
+  //Keep track of the number of elements we have seen for each columnIndex using the
+  //running total hashMap.
         valueColumnPairs.filter{
           case(value, colIndex) =>
-            //rely on lazy evaluation. If we have already seen this column index, then evalute this
-            // block in which we increment the running totals and return if this element's count appears in the map.
             lazy val thisPairIsTheRankStatistic: Boolean = {
               val total = runningTotals(colIndex) + 1L
               runningTotals.update(colIndex, total)
