@@ -182,7 +182,7 @@ object GoldilocksWithHashMap {
       (partitionIndex, relevantIndexList.toList)
     }
   }
-  //tag::hashMap_step3[]
+  //end::hashMap_step3[]
 
   /**
     * Finds rank statistics elements using ranksLocations.
