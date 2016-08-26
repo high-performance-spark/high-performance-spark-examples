@@ -73,6 +73,21 @@ object SimplePipeline {
     //end::simpleNaiveBayes[]
   }
 
+  def stringIndexer(df: DataFrame) = {
+    //tag::stringIndexer[]
+    // Construct a simple string indexer
+    val sb = new StringIndexer()
+    sb.setInputCol("name")
+    sb.setOutputCol("indexed_name")
+    // Construct the model based on the input
+    val sbModel = sb.fit(df)
+    // Construct the inverse of the model to go from index-to-string after prediction.
+    val sbInverse = new IndexToString()
+    sbInverse.setInputCol("prediction")
+    sbInverse.setLabels(sbModel.labels)
+    //end::stringIndexer[]
+  }
+
   def buildSimplePipeline(df: DataFrame) = {
     //tag::simplePipeline[]
     val tokenizer = new Tokenizer()
@@ -98,5 +113,13 @@ object SimplePipeline {
     val tokenizer2 = pipelineModel.stages(0).asInstanceOf[Tokenizer]
     val nbFit = pipelineModel.stages.last.asInstanceOf[NaiveBayesModel]
     //end::accessStages[]
+    //tag::newPipeline[]
+    val normalizer = new Normalizer()
+    normalizer.setInputCol("features")
+    normalizer.setOutputCol("normalized_features")
+    nb.setFeaturesCol("normalized_features")
+    pipeline.setStages(Array(tokenizer, hashingTF, assembler, normalizer, nb))
+    val normalizedPipelineModel = pipelineModel.transform(df)
+    //end::newPipeline[]
   }
 }
