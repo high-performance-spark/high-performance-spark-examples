@@ -48,6 +48,7 @@ object SimplePipeline {
     //end::vectorAssembler[]
   }
 
+  // Here is a simple tokenizer to hashingtf transformer manually chained
   def simpleTokenizerToHashing(df: DataFrame) = {
     //tag::simpleTokenizerToHashing[]
     val tokenizer = new Tokenizer()
@@ -64,10 +65,38 @@ object SimplePipeline {
   def constructSimpleEstimator(df: DataFrame) = {
     val sqlCtx = df.sqlContext
     //tag::simpleNaiveBayes[]
+    val nb = new NaiveBayes()
+    nb.setLabelCol("happy")
+    nb.setFeaturesCol("features")
+    nb.setPredictionCol("prediction")
+    val nbModel = nb.fit(df)
     //end::simpleNaiveBayes[]
   }
 
-  def trainSimplePipeline(df: DataFrame) = {
-    val sqlCtx = df.sqlContext
+  def buildSimplePipeline(df: DataFrame) = {
+    //tag::simplePipeline[]
+    val tokenizer = new Tokenizer()
+    tokenizer.setInputCol("name")
+    tokenizer.setOutputCol("tokenized_name")
+    val hashingTF = new HashingTF()
+    hashingTF.setInputCol("tokenized_name")
+    hashingTF.setOutputCol("name_tf")
+    val assembler = new VectorAssembler()
+    assembler.setInputCols(Array("size", "zipcode", "name_tf",
+      "attributes"))
+    val nb = new NaiveBayes()
+    nb.setLabelCol("happy")
+    nb.setFeaturesCol("features")
+    nb.setPredictionCol("prediction")
+    val pipeline = new Pipeline()
+    pipeline.setStages(Array(tokenizer, hashingTF, assembler, nb))
+    //end::simplePipeline[]
+    //tag::trainPipeline[]
+    val pipelineModel = pipeline.fit(df)
+    //end::trainPipeline[]
+    //tag::accessStages[]
+    val tokenizer2 = pipelineModel.stages(0).asInstanceOf[Tokenizer]
+    val nbFit = pipelineModel.stages.last.asInstanceOf[NaiveBayesModel]
+    //end::accessStages[]
   }
 }
