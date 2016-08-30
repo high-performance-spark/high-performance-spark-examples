@@ -10,8 +10,8 @@ import org.apache.spark.rdd.RDD
 //tag::imports[]
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import org.apache.spark.mllib.linalg.Vectors
-// Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.classification.{LogisticRegressionWithSGD, LogisticRegressionModel}
+// Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.feature._
