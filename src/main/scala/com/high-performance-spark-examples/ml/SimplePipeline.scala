@@ -11,9 +11,11 @@ import org.apache.spark.sql._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
+//tag::basicImport[]
 import org.apache.spark.ml._
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.classification._
+//end::basicImport[]
 import org.apache.spark.ml.linalg._
 
 object SimplePipeline {
