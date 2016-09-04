@@ -156,9 +156,9 @@ class GoldilocksMLlib(sc: SparkContext) {
 
   //tag::train[]
   def trainModel(rdd: RDD[LabeledPoint]): LogisticRegressionModel = {
-    val km = new LogisticRegressionWithSGD()
-    val kmn = km.run(rdd)
-    kmn
+    val lr = new LogisticRegressionWithSGD()
+    val lrModel = lr.run(rdd)
+    lrModel
   }
   //end::train[]
 
