@@ -90,6 +90,14 @@ object SimplePipeline {
     //end::stringIndexer[]
   }
 
+  def normalizer() = {
+    //tag::normalier[]
+    val normalizer = new Normalizer()
+    normalizer.setInputCol("features")
+    normalizer.setOutputCol("normalized_features")
+    //end::normalizer[]
+  }
+
   def buildSimplePipeline(df: DataFrame) = {
     //tag::simplePipeline[]
     val tokenizer = new Tokenizer()
