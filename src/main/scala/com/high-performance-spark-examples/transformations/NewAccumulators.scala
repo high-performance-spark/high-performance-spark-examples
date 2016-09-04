@@ -99,21 +99,47 @@ object NewAccumulators {
 
   //tag::uniquePandaAcc[]
   def uniquePandas(sc: SparkContext, rdd: RDD[RawPanda]): HashSet[Long] = {
-    object UniqParam extends AccumulableParam[HashSet[Long], Long] {
-      override def zero(initValue: HashSet[Long]) = initValue
+    class UniqParam extends AccumulatorV2[Long, HashSet[Long]] {
+      var accValue: HashSet[Long] = new HashSet[Long]()
+
+      def value = accValue
+
+      override def copy() = {
+        val newCopy = new UniqParam()
+        newCopy.accValue = accValue.clone
+        newCopy
+      }
+      override def reset() = {
+        this.accValue = new HashSet[Long]()
+      }
+      override def isZero() = {
+        accValue.isEmpty
+      }
+
+      // We override copy and reset for speed - no need to copy the value if
+      // we care going to zero it right away.
+      override def copyAndReset() = {
+        new UniqParam()
+      }
       // For adding new values
-      override def addAccumulator(r: HashSet[Long], t: Long): HashSet[Long] = {
-        r += t
-        r
+      override def add(value: Long) = {
+        accValue += value
       }
       // For merging accumulators
-      override def addInPlace(r1: HashSet[Long], r2: HashSet[Long]): HashSet[Long] = {
-        r1 ++ r2
+      override def merge(other: AccumulatorV2[Long, HashSet[Long]]) = {
+        other match {
+          case otherUniq: UniqParam =>
+            accValue = accValue ++ otherUniq.accValue
+          case _ =>
+            throw new Exception("only support merging with same type")
+        }
       }
     }
-    // Create an accumulator with the initial value of Double.MinValue
-    val acc = sc.accumulable(new HashSet[Long]())(UniqParam)
-    val transformed = rdd.map{x => acc += x.id; (x.zip, x.id)}
+    // Create an accumulator for keeping track of unique values
+    val acc = new UniqParam()
+    // Register with a name
+    sc.register(acc, "Unique values")
+    val transformed = rdd.map{x => acc.add(x.id); (x.zip, x.id)}
     // accumulator still has Double.MinValue
     transformed.count() // force evaluation
     acc.value
