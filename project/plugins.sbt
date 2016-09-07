@@ -5,9 +5,9 @@ resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositori
 resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 
+//tag::addSparkPackagesPlugin[]
 resolvers += "Spark Package Main Repo" at "https://dl.bintray.com/spark-packages/maven"
 
-//tag::addSparkPackagesPlugin[]
 addSbtPlugin("org.spark-packages" % "sbt-spark-package" % "0.2.2")
 //end::addSparkPackagesPlugin[]
 
@@ -15,4 +15,6 @@ addSbtPlugin("org.spark-packages" % "sbt-spark-package" % "0.2.2")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.3")
 
+//tag::sbtJNIPlugin[]
 addSbtPlugin("ch.jodersky" % "sbt-jni" % "1.0.0-RC3")
+//end::sbtJNIPlugin[]
