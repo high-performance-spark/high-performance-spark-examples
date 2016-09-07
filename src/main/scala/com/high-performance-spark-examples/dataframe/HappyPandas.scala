@@ -6,18 +6,36 @@ package com.highperformancespark.examples.dataframe
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
 //tag::sparkSQLImports[]
-import org.apache.spark.sql.{DataFrame, SparkSession, SQLContext, Row}
+import org.apache.spark.sql.{Dataset, DataFrame, SparkSession, Row}
 import org.apache.spark.sql.catalyst.expressions.aggregate._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
 //end::sparkSQLImports[]
 
-//tag::sparkHiveImports[]
+//tag::legacySparkSQLImports[]
+import org.apache.spark.sql.SQLContext
+//end::legacySparkSQLImports[]
+//tag::legacySparkHiveImports[]
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hive.thriftserver._
-//end::sparkHiveImports[]
+//end::legacySparkHiveImports[]
 
 object HappyPandas {
+
+  /**
+   * Creates a SparkSession with Hive enabled
+   */
+  def sparkSession(): SparkSession = {
+    //tag::createSparkSession[]
+    val session = SparkSession.builder()
+      .enableHiveSupport()
+      .getOrCreate()
+    // Import the implicits, unlike in core Spark the implicits are defined on the context
+    import session.implicits._
+    //end::createSparkSession[]
+    session
+  }
+
   /**
    * Creates SQLContext with an existing SparkContext.
    */
@@ -28,18 +46,6 @@ object HappyPandas {
     import sqlContext.implicits._
     //end::createSQLContext[]
     sqlContext
-  }
-
-  /**
-   * Creates Spark Session with an existing SparkContext using hive.
-   */
-  def sparkSession(sc: SparkContext): SparkSession = {
-    //tag::createSession[]
-    val session = SparkSession.builder().enableHiveSupport().getOrCreate()
-    // Import the implicits, unlike in core Spark the implicits are defined on the context
-    import session.implicits._
-    //end::createSession[]
-    session
   }
 
   /**
