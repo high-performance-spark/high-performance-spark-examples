@@ -63,24 +63,25 @@ object HappyPandas {
   /**
    * Illustrate loading some JSON data.
    */
-  def loadDataSimple(sc: SparkContext, sqlCtx: SQLContext, path: String): DataFrame = {
+  def loadDataSimple(sc: SparkContext, session: SparkSession, path: String): DataFrame = {
     //tag::loadPandaJSONSimple[]
-    val df1 = sqlCtx.read.json(path)
+    val df1 = session.read.json(path)
     //end::loadPandaJSONSimple[]
     //tag::loadPandaJSONComplex[]
-    val df2 = sqlCtx.read.format("json").option("samplingRatio", "1.0").load(path)
+    val df2 = session.read.format("json")
+      .option("samplingRatio", "1.0").load(path)
     //end::loadPandaJSONComplex[]
     val jsonRDD = sc.textFile(path)
     //tag::loadPandaJsonRDD[]
-    val df3 = sqlCtx.read.json(jsonRDD)
+    val df3 = session.read.json(jsonRDD)
     //end::loadPandaJSONRDD[]
     df1
   }
 
-  def jsonLoadFromRDD(sqlCtx: SQLContext, input: RDD[String]): DataFrame = {
+  def jsonLoadFromRDD(session: SparkSession, input: RDD[String]): DataFrame = {
     //tag::loadPandaJSONRDD[]
     val rdd: RDD[String] = input.filter(_.contains("panda"))
-    val df = sqlCtx.read.json(rdd)
+    val df = session.read.json(rdd)
     //end::loadPandaJSONRDD[]
     df
   }
@@ -226,18 +227,18 @@ object HappyPandas {
   //end::complexAggPerZip[]
 
   def simpleSqlExample(pandas: DataFrame): DataFrame = {
-    val sqlCtx = pandas.sqlContext
+    val session = pandas.sparkSession
     //tag::pandasSQLQuery[]
     pandas.registerTempTable("pandas")
-    val miniPandas = sqlCtx.sql("SELECT * FROM pandas WHERE pandaSize < 12")
+    val miniPandas = session.sql("SELECT * FROM pandas WHERE pandaSize < 12")
     //end::pandasSQLQuery[]
     miniPandas
   }
 
-  def startJDBCServer(sqlContext: HiveContext): Unit = {
+  def startJDBCServer(hiveContext: HiveContext): Unit = {
     //tag::startJDBC[]
-    sqlContext.setConf("hive.server2.thrift.port", "9090")
-    HiveThriftServer2.startWithContext(sqlContext)
+    hiveContext.setConf("hive.server2.thrift.port", "9090")
+    HiveThriftServer2.startWithContext(hiveContext)
     //end::startJDBC[]
   }
 
