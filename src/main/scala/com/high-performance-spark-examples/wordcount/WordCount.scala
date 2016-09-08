@@ -31,8 +31,8 @@ object WordCount {
   //tag::wordCountStopwords[]
   def withStopWordsFiltered(rdd : RDD[String], illegalTokens : Array[Char],
     stopWords : Set[String]): RDD[(String, Int)] = {
-    val seperators = illegalTokens ++ Array[Char](' ')
-    val tokens: RDD[String] = rdd.flatMap(_.split(seperators).
+    val separators = illegalTokens ++ Array[Char](' ')
+    val tokens: RDD[String] = rdd.flatMap(_.split(separators).
       map(_.trim.toLowerCase))
     val words = tokens.filter(token =>
       !stopWords.contains(token) && (token.length > 0) )
