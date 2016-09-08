@@ -12,11 +12,16 @@ crossScalaVersions := Seq("2.11.6")
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
+//tag::sparkVersion[]
 sparkVersion := "2.0.0"
+//end::sparkVersion[]
 
 //tag::sparkComponents[]
-sparkComponents ++= Seq("core", "streaming", "mllib")
+sparkComponents ++= Seq("core")
 //end::sparkComponents[]
+//tag::sparkExtraComponents[]
+sparkComponents ++= Seq("streaming", "mllib")
+//end::sparkExtraComponents[]
 //tag::addSQLHiveComponent[]
 sparkComponents ++= Seq("sql", "hive", "hive-thriftserver", "hive-thriftserver")
 //end::addSQLHiveComponent[]
