@@ -75,12 +75,15 @@ class PandaKeyPartitioner(override val numPartitions: Int) extends Partitioner {
 object SecondarySort {
 
   //tag::sortByTwoKeys[]
-  def sortByTwoKeys[K : Ordering : ClassTag , S, V : ClassTag](
+  def sortByTwoKeys[K : Ordering : ClassTag,
+                    S : Ordering : ClassTag,
+                    V : ClassTag](
     pairRDD : RDD[((K, S), V)], partitions : Int ) = {
     val colValuePartitioner = new PrimaryKeyPartitioner[K, S](partitions)
 
    //tag::implicitOrdering[]
-    implicit val ordering: Ordering[(K, S)] = Ordering.by(_._1)
+
+    implicit val ordering: Ordering[(K, S)] = Ordering.Tuple2
     //end::implicitOrdering[]
     val sortedWithinParts = pairRDD.repartitionAndSortWithinPartitions(
       colValuePartitioner)
@@ -89,7 +92,7 @@ object SecondarySort {
   //end::sortByTwoKeys[]
 
   //tag::sortAndGroup[]
-  def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag, S, V : ClassTag]
+  def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag, S : Ordering : ClassTag, V : ClassTag]
       (pairRDD : RDD[((K, S), V)], partitions : Int
       ): RDD[(K, List[(S, V)])] = {
     //Create an instance of our custom partitioner
@@ -97,7 +100,7 @@ object SecondarySort {
 
     //define an implicit ordering, to order by the second key the ordering will
     //be used even though not explicitly called
-    implicit val ordering: Ordering[(K, S)] = Ordering.by(_._1)
+    implicit val ordering: Ordering[(K, S)] = Ordering.Tuple2
 
     //use repartitionAndSortWithinPartitions
     val sortedWithinParts =
