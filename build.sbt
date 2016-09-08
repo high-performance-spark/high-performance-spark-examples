@@ -40,8 +40,7 @@ libraryDependencies ++= Seq(
   //tag::sparkCSV[]
   "com.databricks" % "spark-csv_2.10" % "1.3.0",
   //end::sparkCSV[]
-  "com.holdenkarau" % "spark-testing-base_2.11" % "2.0.0_0.4.4",
-  "org.eclipse.jetty" % "jetty-util" % "9.3.2.v20150730",
+  "com.holdenkarau" % "spark-testing-base_2.11" % "2.0.0_0.4.5",
   "com.novocode" % "junit-interface" % "0.10" % "test->default",
   "net.java.dev.jna" % "jna" % "4.2.2")
 
