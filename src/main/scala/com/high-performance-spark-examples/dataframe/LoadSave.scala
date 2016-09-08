@@ -5,18 +5,19 @@ package com.highperformancespark.examples.dataframe
 
 import java.util.Properties
 
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
-case class LoadSave(sqlContext: SQLContext) {
-  import sqlContext.implicits._
+case class LoadSave(sc: SparkContext, session: SparkSession) {
+  import session.implicits._
   //tag::createFromRDD[]
   def createFromCaseClassRDD(input: RDD[PandaPlace]) = {
-    // Create DataFrame explicitly using sqlContext and schema inference
-    val df1 = sqlContext.createDataFrame(input)
+    // Create DataFrame explicitly using session and schema inference
+    val df1 = session.createDataFrame(input)
 
-    // Create DataFrame using sqlContext implicits and schema inference
+    // Create DataFrame using session implicits and schema inference
     val df2 = input.toDF()
 
     // Create a Row RDD from our RDD of case classes
@@ -33,13 +34,30 @@ case class LoadSave(sqlContext: SQLContext) {
     val schema = StructType(List(StructField("name", StringType, true),
       StructField("pandas", pandasType)))
 
-    val df3 = sqlContext.createDataFrame(rowRDD, schema)
+    val df3 = session.createDataFrame(rowRDD, schema)
   }
   //end::createFromRDD[]
 
+  //tag::createFromRDDBasic[]
+  def createFromCaseClassRDD(input: Seq[PandaPlace]) = {
+    val rdd = sc.parallelize(input)
+    // Create DataFrame explicitly using session and schema inference
+    val df1 = session.createDataFrame(input)
+  }
+  //end::createFromRDDBasic[]
+
+  //tag::createGetSchema[]
+  def createAndPrintSchema() = {
+    val damao = RawPanda(1, "M1B 5K7", "giant", true, Array(0.1, 0.1))
+    val pandaPlace = PandaPlace("toronto", Array(damao))
+    val df = session.createDataFrame(Seq(pandaPlace))
+    df.printSchema()
+  }
+  //end::createGetSchema[]
+
   //tag::createFromLocal[]
   def createFromLocal(input: Seq[PandaPlace]) = {
-    sqlContext.createDataFrame(input)
+    session.createDataFrame(input)
   }
   //end::createFromLocal[]
 
@@ -72,10 +90,10 @@ case class LoadSave(sqlContext: SQLContext) {
 
   def createJDBC() = {
     //tag::createJDBC[]
-    sqlContext.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
+    session.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
       "table", new Properties)
 
-    sqlContext.read.format("jdbc")
+    session.read.format("jdbc")
       .option("url", "jdbc:dialect:serverName")
       .option("dbtable", "table").load()
     //end::createJDBC[]
@@ -96,11 +114,11 @@ case class LoadSave(sqlContext: SQLContext) {
 
   //tag::loadParquet[]
   def loadParquet(path: String): DataFrame = {
-    // Configure Spark to read binary data as string, note: must be configured on SQLContext
-    sqlContext.setConf("spark.sql.parquet.binaryAsString", "true")
+    // Configure Spark to read binary data as string, note: must be configured on session
+    session.conf.set("spark.sql.parquet.binaryAsString", "true")
 
     // Load parquet data using merge schema (configured through option)
-    sqlContext.read
+    session.read
       .option("mergeSchema", "true")
       .format("parquet")
       .load(path)
@@ -115,7 +133,7 @@ case class LoadSave(sqlContext: SQLContext) {
 
   //tag::loadHiveTable[]
   def loadHiveTable(): DataFrame = {
-    sqlContext.read.table("pandas")
+    session.read.table("pandas")
   }
   //end::loadHiveTable[]
 
