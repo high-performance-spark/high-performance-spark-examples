@@ -191,9 +191,14 @@ object HappyPandas {
     */
   case class Pandas(name: String, zip: String, pandaSize: Integer, age: Integer)
 
-  def describePandas(pandas: DataFrame): DataFrame = {
+  def describePandas(pandas: DataFrame) = {
     //tag::pandaSizeRangeVarDescribe[]
-    pandas.describe()
+    // Compute the count, mean, stddev, min, max summary stats for all
+    // of the numeric fields of the provided panda infos. non-numeric
+    // fields (such as string (name) or array types) are skipped.
+    val df = pandas.describe()
+    // Collect the summary back locally
+    println(df.collect())
     //end::pandaSizeRangeVarDescribe[]
   }
 
