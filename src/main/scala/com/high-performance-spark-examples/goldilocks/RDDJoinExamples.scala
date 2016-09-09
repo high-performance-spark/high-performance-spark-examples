@@ -61,8 +61,8 @@ object RDDJoinExamples {
   }
  //end::joinScoresWithAddress3[]
 
-  def debugString(scoreRDD : RDD[(Long, Double)],
-    addressRDD : RDD[(Long, String)])  = {
+  def debugString(scoreRDD: RDD[(Long, Double)],
+    addressRDD: RDD[(Long, String)])  = {
     //tag::debugString[]
     scoreRDD.join(addressRDD).toDebugString
     //end::debugString[]
