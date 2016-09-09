@@ -20,26 +20,24 @@ object RDDJoinExamples {
  //tag::joinScoresWithAddress[]
   def joinScoresWithAddress1( scoreRDD : RDD[(Long, Double)],
    addressRDD : RDD[(Long, String )]) : RDD[(Long, (Double, String))]= {
-     val joinedRDD = scoreRDD.join(addressRDD)
-      joinedRDD.reduceByKey( (x, y) => if(x._1 > y._1) x else y )
+    val joinedRDD = scoreRDD.join(addressRDD)
+    joinedRDD.reduceByKey( (x, y) => if(x._1 > y._1) x else y )
   }
   //end::joinScoresWithAddress[]
 
   //tag::leftOuterJoinScoresWithAddress[]
-  def outerJoinScoresWithAddress( scoreRDD : RDD[(Long, Double)],
-   addressRDD : RDD[(Long, String )]) : RDD[(Long, (Double, Option[String]))]= {
-     val joinedRDD = scoreRDD.leftOuterJoin(addressRDD)
-      joinedRDD.reduceByKey( (x, y) => if(x._1 > y._1) x else y )
- }
+  def outerJoinScoresWithAddress(scoreRDD : RDD[(Long, Double)],
+   addressRDD: RDD[(Long, String)]) : RDD[(Long, (Double, Option[String]))]= {
+    val joinedRDD = scoreRDD.leftOuterJoin(addressRDD)
+    joinedRDD.reduceByKey( (x, y) => if(x._1 > y._1) x else y )
+  }
   //end::leftOuterJoinScoresWithAddress[]
 
   //tag::joinScoresWithAddressFast[]
-  def joinScoresWithAddress2( scoreRDD : RDD[(Long, Double)],
-    addressRDD : RDD[(Long, String )]) : RDD[(Long, (Double, String))]= {
-    //stuff
+  def joinScoresWithAddress2(scoreRDD : RDD[(Long, Double)],
+    addressRDD: RDD[(Long, String)]) : RDD[(Long, (Double, String))]= {
    val bestScoreData = scoreRDD.reduceByKey((x, y) => if(x > y) x else y)
    bestScoreData.join(addressRDD)
-
   }
   //end::joinScoresWithAddressFast[]
 /*
@@ -48,17 +46,18 @@ object RDDJoinExamples {
  the reduce by key step.
  'ToDO: Insert the code to show this here' */
   //tag::joinScoresWithAddress3[]
-  def joinScoresWithAddress3( scoreRDD : RDD[(Long, Double)],
-   addressRDD : RDD[(Long, String )]) : RDD[(Long, (Double, String))]= {
-   //if addressRDD has a known partitioner we should use that,
-   //otherwise it has a default hash parttioner, which we can reconstrut by getting the number of
-   // partitions.
-   val addressDataPartitioner = addressRDD.partitioner match {
-    case (Some(p)) => p
-    case (None) => new HashPartitioner(addressRDD.partitions.length)
-   }
-   val bestScoreData = scoreRDD.reduceByKey(addressDataPartitioner, (x, y) => if(x > y) x else y)
-   bestScoreData.join(addressRDD)
+  def joinScoresWithAddress3(scoreRDD: RDD[(Long, Double)],
+   addressRDD: RDD[(Long, String)]) : RDD[(Long, (Double, String))]= {
+    //if addressRDD has a known partitioner we should use that,
+    //otherwise it has a default hash parttioner, which we can reconstrut by getting the number of
+    // partitions.
+    val addressDataPartitioner = addressRDD.partitioner match {
+      case (Some(p)) => p
+      case (None) => new HashPartitioner(addressRDD.partitions.length)
+    }
+    val bestScoreData = scoreRDD.reduceByKey(addressDataPartitioner,
+      (x, y) => if(x > y) x else y)
+    bestScoreData.join(addressRDD)
   }
  //end::joinScoresWithAddress3[]
 
@@ -75,22 +74,19 @@ object RDDJoinExamples {
   *  We could use cogroup to associate each Pandas id with an iterator
   *  of their scores and another iterator of their favorite foods.
   */
-
-
- def coGroupExample( scoreRDD : RDD[(Long, Double)], foodRDD : RDD[(Long, String )],
-  addressRDD : RDD[(Long, String )])  = {
-  //tag::coGroupExample1[]
+ def coGroupExample(scoreRDD: RDD[(Long, Double)], foodRDD: RDD[(Long, String)],
+  addressRDD: RDD[(Long, String)]) = {
+   //tag::coGroupExample1[]
    val cogroupedRDD: RDD[(Long, (Iterable[Double], Iterable[String]))] = scoreRDD.cogroup(foodRDD)
-  //end::coGroupExample1[]
+   //end::coGroupExample1[]
 
-  /*
-   * For example, if we needed to join the panda score data with both address
-   * and favorite foods, it would be better to use co group than two
-   * join operations.
-   */
-
-  //tag::coGroupExample2[]
-  val addressScoreFood = addressRDD.cogroup(scoreRDD, foodRDD)
-  //end::coGroupExample2[]
-   }
+   /*
+    * For example, if we needed to join the panda score data with both address
+    * and favorite foods, it would be better to use co group than two
+    * join operations.
+    */
+   //tag::coGroupExample2[]
+   val addressScoreFood = addressRDD.cogroup(scoreRDD, foodRDD)
+   //end::coGroupExample2[]
  }
+}
