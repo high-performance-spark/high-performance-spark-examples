@@ -1,4 +1,4 @@
-package com.highperformancespark.examples.transformations
+package com.highperformancespark.examples.goldilocks
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import org.apache.spark.rdd.RDD
@@ -12,7 +12,7 @@ class JoinTest extends FunSuite with SharedSparkContext {
     val largeRDD: RDD[(String, Double)] =
       sc.parallelize(keySet.flatMap{ letter =>
         Range(1, 50).map(i => (letter, letter.hashCode() / i.toDouble))})
-    val result: RDD[(String, (Double, Int))] = Joins.manualBroadCastHashJoin(
+    val result: RDD[(String, (Double, Int))] = RDDJoinExamples.manualBroadCastHashJoin(
       largeRDD, smallRDD)
     val nativeJoin: RDD[(String, (Double, Int))] = largeRDD.join(smallRDD)
 
