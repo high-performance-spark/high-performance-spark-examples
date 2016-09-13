@@ -32,7 +32,7 @@ object Joins {
             case Some(v2) => Seq((k, (v1, v2)))
           }
       }
-    })
+    }, preservesPartitioning = true)
   }
   //end:coreBroadCast[]
 
