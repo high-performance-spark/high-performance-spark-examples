@@ -22,6 +22,7 @@ import org.apache.spark.ml.util.Identifiable
 case class LabeledToken(label: Double, index: Integer)
 //tag::SimpleNaiveBayes[]
 // Simple Bernouli Naive Bayes classifier - no sanity checks for brevity
+// Example only - not for production use.
 class SimpleNaiveBayes(val uid: String)
     extends Classifier[Vector, SimpleNaiveBayes, SimpleNaiveBayesModel] {
 
