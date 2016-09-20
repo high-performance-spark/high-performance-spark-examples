@@ -24,10 +24,18 @@ class GoldilocksMLlib(sc: SparkContext) {
   }
 
   def toLabeledPointDense(rdd: RDD[RawPanda]): RDD[LabeledPoint] = {
+    //tag::toLabeledPointDense[]
     rdd.map(rp =>
       LabeledPoint(booleanToDouble(rp.happy),
         Vectors.dense(rp.attributes)))
+    //end::toLabeledPointDense[]
   }
+
+  //tag::toSparkVectorDense[]
+  def toSparkVectorDense(input: Array[Double]) = {
+    Vectors.dense(input)
+  }
+  //end::toSparkVectorDense[]
 
   //tag::selectTopTen[]
   def selectTopTenFeatures(rdd: RDD[LabeledPoint]):
