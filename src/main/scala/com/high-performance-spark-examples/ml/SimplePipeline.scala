@@ -91,7 +91,7 @@ object SimplePipeline {
   }
 
   def normalizer() = {
-    //tag::normalier[]
+    //tag::normalizer[]
     val normalizer = new Normalizer()
     normalizer.setInputCol("features")
     normalizer.setOutputCol("normalized_features")
