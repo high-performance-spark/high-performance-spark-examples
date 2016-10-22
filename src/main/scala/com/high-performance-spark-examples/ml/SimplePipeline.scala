@@ -110,12 +110,15 @@ object SimplePipeline {
     val assembler = new VectorAssembler()
     assembler.setInputCols(Array("size", "zipcode", "name_tf",
       "attributes"))
+    val normalizer = new Normalizer()
+    normalizer.setInputCol("features")
+    normalizer.setOutputCol("normalized_features")
     val nb = new NaiveBayes()
     nb.setLabelCol("happy")
-    nb.setFeaturesCol("features")
+    nb.setFeaturesCol("normalized_features")
     nb.setPredictionCol("prediction")
     val pipeline = new Pipeline()
-    pipeline.setStages(Array(tokenizer, hashingTF, assembler, nb))
+    pipeline.setStages(Array(tokenizer, hashingTF, assembler, normalizer, nb))
     //tag::createSimpleParamGrid[]
     // ParamGridBuilder constructs an Array of parameter combinations.
     val paramGrid: Array[ParamMap] = new ParamGridBuilder()
@@ -129,6 +132,15 @@ object SimplePipeline {
     val cvModel = cv.fit(df)
     val bestModel = cvModel.bestModel
     //end::runSimpleCVSearch[]
+    //tag::complexParamSearch[]
+    val complexParamGrid: Array[ParamMap] = new ParamGridBuilder()
+      .addGrid(nb.smoothing, Array(0.1, 0.5, 1.0, 2.0))
+      .addGrid(hashingTF.numFeatures, Array(1 << 18, 1 << 20))
+      .addGrid(hashingTF.binary, Array(true, false))
+      .addGrid(normalizer.p, Array(1.0, 1.5, 2.0))
+      .build()
+    //end::complexParamSearch[]
+    bestModel
   }
 
   def buildSimplePipeline(df: DataFrame) = {
