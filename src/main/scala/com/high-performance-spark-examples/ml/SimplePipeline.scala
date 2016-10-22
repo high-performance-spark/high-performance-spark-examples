@@ -17,6 +17,8 @@ import org.apache.spark.ml.feature._
 import org.apache.spark.ml.classification._
 //end::basicImport[]
 import org.apache.spark.ml.linalg._
+import org.apache.spark.ml.param._
+import org.apache.spark.ml.tuning._
 
 object SimplePipeline {
   def constructAndSetParams(df: DataFrame) = {
@@ -96,6 +98,37 @@ object SimplePipeline {
     normalizer.setInputCol("features")
     normalizer.setOutputCol("normalized_features")
     //end::normalizer[]
+  }
+
+  def paramSearch(df: DataFrame) = {
+    val tokenizer = new Tokenizer()
+    tokenizer.setInputCol("name")
+    tokenizer.setOutputCol("tokenized_name")
+    val hashingTF = new HashingTF()
+    hashingTF.setInputCol("tokenized_name")
+    hashingTF.setOutputCol("name_tf")
+    val assembler = new VectorAssembler()
+    assembler.setInputCols(Array("size", "zipcode", "name_tf",
+      "attributes"))
+    val nb = new NaiveBayes()
+    nb.setLabelCol("happy")
+    nb.setFeaturesCol("features")
+    nb.setPredictionCol("prediction")
+    val pipeline = new Pipeline()
+    pipeline.setStages(Array(tokenizer, hashingTF, assembler, nb))
+    //tag::createSimpleParamGrid[]
+    // ParamGridBuilder constructs an Array of parameter combinations.
+    val paramGrid: Array[ParamMap] = new ParamGridBuilder()
+      .addGrid(nb.smoothing, Array(0.1, 0.5, 1.0, 2.0))
+      .build()
+    //end::createSimpleParamGrid[]
+    //tag::runSimpleCVSearch[]
+    val cv = new CrossValidator()
+      .setEstimator(pipeline)
+      .setEstimatorParamMaps(paramGrid)
+    val cvModel = cv.fit(df)
+    val bestModel = cvModel.bestModel
+    //end::runSimpleCVSearch[]
   }
 
   def buildSimplePipeline(df: DataFrame) = {
