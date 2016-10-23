@@ -22,6 +22,24 @@ class DStreamExamples(sc: SparkContext, ssc: StreamingContext) {
     //end::ssc[]
   }
 
+  def makeRecoverableStreamingContext(checkpointDir: String) = {
+    //tag::sscRecover[]
+    def createStreamingContext(): StreamingContext = {
+      val batchInterval = Seconds(1)
+      val ssc = new StreamingContext(sc, batchInterval)
+      ssc.checkpoint(checkpointDir)
+      // Then create whatever stream are required
+      // And whatever mappings need to go on those streams
+      ssc
+    }
+    val context = StreamingContext.getOrCreate(checkpointDir,
+      createStreamingContext _)
+    // Do whatever work needs to be regardless of state
+    // Start context and run
+    ssc.start()
+    //end::sscRecover[]
+  }
+
   def fileAPIExample(path: String) = {
     //tag::file[]
     ssc.fileStream[LongWritable, Text, TextInputFormat](path)
