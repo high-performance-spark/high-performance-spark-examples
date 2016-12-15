@@ -24,7 +24,7 @@ if (length(args) != 1) {
 
 fileName <- args(1)
 
-# tag:example[]
+#tag::example[]
 
 library(SparkR)
 
@@ -57,4 +57,4 @@ wc <- agg(groupBy(explodedWords, "words"), "words" = "count")
 
 # Display the result
 showDF(wc)
-# end:example[]
+#end::example[]
