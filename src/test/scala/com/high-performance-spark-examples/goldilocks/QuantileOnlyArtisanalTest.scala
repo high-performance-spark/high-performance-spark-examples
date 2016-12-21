@@ -30,10 +30,6 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     2 -> Set(0.5, 1.5),
     3 -> Set(6.0, 7.0))
 
-
-
-
-
   test("Goldilocks naive Solution"){
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
@@ -45,6 +41,18 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     assert(groupByKeySolution == expectedResult)
   }
 
+  override def afterAll() {
+    // We clear the driver port so that we don't try and bind to the same port on restart
+    sc.stop()
+    System.clearProperty("spark.driver.port")
+    _sc = null
+    super.afterAll()
+  }
+}
+// end::MAGIC_PANDA[]
+
+// We don't need the rest of the tests included.
+class QuantileOnlyArtisanalTestContinued extends QuantileOnlyArtisanalTest {
   test("Goldilocks first try ") {
     val sqlContext = new SQLContext(sc)
     val input = sqlContext.createDataFrame(inputList)
@@ -126,16 +134,7 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
       case (((key, list), index )) => rSorted(index)._1.equals(key)
     })
   }
-
-  override def afterAll() {
-    // We clear the driver port so that we don't try and bind to the same port on restart
-    sc.stop()
-    System.clearProperty("spark.driver.port")
-    _sc = null
-    super.afterAll()
-  }
 }
-// end::MAGIC_PANDA[]
 
 case class GoldiLocksRow(pandaId : Double, softness : Double, fuzzyness : Double, size : Double)
 case class LongPandaRow( args : Double*)
