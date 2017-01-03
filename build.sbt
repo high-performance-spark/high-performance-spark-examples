@@ -13,7 +13,7 @@ crossScalaVersions := Seq("2.11.6")
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
 //tag::sparkVersion[]
-sparkVersion := "2.0.0"
+sparkVersion := "2.1.0"
 //end::sparkVersion[]
 
 //tag::sparkComponents[]
