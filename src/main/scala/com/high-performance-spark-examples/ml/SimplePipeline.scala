@@ -48,7 +48,7 @@ object SimplePipeline {
   }
 
   def constructVectorAssembler() = {
-    //tag::vectorAsssembler[]
+    //tag::vectorAssembler[]
     val assembler = new VectorAssembler()
     assembler.setInputCols(Array("size", "zipcode"))
     //end::vectorAssembler[]
