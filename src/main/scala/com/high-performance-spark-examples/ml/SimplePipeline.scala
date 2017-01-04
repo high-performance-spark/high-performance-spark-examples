@@ -87,11 +87,23 @@ object SimplePipeline {
     sb.setOutputCol("indexed_name")
     // Construct the model based on the input
     val sbModel = sb.fit(df)
+    //end::stringIndexer[]
+  }
+
+  def reverseStringIndexer(sb: StringIndexer) = {
+    //tag::indexToString[]
     // Construct the inverse of the model to go from index-to-string after prediction.
     val sbInverse = new IndexToString()
     sbInverse.setInputCol("prediction")
     sbInverse.setLabels(sbModel.labels)
-    //end::stringIndexer[]
+    //end::indexToString[]
+    // Or if meta data is present
+    //tag::indexToStringMD[]
+    // Construct the inverse of the model to go from index-to-string after prediction.
+    val sbInverse = new IndexToString()
+    sbInverse.setInputCol("prediction")
+    sbInverse.setLabels(sbModel.labels)
+    //end::indexToStringMD[]
   }
 
   def normalizer() = {
