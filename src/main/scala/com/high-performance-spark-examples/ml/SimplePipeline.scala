@@ -16,7 +16,9 @@ import org.apache.spark.ml._
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.classification._
 //end::basicImport[]
-import org.apache.spark.ml.linalg._
+//tag::renameImport[]
+import org.apache.spark.ml.linalg.{Vector => SparkVector}
+//end::renameImport[]
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.tuning._
 
