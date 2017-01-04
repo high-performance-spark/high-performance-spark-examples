@@ -90,7 +90,7 @@ object SimplePipeline {
     //end::stringIndexer[]
   }
 
-  def reverseStringIndexer(sb: StringIndexer) = {
+  def reverseStringIndexer(sbModel: StringIndexerModel) = {
     //tag::indexToString[]
     // Construct the inverse of the model to go from index-to-string after prediction.
     val sbInverse = new IndexToString()
