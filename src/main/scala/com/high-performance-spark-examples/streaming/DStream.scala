@@ -3,6 +3,8 @@
  */
 package com.highperformancespark.examples.streaming
 
+import scala.reflect.ClassTag
+
 import org.apache.hadoop.io.{LongWritable, Text}
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 
@@ -50,6 +52,18 @@ class DStreamExamples(sc: SparkContext, ssc: StreamingContext) {
     //tag::repartition[]
     dstream.repartition(20)
     //end::repartition[]
+  }
+
+  //tag::repartitionWithTransform[]
+  def dStreamRepartition[A: ClassTag](dstream: DStream[A]): DStream[A] = {
+    dstream.transform{rdd => rdd.repartition(20)}
+  }
+  //end::repartitionWithTransform[]
+
+  def simpleTextOut(target: String, dstream: DStream[_]) = {
+    //tag::simpleOut[]
+    dstream.saveAsTextFiles(target)
+    //end::simpleOut[]
   }
 
   def foreachSaveSequence(target: String, dstream: DStream[(Long, String)]) = {
