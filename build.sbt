@@ -36,12 +36,12 @@ javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSC
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.4",
-  "junit" % "junit" % "4.10",
-  //tag::sparkCSV[]
-  "com.databricks" % "spark-csv_2.10" % "1.3.0",
-  //end::sparkCSV[]
+  "junit" % "junit" % "4.12",
   "com.holdenkarau" % "spark-testing-base_2.11" % "2.0.0_0.4.5",
-  "com.novocode" % "junit-interface" % "0.10" % "test->default",
+  "com.novocode" % "junit-interface" % "0.11" % "test->default",
+  //tag::sacalLogging[]
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+  //end::scalaLogging[]
   "net.java.dev.jna" % "jna" % "4.2.2")
 
 
