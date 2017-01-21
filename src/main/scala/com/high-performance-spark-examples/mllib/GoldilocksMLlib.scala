@@ -10,7 +10,7 @@ import org.apache.spark.rdd.RDD
 //tag::imports[]
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.classification.{LogisticRegressionWithSGD, LogisticRegressionModel}
+import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, LogisticRegressionModel}
 // Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
@@ -164,11 +164,20 @@ class GoldilocksMLlib(sc: SparkContext) {
 
   //tag::train[]
   def trainModel(rdd: RDD[LabeledPoint]): LogisticRegressionModel = {
-    val lr = new LogisticRegressionWithSGD()
+    val lr = new LogisticRegressionWithLBFGS()
     val lrModel = lr.run(rdd)
     lrModel
   }
   //end::train[]
+
+  //tag::trainWithIntercept[]
+  def trainModelWithInterept(rdd: RDD[LabeledPoint]): LogisticRegressionModel = {
+    val lr = new LogisticRegressionWithLBFGS()
+    lr.setIntercept(true)
+    val lrModel = lr.run(rdd)
+    lrModel
+  }
+  //end::trainWithIntercept[]
 
   //tag::predict[]
   def predict(model: LogisticRegressionModel, rdd: RDD[SparkVector]): RDD[Double] = {
