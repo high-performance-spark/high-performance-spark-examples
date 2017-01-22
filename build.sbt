@@ -7,6 +7,7 @@ publishMavenStyle := true
 version := "0.0.1"
 
 scalaVersion := "2.11.6"
+scalaVersion in ThisBuild := "2.11.6"
 ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 crossScalaVersions := Seq("2.11.6")
