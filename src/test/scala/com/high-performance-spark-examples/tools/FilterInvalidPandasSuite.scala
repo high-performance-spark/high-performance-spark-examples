@@ -19,6 +19,6 @@ class FilterInvalidPandasSuite extends FunSuite with SharedSparkContext {
     val result1 = FilterInvalidPandas.filterInvalidPandas(sc, invalidPandas, input)
     val result2 = FilterInvalidPandas.filterInvalidPandas(sc, invalidPandas, input)
     assert(result1.collect() === result2.collect())
-    assert(result1.size() === 1)
+    assert(result1.count() === 1)
   }
 }
