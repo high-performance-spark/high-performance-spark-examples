@@ -7,6 +7,7 @@ publishMavenStyle := true
 version := "0.0.1"
 
 scalaVersion := "2.11.6"
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 crossScalaVersions := Seq("2.11.6")
 
@@ -37,7 +38,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.4",
   "junit" % "junit" % "4.12",
-  "com.holdenkarau" % "spark-testing-base_2.11" % "2.0.0_0.4.5",
+  "com.holdenkarau" %% "spark-testing-base" % "2.0.0_0.4.5",
   "com.novocode" % "junit-interface" % "0.11" % "test->default",
   //tag::sacalLogging[]
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
