@@ -22,7 +22,7 @@ class ThrowsSuite extends FunSuite with SharedSparkContext {
 
   test("loading missing data should throw") {
     intercept[org.apache.hadoop.mapred.InvalidInputException] {
-      Throws.throwOuter2(sc)
+      Throws.nonExistantInput(sc)
     }
   }
 }
