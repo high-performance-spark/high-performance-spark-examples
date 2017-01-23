@@ -16,5 +16,5 @@ addSbtPlugin("org.spark-packages" % "sbt-spark-package" % "0.2.5")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
 
 //tag::sbtJNIPlugin[]
-addSbtPlugin("ch.jodersky" %% "sbt-jni" % "1.2.4")
+addSbtPlugin("ch.jodersky" %% "sbt-jni" % "1.0.0-RC3")
 //end::sbtJNIPlugin[]
