@@ -1,0 +1,21 @@
+version: '{build}'
+
+platform:
+  - x86
+  - x64
+
+environment:
+  matrix:
+    - JAVA_HOME: C:\Program Files\Java\jdk1.7.0
+    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+
+build_script:
+- sbt\sbt clean compile
+
+test_script:
+- sbt\sbt test
+
+cache:
+- C:\Users\appveyor\.ivy2
+- C:\Users\appveyor\.m2
+- C:\Users\appveyor\.sbt
