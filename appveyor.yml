@@ -10,7 +10,7 @@ environment:
     - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
 
 install:
-- ps: Start-FileDownload 'http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.9/sbt-launch.jar'
+- ps: Start-FileDownload 'http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.9/sbt-launch.jar'
 
 build_script:
 - sbt\sbt clean compile
