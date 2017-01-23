@@ -1,0 +1,18 @@
+
+# Set the java args to high
+
+-Xmx2048M
+
+-XX:MaxPermSize=2048m
+
+-XX:ReservedCodeCacheSize=128m
+
+-XX:+CMSClassUnloadingEnabled
+
+# Set the extra SBT options
+
+-Dsbt.log.format=true
+
+# JNA
+
+-Djna.nosys=true
