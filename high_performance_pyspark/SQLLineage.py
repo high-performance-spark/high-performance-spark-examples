@@ -1,12 +1,12 @@
 """
->>> rdd = sc.parallelize(range(1, 100)).map(lambda x: Row(i = x))
->>> df = rdd.toDF()
 >>> df2 = cutLineage(df)
 >>> df.head() == df2.head()
 True
 >>> df.schema == df2.schema
 True
 """
+
+global df
 
 from pyspark.context import SparkContext
 from pyspark.sql import DataFrame, Row
@@ -35,12 +35,8 @@ def cutLineage(df):
     return newDF
 # end::cutLineage[]
 
-def _test():
-    """
-    Run the tests.
-    """
-    import doctest
-    globs = globals().copy()
+def _setupTest():
+    globs = globals()
     spark = SparkSession.builder \
                         .master("local[4]") \
                         .getOrCreate()
@@ -53,11 +49,22 @@ def _test():
          Row(field1=2, field2="row2"),
          Row(field1=3, field2="row3")])
     globs['df'] = rdd.toDF()
+    return globs
+
+def _test():
+    """
+    Run the tests.
+    """
+    import doctest
+    globs = _setupTest()
     (failure_count, test_count) = doctest.testmod(globs=globs, optionflags=doctest.ELLIPSIS)
     globs['sc'].stop()
     if failure_count:
         exit(-1)
 
-
+import sys
 if __name__ == "__main__":
     _test()
+# Hack to support running in nose
+elif sys.stdout != sys.__stdout__:
+    _setupTest()
