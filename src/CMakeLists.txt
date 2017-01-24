@@ -14,8 +14,7 @@ project (high-performance-spark)
 # Enable fortan
 enable_language (Fortran)
 include(FortranCInterface)
-include(CMakeAddFortranSubdirectory)
-cmake_add_fortran_subdirectory("./main/fortran" PROJECT fortran NO_EXTERNAL_INSTALL)
+
 
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
