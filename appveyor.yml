@@ -14,6 +14,7 @@ install:
 - cd
 - bash -lc "pwd"
 - cd
+- bash -lc "ls ./sbt/*"
 - xcopy sbt-launch.jar sbt\
 - set PATH=C:\msys64\usr\bin;%PATH%
 - set MSYSTEM=MINGW64
@@ -24,6 +25,10 @@ before_build:
 
 build_script:
 - set MSYSTEM=MINGW64
+- cd
+- bash -lc "pwd"
+- cd
+- bash -lc "ls ./sbt/*"
 - bash -lc "export PATH=/mingw64/bin:$PATH && ./sbt/sbt clean compile"
 
 test_script:
