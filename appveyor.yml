@@ -11,7 +11,7 @@ environment:
 
 install:
 - ps: Start-FileDownload 'http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.9/sbt-launch.jar'
-- rm src\main\fortran\*.f95
+- rm src\\main\\fortran\\*.f95
 
 build_script:
 - sbt\sbt clean compile
