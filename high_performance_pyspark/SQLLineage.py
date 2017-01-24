@@ -1,4 +1,5 @@
 """
+>>> df = rdd.toDF()
 >>> df2 = cutLineage(df)
 >>> df.head() == df2.head()
 True
@@ -7,6 +8,9 @@ True
 """
 
 global df
+global sc
+global rdd
+global spark
 
 from pyspark.context import SparkContext
 from pyspark.sql import DataFrame, Row
@@ -18,6 +22,7 @@ def cutLineage(df):
     Cut the lineage of a DataFrame - used for iterative algorithms
     
     .. Note: This uses internal members and may break between versions
+    >>> df = rdd.toDF()
     >>> cutDf = cutLineage(df)
     >>> cutDf.count()
     3
@@ -48,7 +53,6 @@ def _setupTest():
         [Row(field1=1, field2="row1"),
          Row(field1=2, field2="row2"),
          Row(field1=3, field2="row3")])
-    globs['df'] = rdd.toDF()
     return globs
 
 def _test():
