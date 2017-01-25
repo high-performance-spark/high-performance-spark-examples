@@ -45,6 +45,7 @@ libraryDependencies ++= Seq(
   //tag::sacalLogging[]
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   //end::scalaLogging[]
+  "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8",
   "net.java.dev.jna" % "jna" % "4.2.2")
 
 
