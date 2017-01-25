@@ -36,15 +36,14 @@ javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSC
 
 // additional libraries
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.1",
-  "org.scalacheck" %% "scalacheck" % "1.12.4",
+  "org.scalatest" %% "scalatest" % "3.0.1",
+  "org.scalacheck" %% "scalacheck" % "1.13.4",
   "junit" % "junit" % "4.12",
-  "com.holdenkarau" %% "spark-testing-base" % "2.0.0_0.4.5",
+  "com.holdenkarau" %% "spark-testing-base" % "2.1.0_0.6.0",
   "com.novocode" % "junit-interface" % "0.11" % "test->default",
   //tag::sacalLogging[]
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   //end::scalaLogging[]
-  "org.codehaus.jackson" % "jackson-mapper-asl" % "1.8.8", // God damn sbt
   "net.java.dev.jna" % "jna" % "4.2.2")
 
 
