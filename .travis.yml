@@ -53,7 +53,6 @@ script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean update
   - sbt coverage compile test
-  - sbt coverageReport
   - "[ -f spark] || mkdir spark && cd spark && axel http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.7.tgz && cd .."
   - "tar -xf ./spark/spark-2.0.0-bin-hadoop2.7.tgz"
   - "export SPARK_HOME=`pwd`/spark-2.0.0-bin-hadoop2.7"
@@ -62,5 +61,5 @@ script:
   - # $SPARK_HOME/bin/spark-submit ./src/main/r/wc.R $SPARK_HOME/README.md
   - # $SPARK_HOME/bin/spark-submit ./src/main/r/dapply.R
 after_success:
-# For now no coverage report
+  - sbt coverageReport || sbt update coverageReport
   - codecov
