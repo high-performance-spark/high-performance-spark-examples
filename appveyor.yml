@@ -19,7 +19,7 @@ build_script:
 - sbt\sbt clean compile
 
 test_script:
-- sbt\sbt testOnly com.highperformancespark.examples.tools.\*
+- sbt\sbt \"testOnly com.highperformancespark.examples.tools.\*\"
 
 cache:
 - C:\Users\appveyor\.ivy2
