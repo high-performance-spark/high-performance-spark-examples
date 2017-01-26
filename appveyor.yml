@@ -13,8 +13,8 @@ install:
 - ps: Start-FileDownload 'http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.9/sbt-launch.jar'
 - xcopy sbt-launch.jar sbt\
 - del src\\main\\fortran\\*.f95
-- del src\\CMakeList.txt
-- copy src\\CMakeList_windows.txt src\\CMakeList.txt
+- del src\\CMakeLists.txt
+- copy src\\CMakeList_windows.txt src\\CMakeLists.txt
 
 build_script:
 - sbt\sbt clean compile
