@@ -17,7 +17,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.feature._
 //end::imports[]
 
-class GoldilocksMLlib(sc: SparkContext) {
+object GoldilocksMLlib {
 
   def booleanToDouble(boolean: Boolean): Double = {
     if (boolean) 1.0 else 0.0
@@ -97,7 +97,7 @@ class GoldilocksMLlib(sc: SparkContext) {
   //end::trainScaler[]
 
   //tag::word2vecSimple[]
-  def word2vec(rdd: RDD[String]): RDD[SparkVector] = {
+  def word2vec(sc: SparkContext, rdd: RDD[String]): RDD[SparkVector] = {
     // Tokenize our data
     val tokenized = rdd.map(_.split(" ").toIterable)
     // Construct our word2vec model
