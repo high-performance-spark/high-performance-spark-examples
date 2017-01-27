@@ -8,6 +8,11 @@ import org.apache.spark.sql.streaming._
 
 
 object Structured {
+  def load(inputPath: String, session: SparkSession): Dataset[_] = {
+    //tag::loadSimple[]
+    session.readStream.parquet(inputPath)
+    //end::loadSimple[]
+  }
   def write(counts: Dataset[_]) = {
     //tag::writeComplete[]
     val query = counts.writeStream.

@@ -1,0 +1,27 @@
+version: '{build}'
+
+platform:
+  - x86
+  - x64
+
+environment:
+  matrix:
+    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+
+
+install:
+- ps: Start-FileDownload 'http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.9/sbt-launch.jar'
+- xcopy sbt-launch.jar sbt\
+- del build.sbt
+- copy build_windows.sbt build.sbt
+
+build_script:
+- sbt\sbt clean compile
+
+test_script:
+- sbt\sbt "testOnly com.highperformancespark.examples.tools.FilterInvalidPandasSuite"
+
+cache:
+- C:\Users\appveyor\.ivy2
+- C:\Users\appveyor\.m2
+- C:\Users\appveyor\.sbt
