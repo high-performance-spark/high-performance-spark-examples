@@ -90,9 +90,3 @@ mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
     case _ => MergeStrategy.first
   }
 }
-
-// JNI
-
-enablePlugins(JniNative)
-
-sourceDirectory in nativeCompile := sourceDirectory.value

@@ -6,7 +6,13 @@ package com.highperformancespark.examples.dataframe
  * @param happy if panda is happy
  * @param attributes array of panada attributes
  */
-case class RawPanda(id: Long, zip: String, pt: String, happy: Boolean, attributes: Array[Double])
+case class RawPanda(id: Long, zip: String, pt: String, happy: Boolean, attributes: Array[Double]) {
+  override def equals(o: Any) = o match {
+    case other: RawPanda => (id == other.id && pt == other.pt &&
+        happy == other.happy && attributes.deep == other.attributes.deep)
+    case _ => false
+  }
+}
 
 /**
  * @param name place name

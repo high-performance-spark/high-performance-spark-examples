@@ -15,6 +15,7 @@ project (high-performance-spark)
 enable_language (Fortran)
 include(FortranCInterface)
 
+
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
