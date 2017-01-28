@@ -16,6 +16,14 @@ def generate_scale_data(sqlCtx, rows, numCols):
     This also illustrates calling custom Scala code from the driver.
 
     .. Note: This depends on many internal methods and may break between versions.
+    >>> from pyspark.sql import *
+    >>> import os
+    # Configure this to launch with our jars
+    >>> os.environ["PYSPARK_SUBMIT_ARGS"] = "-cp ./target/*.jar pyspark-shell"
+    >>> session = SparkSession.builder().getorCreate()
+    >>> scaleData = generate_scale_data(session, 5L, 1L)
+    >>> scaleData.count()
+    5
     """
     # tag::javaInterop[]
     sc = sqlCtx._sc
