@@ -20,11 +20,11 @@ def generate_scale_data(sqlCtx, rows, numCols):
     # This assumes our jars have been added with export PYSPARK_SUBMIT_ARGS
     >>> from pyspark.sql import *
     >>> session = SparkSession.builder.getOrCreate()
-    >>> scaleData = generate_scale_data(session, 5L, 1)
+    >>> scaleData = generate_scale_data(session, 100L, 1)
     >>> scaleData[0].count()
-    5
+    100
     >>> scaleData[1].count()
-    5
+    100
     >>> session.stop()
     """
     # tag::javaInterop[]
@@ -85,8 +85,7 @@ def run(sc, sqlCtx, scalingFactor, size):
     >>> from pyspark.sql import *
     >>> session = SparkSession.builder.getOrCreate()
     >>> sc = session._sc
-    >>> sqlCtx = session._wrapped
-    >>> run(sc, sqlCtx, 5L, 1)
+    >>> run(sc, session, 5L, 1)
     RDD:
     ...
     group:
