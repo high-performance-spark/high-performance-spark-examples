@@ -97,13 +97,17 @@ def throwInner2(sc):
 def runOutOfMemory(sc):
     """
     Run out of memory on the workers.
-    >>> runOutOfMoery(sc)
-    boop
+    In standalone modes results in a memory error, but in YARN may trigger YARN container
+    overhead errors.
+    >>> runOutOfMemory(sc)
+    Traceback (most recent call last):
+        ...
+    Py4JJavaError:...
     """
     # tag::worker_oom[]
     data = sc.parallelize(range(10))
     def generate_too_much(itr):
-        return range(10000000000000000000000)
+        return range(10000000000000)
     itr = data.flatMap(generate_too_much)
     itr.count()
     # end::worker_oom[]
