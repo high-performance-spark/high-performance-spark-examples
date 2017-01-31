@@ -3,10 +3,6 @@
 # This example illustrates how to interface Scala and Python code, but caution
 # should be taken as it depends on many private members that may change in
 # future releases of Spark.
-"""
->>> from pyspark.sql import *
->>> session = SparkSession.builder.getOrCreate()
-"""
 
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
@@ -22,6 +18,8 @@ def generate_scale_data(sqlCtx, rows, numCols):
     .. Note: This depends on many internal methods and may break between versions.
 
     # This assumes our jars have been added with export PYSPARK_SUBMIT_ARGS
+    >>> from pyspark.sql import *
+    >>> session = SparkSession.builder.getOrCreate()
     >>> scaleData = generate_scale_data(session, 5L, 1)
     >>> scaleData[0].count()
     5
@@ -84,6 +82,8 @@ def run(sc, sqlCtx, scalingFactor, size):
     """
     Run the simple perf test printing the results to stdout.
 
+    >>> from pyspark.sql import *
+    >>> session = SparkSession.builder.getOrCreate()
     >>> sc = session._sc
     >>> sqlCtx = session._wrapped
     >>> run(sc, sqlCtx, 5L, 1)
@@ -94,6 +94,7 @@ def run(sc, sqlCtx, scalingFactor, size):
     df:
     ...
     yay
+    >>> session.stop()
     """
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
