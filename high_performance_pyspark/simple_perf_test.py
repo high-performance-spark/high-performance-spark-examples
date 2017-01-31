@@ -70,6 +70,21 @@ def groupOnRDD(rdd):
     return rdd.groupByKey().mapValues(lambda v: sum(v) / float(len(v))).count()
 
 def run(sc, sqlCtx, scalingFactor, size):
+    """
+    Run the simple perf test printing the results to stdout.
+
+    # Test setup
+    >>> sc = session._sc
+    >>> sqlCtx = session._wrapped
+    >>> run(sc, sqlCtx, 5L, 1L)
+    RDD:
+    ...
+    group:
+    ...
+    df:
+    ...
+    yay
+    """
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
     rddTimeings = timeit.repeat(stmt=lambda: runOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
