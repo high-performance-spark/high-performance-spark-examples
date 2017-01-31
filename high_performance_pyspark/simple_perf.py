@@ -5,7 +5,7 @@
 # future releases of Spark.
 
 from pyspark.sql.types import *
-from pyspark.sql import DataFrame
+from pyspark.sql import *
 import timeit
 import time
 
@@ -18,7 +18,6 @@ def generate_scale_data(sqlCtx, rows, numCols):
     .. Note: This depends on many internal methods and may break between versions.
 
     # This assumes our jars have been added with export PYSPARK_SUBMIT_ARGS
-    >>> from pyspark.sql import *
     >>> session = SparkSession.builder.getOrCreate()
     >>> scaleData = generate_scale_data(session, 100L, 1)
     >>> scaleData[0].count()
@@ -82,7 +81,6 @@ def run(sc, sqlCtx, scalingFactor, size):
     """
     Run the simple perf test printing the results to stdout.
 
-    >>> from pyspark.sql import *
     >>> session = SparkSession.builder.getOrCreate()
     >>> sc = session._sc
     >>> run(sc, session, 5L, 1)
@@ -109,6 +107,18 @@ def run(sc, sqlCtx, scalingFactor, size):
     print dfTimeings
     print "yay"
 
+def parseArgs(args):
+    """
+    Parse the args, no error checking.
+
+    >>> parseArgs(["foobaz", "1", "2"])
+    (1, 2)
+    """
+    scalingFactor = int(args[1])
+    size = int(args[2])
+    return (scalingFactor, size)
+
+
 if __name__ == "__main__":
 
     """
@@ -117,10 +127,9 @@ if __name__ == "__main__":
     import sys
     from pyspark import SparkContext
     from pyspark.sql import SQLContext
-    scalingFactor = int(sys.argv[1])
-    size = int(sys.argv[2])
-    sc = SparkContext(appName="SimplePythonPerf")
-    sqlCtx = SQLContext(sc)
-    run(sc, sqlCtx, scalingFactor, size)
+    (scalingFactor, size) = parseArgs(sys.argv)
+    session = SparkSession.appName("SimplePythonPerf").builder.getOrCreate()
+    sc = session._sc
+    run(sc, session, scalingFactor, size)
 
     sc.stop()
