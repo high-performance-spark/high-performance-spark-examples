@@ -3,6 +3,10 @@
 # This example illustrates how to interface Scala and Python code, but caution
 # should be taken as it depends on many private members that may change in
 # future releases of Spark.
+"""
+>>> from pyspark.sql import *
+>>> session = SparkSession.builder.getOrCreate()
+"""
 
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
@@ -18,10 +22,10 @@ def generate_scale_data(sqlCtx, rows, numCols):
     .. Note: This depends on many internal methods and may break between versions.
 
     # This assumes our jars have been added with export PYSPARK_SUBMIT_ARGS
-    >>> from pyspark.sql import *
-    >>> session = SparkSession.builder.getOrCreate()
     >>> scaleData = generate_scale_data(session, 5L, 1)
-    >>> scaleData.count()
+    >>> scaleData[0].count()
+    5
+    >>> scaleData[1].count()
     5
     >>> session.stop()
     """
@@ -49,7 +53,11 @@ def generate_scale_data(sqlCtx, rows, numCols):
     # Schemas are serialized to JSON and sent back and forth
     # Construct a Python Schema and turn it into a Java Schema
     schema = StructType([StructField("zip", IntegerType()), StructField("fuzzyness", DoubleType())])
-    jschema = javaSqlCtx.parseDataType(schema.json())
+    # 2.1 / pre-2.1
+    try:
+        jschema = javaSqlCtx.parseDataType(schema.json())
+    except:
+        jschema = sqlCtx._jsparkSession.parseDataType(schema.json())
     # Convert the Java RDD to Java DataFrame
     java_dataframe = javaSqlCtx.createDataFrame(java_rdd, jschema)
     # Wrap the Java DataFrame into a Python DataFrame
