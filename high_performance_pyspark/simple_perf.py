@@ -16,22 +16,25 @@ def generate_scale_data(sqlCtx, rows, numCols):
     This also illustrates calling custom Scala code from the driver.
 
     .. Note: This depends on many internal methods and may break between versions.
+
+    # This assumes our jars have been added with export PYSPARK_SUBMIT_ARGS
     >>> from pyspark.sql import *
-    >>> import os
-    # Configure this to launch with our jars
-    >>> os.environ["PYSPARK_SUBMIT_ARGS"] = "-cp ./target/*.jar pyspark-shell"
-    >>> session = SparkSession.builder().getorCreate()
-    >>> scaleData = generate_scale_data(session, 5L, 1L)
+    >>> session = SparkSession.builder.getOrCreate()
+    >>> scaleData = generate_scale_data(session, 5L, 1)
     >>> scaleData.count()
     5
+    >>> session.stop()
     """
     # tag::javaInterop[]
     sc = sqlCtx._sc
-    # Get the SQL Context, 2.0 and pre-2.0 syntax
+    # Get the SQL Context, 2.1, 2.0 and pre-2.0 syntax - yay internals :p
     try:
-        javaSqlCtx = sqlCtx._jsqlContext
+        try:
+            javaSqlCtx = sqlCtx._jsqlContext
+        except:
+            javaSqlCtx = sqlCtx._ssql_ctx
     except:
-        javaSqlCtx = sqlCtx._ssql_ctx
+        javaSqlCtx = sqlCtx._jwrapped
     jsc = sc._jsc
     scalasc = jsc.sc()
     gateway = sc._gateway
@@ -73,10 +76,9 @@ def run(sc, sqlCtx, scalingFactor, size):
     """
     Run the simple perf test printing the results to stdout.
 
-    # Test setup
     >>> sc = session._sc
     >>> sqlCtx = session._wrapped
-    >>> run(sc, sqlCtx, 5L, 1L)
+    >>> run(sc, sqlCtx, 5L, 1)
     RDD:
     ...
     group:

@@ -8,7 +8,6 @@ import org.apache.spark.sql.Row
 import org.apache.spark.mllib.random.RandomRDDs
 import org.apache.spark.mllib.linalg.Vector
 
-// TODO: Add tests for this
 object GenerateScalingData {
   /**
    * Generate a Goldilocks data set. We expect the zip code to follow an exponential
