@@ -27,15 +27,15 @@ class GeneratescalaingDataSuite extends FunSuite with SharedSparkContext {
   }
 
   test("mini scale data") {
-    val result = GenerateScalingData.generateMiniScala(sc, 20L, 1)
-    assert(result.count() <= 10)
+    val result = GenerateScalingData.generateMiniScale(sc, 20L, 1)
+    assert(result.count() <= 20)
     assert(result.count() > 5)
     assert(result.map(_._1).distinct().count() > 1)
   }
 
-  test("mini scale data") {
-    val result = GenerateScalingData.generateMiniScala(sc, 20L, 1)
-    assert(result.count() <= 10)
+  test("mini scale rows") {
+    val result = GenerateScalingData.generateMiniScaleRows(sc, 20L, 1)
+    assert(result.count() <= 20)
     assert(result.count() > 5)
     assert(result.map(_(0)).distinct().count() > 1)
   }

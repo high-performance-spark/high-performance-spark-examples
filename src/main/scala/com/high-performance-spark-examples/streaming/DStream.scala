@@ -16,15 +16,15 @@ import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream._
 //end::DStreamImports[]
 
-class DStreamExamples(sc: SparkContext, ssc: StreamingContext) {
-  def makeStreamingContext() = {
+object DStreamExamples {
+  def makeStreamingContext(sc: SparkContext) = {
     //tag::ssc[]
     val batchInterval = Seconds(1)
     new StreamingContext(sc, batchInterval)
     //end::ssc[]
   }
 
-  def makeRecoverableStreamingContext(checkpointDir: String) = {
+  def makeRecoverableStreamingContext(sc: SparkContext, checkpointDir: String) = {
     //tag::sscRecover[]
     def createStreamingContext(): StreamingContext = {
       val batchInterval = Seconds(1)
@@ -34,7 +34,7 @@ class DStreamExamples(sc: SparkContext, ssc: StreamingContext) {
       // And whatever mappings need to go on those streams
       ssc
     }
-    val context = StreamingContext.getOrCreate(checkpointDir,
+    val ssc = StreamingContext.getOrCreate(checkpointDir,
       createStreamingContext _)
     // Do whatever work needs to be regardless of state
     // Start context and run
@@ -42,10 +42,18 @@ class DStreamExamples(sc: SparkContext, ssc: StreamingContext) {
     //end::sscRecover[]
   }
 
-  def fileAPIExample(path: String) = {
+  def fileAPIExample(ssc: StreamingContext, path: String): DStream[(Long, String)] = {
     //tag::file[]
-    ssc.fileStream[LongWritable, Text, TextInputFormat](path)
+    // You don't need to write the types of the InputDStream but it for illustration
+    val inputDStream: InputDStream[(LongWritable, Text)] =
+      ssc.fileStream[LongWritable, Text, TextInputFormat](path)
+    // Convert the hadoop types to native JVM types for simplicity
+    def convert(input: (LongWritable, Text)) = {
+      (input._1.get(), input._2.toString())
+    }
+    val input: DStream[(Long, String)] = inputDStream.map(convert)
     //end::file[]
+    input
   }
 
   def repartition(dstream: DStream[_]) = {
