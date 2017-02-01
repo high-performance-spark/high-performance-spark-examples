@@ -140,5 +140,3 @@ if __name__ == "__main__":
 # Hack to support running in nose
 elif sys.stdout != sys.__stdout__:
     _setupTest()
-else:
-    1 / 0
