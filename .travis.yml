@@ -52,9 +52,9 @@ before_install:
 script:
   - "export SPARK_CONF_DIR=./log4j/"
   - sbt clean coverage compile package assembly test || (rm -rf ~/.ivy2 ~/.m2 && sbt clean coverage compile package test)
-  - "[ -f spark] || mkdir spark && cd spark && axel http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.7.tgz && cd .."
-  - "tar -xf ./spark/spark-2.0.0-bin-hadoop2.7.tgz"
-  - "export SPARK_HOME=`pwd`/spark-2.0.0-bin-hadoop2.7"
+  - "[ -f spark] || mkdir spark && cd spark && axel http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz && cd .."
+  - "tar -xf ./spark/spark-2.1.0-bin-hadoop2.7.tgz"
+  - "export SPARK_HOME=`pwd`/spark-2.1.0-bin-hadoop2.7"
   - "export PYTHONPATH=$SPARK_HOME/python:`ls -1 $SPARK_HOME/python/lib/py4j-*-src.zip`:$PYTHONPATH"
   - "PYSPARK_SUBMIT_ARGS='--jars ./target/examples-assembly-0.0.1.jar pyspark-shell' nosetests --with-doctest --doctest-options=+ELLIPSIS --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov"
   - # $SPARK_HOME/bin/spark-submit ./src/main/r/wc.R $SPARK_HOME/README.md

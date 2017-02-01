@@ -71,8 +71,7 @@ resolvers ++= Seq(
   "Mesosphere Public Repository" at "http://downloads.mesosphere.io/maven",
   Resolver.sonatypeRepo("public"),
   Resolver.bintrayRepo("jodersky", "sbt-jni-macros"),
-  "jodersky" at "https://dl.bintray.com/jodersky/maven/",
-  "spark-2.0-snapshot" at "https://repository.apache.org/content/repositories/orgapachespark-1182/"
+  "jodersky" at "https://dl.bintray.com/jodersky/maven/"
 )
 
 licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
