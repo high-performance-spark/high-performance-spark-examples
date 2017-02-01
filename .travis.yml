@@ -51,7 +51,7 @@ before_install:
   - PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
 script:
   - "export SPARK_CONF_DIR=./log4j/"
-  - sbt clean coverage compile test || (rm -rf ~/.ivy2 ~/.m2 && sbt clean coverage compile test)
+  - sbt clean coverage compile package test || (rm -rf ~/.ivy2 ~/.m2 && sbt clean coverage compile package test)
   - "[ -f spark] || mkdir spark && cd spark && axel http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.7.tgz && cd .."
   - "tar -xf ./spark/spark-2.0.0-bin-hadoop2.7.tgz"
   - "export SPARK_HOME=`pwd`/spark-2.0.0-bin-hadoop2.7"
