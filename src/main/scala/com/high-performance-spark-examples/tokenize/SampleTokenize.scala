@@ -1,4 +1,4 @@
-package com.highperformancespark.example.tokenize
+package com.highperformancespark.examples.tokenize
 
 import org.apache.spark.rdd.RDD
 

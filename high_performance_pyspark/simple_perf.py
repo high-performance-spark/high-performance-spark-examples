@@ -5,7 +5,7 @@
 # future releases of Spark.
 
 from pyspark.sql.types import *
-from pyspark.sql import DataFrame
+from pyspark.sql import *
 import timeit
 import time
 
@@ -16,14 +16,26 @@ def generate_scale_data(sqlCtx, rows, numCols):
     This also illustrates calling custom Scala code from the driver.
 
     .. Note: This depends on many internal methods and may break between versions.
+
+    # This assumes our jars have been added with export PYSPARK_SUBMIT_ARGS
+    >>> session = SparkSession.builder.getOrCreate()
+    >>> scaleData = generate_scale_data(session, 100L, 1)
+    >>> scaleData[0].count()
+    100
+    >>> scaleData[1].count()
+    100
+    >>> session.stop()
     """
     # tag::javaInterop[]
     sc = sqlCtx._sc
-    # Get the SQL Context, 2.0 and pre-2.0 syntax
+    # Get the SQL Context, 2.1, 2.0 and pre-2.0 syntax - yay internals :p
     try:
-        javaSqlCtx = sqlCtx._jsqlContext
+        try:
+            javaSqlCtx = sqlCtx._jsqlContext
+        except:
+            javaSqlCtx = sqlCtx._ssql_ctx
     except:
-        javaSqlCtx = sqlCtx._ssql_ctx
+        javaSqlCtx = sqlCtx._jwrapped
     jsc = sc._jsc
     scalasc = jsc.sc()
     gateway = sc._gateway
@@ -38,7 +50,11 @@ def generate_scale_data(sqlCtx, rows, numCols):
     # Schemas are serialized to JSON and sent back and forth
     # Construct a Python Schema and turn it into a Java Schema
     schema = StructType([StructField("zip", IntegerType()), StructField("fuzzyness", DoubleType())])
-    jschema = javaSqlCtx.parseDataType(schema.json())
+    # 2.1 / pre-2.1
+    try:
+        jschema = javaSqlCtx.parseDataType(schema.json())
+    except:
+        jschema = sqlCtx._jsparkSession.parseDataType(schema.json())
     # Convert the Java RDD to Java DataFrame
     java_dataframe = javaSqlCtx.createDataFrame(java_rdd, jschema)
     # Wrap the Java DataFrame into a Python DataFrame
@@ -62,6 +78,21 @@ def groupOnRDD(rdd):
     return rdd.groupByKey().mapValues(lambda v: sum(v) / float(len(v))).count()
 
 def run(sc, sqlCtx, scalingFactor, size):
+    """
+    Run the simple perf test printing the results to stdout.
+
+    >>> session = SparkSession.builder.getOrCreate()
+    >>> sc = session._sc
+    >>> run(sc, session, 5L, 1)
+    RDD:
+    ...
+    group:
+    ...
+    df:
+    ...
+    yay
+    >>> session.stop()
+    """
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
     rddTimeings = timeit.repeat(stmt=lambda: runOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
@@ -76,6 +107,18 @@ def run(sc, sqlCtx, scalingFactor, size):
     print dfTimeings
     print "yay"
 
+def parseArgs(args):
+    """
+    Parse the args, no error checking.
+
+    >>> parseArgs(["foobaz", "1", "2"])
+    (1, 2)
+    """
+    scalingFactor = int(args[1])
+    size = int(args[2])
+    return (scalingFactor, size)
+
+
 if __name__ == "__main__":
 
     """
@@ -84,10 +127,9 @@ if __name__ == "__main__":
     import sys
     from pyspark import SparkContext
     from pyspark.sql import SQLContext
-    scalingFactor = int(sys.argv[1])
-    size = int(sys.argv[2])
-    sc = SparkContext(appName="SimplePythonPerf")
-    sqlCtx = SQLContext(sc)
-    run(sc, sqlCtx, scalingFactor, size)
+    (scalingFactor, size) = parseArgs(sys.argv)
+    session = SparkSession.appName("SimplePythonPerf").builder.getOrCreate()
+    sc = session._sc
+    run(sc, session, scalingFactor, size)
 
     sc.stop()
