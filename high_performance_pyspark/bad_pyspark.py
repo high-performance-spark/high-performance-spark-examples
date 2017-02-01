@@ -13,8 +13,10 @@ def nonExistantInput(sc):
         ...
     Py4JJavaError:...
     """
+    # tag::nonExistant[]
     failedRdd = sc.textFile("file:///doesnotexist")
     failedRdd.count()
+    # end::nonExistant[]
 
 def throwOuter(sc):
     """
@@ -24,10 +26,12 @@ def throwOuter(sc):
         ...
     Py4JJavaError:...
     """
+    # tag::throwOuter[]
     data = sc.parallelize(range(10))
     transform1 = data.map(lambda x: x + 1)
     transform2 = transform1.map(lambda x: x / 0)
     transform2.count()
+    # end::throwOuter[]
 
 def throwInner(sc):
     """
@@ -37,11 +41,14 @@ def throwInner(sc):
         ...
     Py4JJavaError:...
     """
+    # tag::throwInner[]
     data = sc.parallelize(range(10))
     transform1 = data.map(lambda x: x / 0)
     transform2 = transform1.map(lambda x: x + 1)
     transform2.count()
+    # end::throwInner[]
 
+# tag::rewrite[]
 def add1(x):
     """
     Add 1
@@ -85,6 +92,25 @@ def throwInner2(sc):
     transform1 = data.map(divZero)
     transform2 = transform1.map(add1)
     transform2.count()
+# end::rewrite[]
+
+def runOutOfMemory(sc):
+    """
+    Run out of memory on the workers.
+    In standalone modes results in a memory error, but in YARN may trigger YARN container
+    overhead errors.
+    >>> runOutOfMemory(sc)
+    Traceback (most recent call last):
+        ...
+    Py4JJavaError:...
+    """
+    # tag::worker_oom[]
+    data = sc.parallelize(range(10))
+    def generate_too_much(itr):
+        return range(10000000000000)
+    itr = data.flatMap(generate_too_much)
+    itr.count()
+    # end::worker_oom[]
 
 def _setupTest():
     globs = globals()
@@ -114,5 +140,3 @@ if __name__ == "__main__":
 # Hack to support running in nose
 elif sys.stdout != sys.__stdout__:
     _setupTest()
-else:
-    1 / 0

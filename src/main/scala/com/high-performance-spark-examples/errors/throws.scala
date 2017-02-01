@@ -5,21 +5,21 @@ import org.apache.spark.rdd.RDD
 
 object Throws {
   def throwInner(sc: SparkContext) = {
-    //tag::badEx1[]
+    //tag::throwInner1[]
     val data = sc.parallelize(List(1, 2, 3))
     val transform1 = data.map(x => x/0) // Will throw an exception when forced to evaluate
     val transform2 = transform1.map(x => x + 1)
     transform2.collect() // Forces evaluation
-    //end::badEx1[]
+    //end::throwInner1[]
   }
 
   def throwOuter(sc: SparkContext) = {
-    //tag::badEx1[]
+    //tag::throwOuter1[]
     val data = sc.parallelize(List(1, 2, 3))
     val transform1 = data.map(x => x + 1)
     val transform2 = transform1.map(x => x/0) // Will throw an exception when forced to evaluate
     transform2.collect() // Forces evaluation
-    //end::badEx2[]
+    //end::throwOuter1[]
   }
 
   //tag::badFunctions[]

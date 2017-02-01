@@ -8,11 +8,13 @@ import org.apache.spark.sql.Row
 import org.apache.spark.mllib.random.RandomRDDs
 import org.apache.spark.mllib.linalg.Vector
 
-// TODO: Add tests for this
 object GenerateScalingData {
   /**
    * Generate a Goldilocks data set. We expect the zip code to follow an exponential
    * distribution and the data its self to be normal
+   *
+   * Note: May generate less than number of requested rows due to different distribution between
+   * partitions and zip being computed per partition.
    * @param rows number of rows in the RDD (approximate)
    * @param size number of value elements
    */
@@ -54,6 +56,8 @@ object GenerateScalingData {
    * We expect the zip code to follow an exponential
    * distribution and the data its self to be normal.
    * Simplified to avoid a 3-way zip.
+   * Note: May generate less than number of requested rows due to different distribution between
+   * partitions and zip being computed per partition.
    */
   def generateGoldilocks(sc: SparkContext, rows: Long, numCols: Int): RDD[RawPanda] = {
     val zipRDD = RandomRDDs.exponentialRDD(sc, mean = 1000,  size = rows).map(_.toInt.toString)
