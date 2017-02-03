@@ -94,6 +94,28 @@ def throwInner2(sc):
     transform2.count()
 # end::rewrite[]
 
+def throwInner3(sc):
+    """
+    Attempt to load non existant input
+    >>> throwInner3(sc)
+    Reject 10
+    """
+    data = sc.parallelize(range(10))
+    rejectedCount = sc.accumulator(0)
+    def loggedDivZero(x):
+        import logging
+        try:
+            return [x / 0]
+        except Exception as e:
+            rejectedCount.add(1)
+            logging.warning("Error found " + repr(e))
+            return []
+    transform1 = data.flatMap(loggedDivZero)
+    transform2 = transform1.map(add1)
+    transform2.count()
+    print("Reject " + str(rejectedCount.value))
+
+
 def runOutOfMemory(sc):
     """
     Run out of memory on the workers.
