@@ -187,12 +187,16 @@ object GoldilocksMLlib {
 
   //tag::save[]
   def save(sc: SparkContext, path: String, model: LogisticRegressionModel) = {
+    //tag::savePMML[]
     // Save to PMML - remote path
     model.toPMML(sc, path + "/pmml")
     // Save to PMML local path
     model.toPMML(path + "/pmml")
+    //end::savePMML[]
+    //tag::saveInternal[]
     // Save to internal - remote path
     model.save(sc, path + "/internal")
+    //end::saveInternal[]
   }
   //end::save[]
 
