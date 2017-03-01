@@ -42,7 +42,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11",
   "com.holdenkarau" %% "spark-testing-base" % "2.1.0_0.6.0",
   "com.novocode" % "junit-interface" % "0.11" % "test->default",
-  //tag::sacalLogging[]
+  //tag::scalaLogging[]
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   //end::scalaLogging[]
   "org.codehaus.jackson" % "jackson-core-asl" % "1.8.8",
