@@ -30,13 +30,13 @@ object DStreamExamples {
       val batchInterval = Seconds(1)
       val ssc = new StreamingContext(sc, batchInterval)
       ssc.checkpoint(checkpointDir)
-      // Then create whatever stream are required
+      // Then create whatever stream is required
       // And whatever mappings need to go on those streams
       ssc
     }
     val ssc = StreamingContext.getOrCreate(checkpointDir,
       createStreamingContext _)
-    // Do whatever work needs to be regardless of state
+    // Do whatever work needs to be done regardless of state
     // Start context and run
     ssc.start()
     //end::sscRecover[]
