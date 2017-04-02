@@ -52,7 +52,7 @@ class SmartAggregations {
     //seqOp adds the relevant values to the array
       seqOp = (reportCardMetrics, reportCardText) =>
         MetricsCalculator_Arrays.sequenceOp(reportCardMetrics, reportCardText),
-    //combo defines how the arrays should be combinewd
+    //combo defines how the arrays should be combined
       combOp = (x, y) => MetricsCalculator_Arrays.compOp(x, y))
     .mapValues(MetricsCalculator_Arrays.toReportCardMetrics)
   }
@@ -204,5 +204,3 @@ object CollectionRoutines{
   }
   //end::fasterSeqOp[]
 }
-
-
