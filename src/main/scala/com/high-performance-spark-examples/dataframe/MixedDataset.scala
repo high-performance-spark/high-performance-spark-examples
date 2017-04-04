@@ -19,8 +19,9 @@ class MixedDataset(sqlCtx: SQLContext) {
 
   /**
    * A sample function on a Dataset of RawPandas.
-   * This is contrived, since our reduction could also be done with SQL aggregates, but
-   * we can see the flexibility of being able to specify arbitrary Scala code.
+   *
+   * This is contrived, since our reduction could also be done with SQL aggregates,
+   * but we can see the flexibility of being able to specify arbitrary Scala code.
    */
   def happyPandaSums(ds: Dataset[RawPanda]): Double = {
     ds.toDF().filter($"happy" === true).as[RawPanda].
@@ -71,8 +72,8 @@ class MixedDataset(sqlCtx: SQLContext) {
   //end::maxPandaSizePerZipScala[]
 
   /**
-   * Illustrate how we make typed queries, using some of the float properties to produce boolean
-   * values.
+   * Illustrate how we make typed queries, using some of the float properties
+   * to produce boolean values.
    */
   def typedQueryExample(ds: Dataset[RawPanda]): Dataset[Double] = {
     ds.select($"attributes"(0).as[Double])
@@ -129,8 +130,8 @@ class MixedDataset(sqlCtx: SQLContext) {
   //end::toRDDDF[]
 
   /**
-   * Illustrate DataFrame to Dataset. Its important to note that if the schema does not match what
-   * is expected by the Dataset this fails fast.
+   * Illustrate DataFrame to Dataset. Its important to note that if the schema
+   * does not match what is expected by the Dataset this fails fast.
    */
   //tag::DataFrameAsDataset[]
   def fromDF(df: DataFrame): Dataset[RawPanda] = {

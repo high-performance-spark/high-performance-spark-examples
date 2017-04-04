@@ -114,7 +114,8 @@ case class LoadSave(sc: SparkContext, session: SparkSession) {
 
   //tag::loadParquet[]
   def loadParquet(path: String): DataFrame = {
-    // Configure Spark to read binary data as string, note: must be configured on session
+    // Configure Spark to read binary data as string,
+    // note: must be configured on session.
     session.conf.set("spark.sql.parquet.binaryAsString", "true")
 
     // Load parquet data using merge schema (configured through option)

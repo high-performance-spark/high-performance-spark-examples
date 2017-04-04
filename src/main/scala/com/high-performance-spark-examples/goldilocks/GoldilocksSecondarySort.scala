@@ -22,40 +22,44 @@ class ColumnIndexPartition(override val numPartitions: Int)
 
 object GoldilocksSecondarySort {
   /**
-    * Find nth target rank for every column.
-    *
-    * For example:
-    *
-    * dataframe:
-    *   (0.0, 4.5, 7.7, 5.0)
-    *   (1.0, 5.5, 6.7, 6.0)
-    *   (2.0, 5.5, 1.5, 7.0)
-    *   (3.0, 5.5, 0.5, 7.0)
-    *   (4.0, 5.5, 0.5, 8.0)
-    *
-    * targetRanks:
-    *   1, 3
-    *
-    * The output will be:
-    *   0 -> (0.0, 2.0)
-    *   1 -> (4.5, 5.5)
-    *   2 -> (7.7, 1.5)
-    *   3 -> (5.0, 7.0)
-    *
-    * This process is executed as follows
-    *
-    * 0. Map to ((columnIndex, cellValue), 1) triples.
-    * 1. Define a custom partitioner which partitions according to the first half of the key.
-    *  (column Index)
-    * 1. uses repartitionAndSortWithinPartitions with the custom partitioner. This will partition
-    * according to column index and then sort by column index and value.
-    * 2. mapPartitions on each partition which is sorted. Filter for correct rank stats in one pass.
-    * 3. Locally: group result so that each key has an iterator of elements.
-    *
-    * @param dataFrame - dataFrame of values
-    * @param targetRanks the rank statistics to find for every column.
-    * @return map of (column index, list of target ranks)
-    */
+   * Find nth target rank for every column.
+   *
+   * For example:
+   *
+   * dataframe:
+   *   (0.0, 4.5, 7.7, 5.0)
+   *   (1.0, 5.5, 6.7, 6.0)
+   *   (2.0, 5.5, 1.5, 7.0)
+   *   (3.0, 5.5, 0.5, 7.0)
+   *   (4.0, 5.5, 0.5, 8.0)
+   *
+   * targetRanks:
+   *   1, 3
+   *
+   * The output will be:
+   *   0 -> (0.0, 2.0)
+   *   1 -> (4.5, 5.5)
+   *   2 -> (7.7, 1.5)
+   *   3 -> (5.0, 7.0)
+   *
+   * This process is executed as follows
+   *
+   * 0. Map to ((columnIndex, cellValue), 1) triples.
+   * 1. Define a custom partitioner which partitions according to the
+   * first half of the key.
+   *
+   *  (column Index)
+   * 1. uses repartitionAndSortWithinPartitions with the custom partitioner.
+   *   This will partition according to column index and then sort by column
+   *   index and value.
+   * 2. mapPartitions on each partition which is sorted. Filter for correct rank
+   *    stats in one pass.
+   * 3. Locally: group result so that each key has an iterator of elements.
+   *
+   * @param dataFrame - dataFrame of values
+   * @param targetRanks the rank statistics to find for every column.
+   * @return map of (column index, list of target ranks)
+   */
   //tag::goldilocksSecondarySort[]
   def findRankStatistics(dataFrame: DataFrame,
     targetRanks: List[Long], partitions: Int) = {
@@ -129,18 +133,23 @@ object GoldilocksSecondarySortV2{
   }
 
   /**
-    * Precondintion: Iterator must be sorted by (columnIndex, value). Groups by column index and filters
-    * the values so that only those that correspond to the desired rank statistics are included.
-    */
-  def filterAndGroupRanks(
-    it: Iterator[(Int, Double)], targetRanks : List[Long]): Iterator[(Int, Iterable[Double])] = {
+   * Precondintion: Iterator must be sorted by (columnIndex, value). Groups by
+   * column index and filters the values so that only those that correspond to
+   * the desired rank statistics are included.
+   */
+  def filterAndGroupRanks(it: Iterator[(Int, Double)], targetRanks : List[Long]):
+      Iterator[(Int, Iterable[Double])] = {
     val res = List[(Int, Long, ArrayBuffer[Double])]()
     it.foldLeft(res)((list, next) => list match {
       case Nil =>
         val (firstKey, value) = next
         val runningTotal = 1L
         val ranksSoFar: ArrayBuffer[Double] =
-          if(targetRanks.contains(runningTotal)) ArrayBuffer(value) else ArrayBuffer[Double]()
+          if(targetRanks.contains(runningTotal)) {
+            ArrayBuffer(value)
+          } else {
+            ArrayBuffer[Double]()
+          }
         List((firstKey, runningTotal, ranksSoFar))
 
       case head :: rest =>
@@ -149,8 +158,11 @@ object GoldilocksSecondarySortV2{
 
         if (!firstKey.equals(curKey) ) {
           val resetRunningTotal = 1L
-          val nextBuf = if(targetRanks.contains(resetRunningTotal))
-            ArrayBuffer[Double](value) else ArrayBuffer[Double]()
+          val nextBuf = if(targetRanks.contains(resetRunningTotal)) {
+            ArrayBuffer[Double](value)
+          } else {
+            ArrayBuffer[Double]()
+          }
           (firstKey, resetRunningTotal, nextBuf) :: list
         } else {
           val newRunningTotal = runningTotal + 1
@@ -164,10 +176,3 @@ object GoldilocksSecondarySortV2{
   }
 
 }
-
-
-
-
-
-
-
