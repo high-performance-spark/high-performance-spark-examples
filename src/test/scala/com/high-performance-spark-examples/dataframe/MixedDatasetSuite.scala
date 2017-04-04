@@ -13,13 +13,13 @@ import org.scalatest.FunSuite
 import scala.collection.mutable
 import scala.util.Random
 
-class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
+class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase {
 
   val rawPandaList = List(
     RawPanda(10L, "94110", "giant", true, Array(1.0, 0.9)),
     RawPanda(11L, "94110", "red", true, Array(1.0, 0.9)))
 
-  val mixedDS = MixedDataset(sqlContext)
+  val mixedDS = new MixedDataset(sqlContext)
 
   test("happy panda sums") {
     val sqlCtx = sqlContext
