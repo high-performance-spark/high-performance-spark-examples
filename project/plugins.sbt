@@ -18,3 +18,5 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
 //tag::sbtJNIPlugin[]
 addSbtPlugin("ch.jodersky" %% "sbt-jni" % "1.0.0-RC3")
 //end::sbtJNIPlugin[]
+
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.8.0")
