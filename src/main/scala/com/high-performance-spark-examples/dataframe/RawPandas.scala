@@ -12,6 +12,10 @@ case class RawPanda(id: Long, zip: String, pt: String, happy: Boolean, attribute
         happy == other.happy && attributes.deep == other.attributes.deep)
     case _ => false
   }
+  override def hashCode(): Int = {
+    3 * Objects.hashCode(id) + 7 * Objects.hashCode(zip) + 11 * Objects.hashCode(pt) +
+    13 * Arrays.hashCode(attributes)
+  }
 }
 
 /**
