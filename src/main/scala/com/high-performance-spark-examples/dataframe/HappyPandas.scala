@@ -149,7 +149,12 @@ object HappyPandas {
     val pandaInfo = pandaPlace.explode(pandaPlace("pandas")){
       case Row(pandas: Seq[Row]) =>
         pandas.map{
-          case Row(id: Long, zip: String, pt: String, happy: Boolean, attrs: Seq[Double]) =>
+          case (Row(
+            id: Long,
+            zip: String,
+            pt: String,
+            happy: Boolean,
+            attrs: Seq[Double])) =>
             RawPanda(id, zip, pt, happy, attrs.toArray)
         }}
     pandaInfo.select(
