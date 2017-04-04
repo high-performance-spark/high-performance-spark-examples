@@ -239,7 +239,8 @@ object HappyPandas {
   //tag::complexAggPerZip[]
   def minMeanSizePerZip(pandas: DataFrame): DataFrame = {
     // Compute the min and mean
-    pandas.groupBy(pandas("zip")).agg(min(pandas("pandaSize")), mean(pandas("pandaSize")))
+    pandas.groupBy(pandas("zip")).agg(
+      min(pandas("pandaSize")), mean(pandas("pandaSize")))
   }
   //end::complexAggPerZip[]
 
