@@ -1,4 +1,8 @@
 package com.highperformancespark.examples.dataframe
+
+import java.util.Arrays
+import java.util.Objects
+
 /**
  * @param id panda id
  * @param zip zip code of panda residence
