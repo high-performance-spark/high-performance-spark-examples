@@ -13,7 +13,8 @@ import com.typesafe.scalalogging.LazyLogging
 
 object FilterInvalidPandas extends LazyLogging {
 
-  def filterInvalidPandas(sc: SparkContext, invalidPandas: List[Long], input: RDD[RawPanda]) = {
+  def filterInvalidPandas(sc: SparkContext, invalidPandas: List[Long],
+    input: RDD[RawPanda]) = {
     //tag::broadcast[]
     val invalid = HashSet() ++ invalidPandas
     val invalidBroadcast = sc.broadcast(invalid)
@@ -21,7 +22,8 @@ object FilterInvalidPandas extends LazyLogging {
     //end::broadcast[]
   }
 
-  def filterInvalidPandasWithLogs(sc: SparkContext, invalidPandas: List[Long], input: RDD[RawPanda]) = {
+  def filterInvalidPandasWithLogs(sc: SparkContext, invalidPandas: List[Long],
+    input: RDD[RawPanda]) = {
     //tag::broadcastAndLog[]
     val invalid = HashSet() ++ invalidPandas
     val invalidBroadcast = sc.broadcast(invalid)

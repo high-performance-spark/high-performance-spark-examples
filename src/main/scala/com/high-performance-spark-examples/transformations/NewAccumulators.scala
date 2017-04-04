@@ -1,5 +1,8 @@
 /**
- * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
+ * Illustrates how to use Spark accumulators with the "new" V2 APIs.
+ *
+ * Note that most of these examples are "dangerous" in that they may
+ * not return consistent results.
  */
 package com.highperformancespark.examples.transformations
 
@@ -14,22 +17,26 @@ import org.apache.spark.rdd._
 import scala.collection.mutable.HashSet
 object NewAccumulators {
   /**
-   * Compute the total fuzzyness with an accumulator while generating an id and zip pair for sorting
+   * Compute the total fuzzyness with an accumulator while generating
+   * an id and zip pair for sorting.
    */
   //tag::sumFuzzyAcc[]
-  def computeTotalFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]): (RDD[(String, Long)], Double) = {
+  def computeTotalFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]):
+      (RDD[(String, Long)], Double) = {
     // Create an named accumulator for doubles
     val acc = sc.doubleAccumulator("fuzzyNess")
     val transformed = rdd.map{x => acc.add(x.attributes(0)); (x.zip, x.id)}
     // accumulator still has zero value
+    // Note: This example is dangerous since the transformation may be
+    // evaluated multiple times.
     transformed.count() // force evaluation
-    // Note: This example is dangerous since the transformation may be evaluated multiple times
     (transformed, acc.value)
   }
   //end::sumFuzzyAcc[]
 
   /**
-   * Compute the max fuzzyness with an accumulator while generating an id and zip pair for sorting
+   * Compute the max fuzzyness with an accumulator while generating
+   * an id and zip pair for sorting.
    */
   //tag::maxFuzzyAcc[]
   def computeMaxFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]):
@@ -90,9 +97,10 @@ object NewAccumulators {
     val acc = new MaxDoubleAccumulator()
     sc.register(acc)
     val transformed = rdd.map{x => acc.add(x.attributes(0)); (x.zip, x.id)}
-    // accumulator still has Double.MinValue
+    // accumulator still has None value.
+    // Note: This example is dangerous since the transformation may be
+    // evaluated multiple times.
     transformed.count() // force evaluation
-    // Note: This example is dangerous since the transformation may be evaluated multiple times
     (transformed, acc.value)
   }
   //end::maxFuzzyAcc[]

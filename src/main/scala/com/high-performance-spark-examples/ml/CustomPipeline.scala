@@ -34,7 +34,8 @@ class HardCodedWordCountStage(override val uid: String) extends Transformer {
     val idx = schema.fieldIndex("happy_pandas")
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
-      throw new Exception(s"Input type ${field.dataType} did not match input type StringType")
+      throw new Exception(
+        s"Input type ${field.dataType} did not match input type StringType")
     }
     // Add the return field
     schema.add(StructField("happy_panda_counts", IntegerType, false))
@@ -71,7 +72,8 @@ class ConfigurableWordCount(override val uid: String) extends Transformer {
     val idx = schema.fieldIndex($(inputCol))
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
-      throw new Exception(s"Input type ${field.dataType} did not match input type StringType")
+      throw new Exception(
+        s"Input type ${field.dataType} did not match input type StringType")
     }
     // Add the return field
     schema.add(StructField($(outputCol), IntegerType, false))
@@ -91,7 +93,8 @@ trait SimpleIndexerParams extends Params {
   final val outputCol = new Param[String](this, "outputCol", "The output column")
 }
 
-class SimpleIndexer(override val uid: String) extends Estimator[SimpleIndexerModel] with SimpleIndexerParams {
+class SimpleIndexer(override val uid: String)
+    extends Estimator[SimpleIndexerModel] with SimpleIndexerParams {
 
   def setInputCol(value: String) = set(inputCol, value)
 
@@ -108,7 +111,8 @@ class SimpleIndexer(override val uid: String) extends Estimator[SimpleIndexerMod
     val idx = schema.fieldIndex($(inputCol))
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
-      throw new Exception(s"Input type ${field.dataType} did not match input type StringType")
+      throw new Exception(
+        s"Input type ${field.dataType} did not match input type StringType")
     }
     // Add the return field
     schema.add(StructField($(outputCol), IntegerType, false))
@@ -122,8 +126,8 @@ class SimpleIndexer(override val uid: String) extends Estimator[SimpleIndexerMod
   }
 }
 
-class SimpleIndexerModel(
-  override val uid: String, words: Array[String]) extends Model[SimpleIndexerModel] with SimpleIndexerParams {
+class SimpleIndexerModel(override val uid: String, words: Array[String])
+    extends Model[SimpleIndexerModel] with SimpleIndexerParams {
 
   override def copy(extra: ParamMap): SimpleIndexerModel = {
     defaultCopy(extra)
@@ -137,7 +141,8 @@ class SimpleIndexerModel(
     val idx = schema.fieldIndex($(inputCol))
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
-      throw new Exception(s"Input type ${field.dataType} did not match input type StringType")
+      throw new Exception(
+        s"Input type ${field.dataType} did not match input type StringType")
     }
     // Add the return field
     schema.add(StructField($(outputCol), IntegerType, false))

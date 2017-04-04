@@ -1,5 +1,5 @@
 /**
- * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
+ * Streaming Pandas Example with the old DStream APIs.
  */
 package com.highperformancespark.examples.streaming
 
@@ -42,7 +42,8 @@ object DStreamExamples {
     //end::sscRecover[]
   }
 
-  def fileAPIExample(ssc: StreamingContext, path: String): DStream[(Long, String)] = {
+  def fileAPIExample(ssc: StreamingContext, path: String):
+      DStream[(Long, String)] = {
     //tag::file[]
     // You don't need to write the types of the InputDStream but it for illustration
     val inputDStream: InputDStream[(LongWritable, Text)] =
