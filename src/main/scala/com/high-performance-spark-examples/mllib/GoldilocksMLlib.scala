@@ -10,7 +10,8 @@ import org.apache.spark.rdd.RDD
 //tag::imports[]
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, LogisticRegressionModel}
+import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS,
+  LogisticRegressionModel}
 // Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
@@ -109,13 +110,15 @@ object GoldilocksMLlib {
     // Vector size is 100 - we use this to build a transformer on top of WVM that
     // works on sentences.
     val vectorSize = 100
-    // The transform function works on a per-word basis, but we have sentences as input.
+    // The transform function works on a per-word basis, but we have
+    // sentences as input.
     tokenized.map{words =>
       // If there is nothing in the sentence output a null vector
       if (words.isEmpty) {
         Vectors.sparse(vectorSize, Array.empty[Int], Array.empty[Double])
       } else {
-        // If there are sentences construct a running sum of the vectors for each word
+        // If there are sentences construct a running sum of the
+        // vectors for each word
         val sum = Array[Double](vectorSize)
         words.foreach { word =>
           blas.daxpy(
