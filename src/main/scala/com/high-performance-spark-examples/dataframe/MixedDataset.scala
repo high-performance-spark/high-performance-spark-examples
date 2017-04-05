@@ -14,6 +14,8 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
 
+case class MiniPandaInfo(zip: String, size: Double)
+
 class MixedDataset(sqlCtx: SQLContext) {
   import sqlCtx.implicits._
 
@@ -59,7 +61,8 @@ class MixedDataset(sqlCtx: SQLContext) {
 
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
-    ds.groupByKey(rp => rp.zip).agg(max("attributes(2)").as[Double])
+    ds.map(rp => MiniPandaInfo(rp.zip, rp.attributes(2)))
+      .groupByKey(mp => mp.zip).agg(max("size").as[Double])
   }
   //end::maxPandaSizePerZip[]
 
