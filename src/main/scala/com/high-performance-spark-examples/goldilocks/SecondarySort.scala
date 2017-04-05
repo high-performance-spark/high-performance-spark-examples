@@ -8,17 +8,14 @@ import org.apache.spark.rdd.RDD
 
 object PandaSecondarySort {
 
-
   /**
-    *
-    *  //Sort first by panda Id (a tuple of four things) Name, address, zip, happiness,
-    *  Then by city, zip, and name,
-  //
-  //We want to sort the pandas by location and then by names
-    * @param rdd
-    * @return
-    */
-   def secondarySort(rdd : RDD[(String, StreetAddress, Int, Double)]) = {
+   * Sort first by panda Id (a tuple of four things) Name, address, zip, happiness,
+   * Then by city, zip, and name.
+   *
+   * @param rdd
+   * @return
+   */
+  def secondarySort(rdd : RDD[(String, StreetAddress, Int, Double)]) = {
     val keyedRDD: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = rdd.map {
       case (fullName, address, zip, happiness) =>
         (PandaKey(address.city, zip, address.houseNumber, fullName),
@@ -34,7 +31,8 @@ object PandaSecondarySort {
     keyedRDD.sortByKey().values
   }
 
-  def groupByCityAndSortWithinGroups(rdd : RDD[(String, StreetAddress, Int, Double)]) = {
+  def groupByCityAndSortWithinGroups(
+    rdd : RDD[(String, StreetAddress, Int, Double)]) = {
     val keyedRDD: RDD[(PandaKey, (String, StreetAddress, Int, Double))] = rdd.map {
       case (fullName, address, zip, happiness) =>
         (PandaKey(address.city, zip, address.houseNumber, fullName),
@@ -61,7 +59,8 @@ case class PandaKey(city : String, zip : Int, addressNumber : Long, name : Strin
 case class StreetAddress(city : String, streetName : String, houseNumber : Long )
 
 class PandaKeyPartitioner(override val numPartitions: Int) extends Partitioner {
-  require(numPartitions >= 0, s"Number of partitions ($numPartitions) cannot be negative.")
+  require(numPartitions >= 0,
+    s"Number of partitions ($numPartitions) cannot be negative.")
 
   override def getPartition(key: Any): Int = {
     val k = key.asInstanceOf[PandaKey]
@@ -92,9 +91,11 @@ object SecondarySort {
   //end::sortByTwoKeys[]
 
   //tag::sortAndGroup[]
-  def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag, S : Ordering : ClassTag, V : ClassTag]
-      (pairRDD : RDD[((K, S), V)], partitions : Int
-      ): RDD[(K, List[(S, V)])] = {
+  def groupByKeyAndSortBySecondaryKey[K : Ordering : ClassTag,
+    S : Ordering : ClassTag,
+    V : ClassTag]
+    (pairRDD : RDD[((K, S), V)], partitions : Int):
+      RDD[(K, List[(S, V)])] = {
     //Create an instance of our custom partitioner
     val colValuePartitioner = new PrimaryKeyPartitioner[Double, Int](partitions)
 

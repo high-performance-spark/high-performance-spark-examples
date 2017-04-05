@@ -37,16 +37,20 @@ object SimplePerfTest {
     run(sc, sparkSession, scalingFactor, size)
   }
 
-  def run(sc: SparkContext, session: SparkSession, scalingFactor: Long, size: Int) = {
+  def run(sc: SparkContext, session: SparkSession,
+    scalingFactor: Long, size: Int) = {
     import session.implicits._
-    val inputRDD = GenerateScalingData.generateFullGoldilocks(sc, scalingFactor, size)
+    val inputRDD = GenerateScalingData.generateFullGoldilocks(
+      sc, scalingFactor, size)
     val pairRDD = inputRDD.map(p => (p.zip.toInt, p.attributes(0)))
     pairRDD.cache()
     pairRDD.count()
     val rddTimeings = 1.to(10).map(x => time(testOnRDD(pairRDD)))
     val groupTimeings = 1.to(10).map(x => time(groupOnRDD(pairRDD)))
     val df = inputRDD.toDF()
-    val inputDataFrame = df.select(df("zip").cast(IntegerType), df("attributes")(0).as("fuzzyness").cast(DoubleType))
+    val inputDataFrame = df.select(
+      df("zip").cast(IntegerType),
+      df("attributes")(0).as("fuzzyness").cast(DoubleType))
     inputDataFrame.cache()
     inputDataFrame.count()
     val dataFrameTimeings = 1.to(10).map(x => time(testOnDataFrame(inputDataFrame)))
@@ -56,7 +60,8 @@ object SimplePerfTest {
   }
 
   def testOnRDD(rdd: RDD[(Int, Double)]) = {
-    rdd.map{case (x, y) => (x, (y, 1))}.reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.count()
+    rdd.map{case (x, y) => (x, (y, 1))}
+      .reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.count()
   }
 
   def groupOnRDD(rdd: RDD[(Int, Double)]) = {

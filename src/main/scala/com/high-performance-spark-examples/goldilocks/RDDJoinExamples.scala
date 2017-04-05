@@ -51,9 +51,9 @@ object RDDJoinExamples {
   //tag::joinScoresWithAddress3[]
   def joinScoresWithAddress3(scoreRDD: RDD[(Long, Double)],
    addressRDD: RDD[(Long, String)]) : RDD[(Long, (Double, String))]= {
-    //if addressRDD has a known partitioner we should use that,
-    //otherwise it has a default hash parttioner, which we can reconstrut by getting the number of
-    // partitions.
+    // If addressRDD has a known partitioner we should use that,
+    // otherwise it has a default hash parttioner, which we can reconstruct by
+    // getting the number of partitions.
     val addressDataPartitioner = addressRDD.partitioner match {
       case (Some(p)) => p
       case (None) => new HashPartitioner(addressRDD.partitions.length)
@@ -80,7 +80,8 @@ object RDDJoinExamples {
  def coGroupExample(scoreRDD: RDD[(Long, Double)], foodRDD: RDD[(Long, String)],
   addressRDD: RDD[(Long, String)]) = {
    //tag::coGroupExample1[]
-   val cogroupedRDD: RDD[(Long, (Iterable[Double], Iterable[String]))] = scoreRDD.cogroup(foodRDD)
+   val cogroupedRDD: RDD[(Long, (Iterable[Double], Iterable[String]))] =
+     scoreRDD.cogroup(foodRDD)
    //end::coGroupExample1[]
 
    /*

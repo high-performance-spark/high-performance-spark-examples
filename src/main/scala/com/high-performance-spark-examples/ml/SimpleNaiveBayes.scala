@@ -32,8 +32,8 @@ class SimpleNaiveBayes(val uid: String)
     import ds.sparkSession.implicits._
     ds.cache()
     // Note: you can use getNumClasses & extractLabeledPoints to get an RDD instead
-    // Using the RDD approach is common when integrating with legacy machine learning code
-    // or iterative algorithms which can create large query plans.
+    // Using the RDD approach is common when integrating with legacy machine
+    // learning code or iterative algorithms which can create large query plans.
     // Compute the number of documents
     val numDocs = ds.count
     // Get the number of classes.
@@ -116,9 +116,10 @@ case class SimpleNaiveBayesModel(
   val onesVec = Vectors.dense(Array.fill(theta.numCols)(1.0))
   val negThetaSum: Array[Double] = negTheta.multiply(onesVec).toArray
 
-  // Here is the prediciton functionality you need to implement - for ClassificationModels
-  // transform automatically wraps this - but if you might benefit from broadcasting your model or
-  // other optimizations you can also override transform.
+  // Here is the prediciton functionality you need to implement - for
+  // ClassificationModels transform automatically wraps this.
+  // If you might benefit from broadcasting your model or other optimizations you
+  // can override transform and place your desired logic there.
   def predictRaw(features: Vector): Vector = {
     // Toy implementation - use BLAS or similar instead
     // the summing of the three vectors but the functionality isn't exposed.
