@@ -1,5 +1,6 @@
 /**
- * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
+ * Happy Panda Example for DataFrames. This computes the % of happy pandas and
+ * is a very contrived example (sorry!).
  */
 package com.highperformancespark.examples.dataframe
 
@@ -30,7 +31,8 @@ object HappyPandas {
     val session = SparkSession.builder()
       .enableHiveSupport()
       .getOrCreate()
-    // Import the implicits, unlike in core Spark the implicits are defined on the context
+    // Import the implicits, unlike in core Spark the implicits are defined
+    // on the context.
     import session.implicits._
     //end::createSparkSession[]
     session
@@ -42,7 +44,8 @@ object HappyPandas {
   def sqlContext(sc: SparkContext): SQLContext = {
     //tag::createSQLContext[]
     val sqlContext = new SQLContext(sc)
-    // Import the implicits, unlike in core Spark the implicits are defined on the context
+    // Import the implicits, unlike in core Spark the implicits are defined
+    // on the context.
     import sqlContext.implicits._
     //end::createSQLContext[]
     sqlContext
@@ -54,7 +57,8 @@ object HappyPandas {
   def hiveContext(sc: SparkContext): HiveContext = {
     //tag::createHiveContext[]
     val hiveContext = new HiveContext(sc)
-    // Import the implicits, unlike in core Spark the implicits are defined on the context
+    // Import the implicits, unlike in core Spark the implicits are defined
+    // on the context.
     import hiveContext.implicits._
     //end::createHiveContext[]
     hiveContext
@@ -63,7 +67,8 @@ object HappyPandas {
   /**
    * Illustrate loading some JSON data.
    */
-  def loadDataSimple(sc: SparkContext, session: SparkSession, path: String): DataFrame = {
+  def loadDataSimple(sc: SparkContext, session: SparkSession, path: String):
+      DataFrame = {
     //tag::loadPandaJSONSimple[]
     val df1 = session.read.json(path)
     //end::loadPandaJSONSimple[]
@@ -94,7 +99,11 @@ object HappyPandas {
     * @param happyPandas number of happy pandas in this place
     * @param totalPandas total number of pandas in this place
     */
-  case class PandaInfo(place: String, pandaType: String, happyPandas: Integer, totalPandas: Integer)
+  case class PandaInfo(
+    place: String,
+    pandaType: String,
+    happyPandas: Integer,
+    totalPandas: Integer)
 
   /**
     * Gets the percentage of happy pandas per place.
@@ -103,7 +112,10 @@ object HappyPandas {
     * @return Returns DataFrame of (place, percentage of happy pandas)
     */
   def happyPandasPercentage(pandaInfo: DataFrame): DataFrame = {
-    pandaInfo.select(pandaInfo("place"), (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy"))
+    pandaInfo.select(
+      pandaInfo("place"),
+      (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy")
+    )
   }
 
   //tag::encodePandaType[]
@@ -137,7 +149,12 @@ object HappyPandas {
     val pandaInfo = pandaPlace.explode(pandaPlace("pandas")){
       case Row(pandas: Seq[Row]) =>
         pandas.map{
-          case Row(id: Long, zip: String, pt: String, happy: Boolean, attrs: Seq[Double]) =>
+          case (Row(
+            id: Long,
+            zip: String,
+            pt: String,
+            happy: Boolean,
+            attrs: Seq[Double])) =>
             RawPanda(id, zip, pt, happy, attrs.toArray)
         }}
     pandaInfo.select(
@@ -227,7 +244,8 @@ object HappyPandas {
   //tag::complexAggPerZip[]
   def minMeanSizePerZip(pandas: DataFrame): DataFrame = {
     // Compute the min and mean
-    pandas.groupBy(pandas("zip")).agg(min(pandas("pandaSize")), mean(pandas("pandaSize")))
+    pandas.groupBy(pandas("zip")).agg(
+      min(pandas("pandaSize")), mean(pandas("pandaSize")))
   }
   //end::complexAggPerZip[]
 

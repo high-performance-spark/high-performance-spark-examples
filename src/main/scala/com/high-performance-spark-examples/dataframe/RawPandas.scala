@@ -1,4 +1,8 @@
 package com.highperformancespark.examples.dataframe
+
+import java.util.Arrays
+import java.util.Objects
+
 /**
  * @param id panda id
  * @param zip zip code of panda residence
@@ -11,6 +15,10 @@ case class RawPanda(id: Long, zip: String, pt: String, happy: Boolean, attribute
     case other: RawPanda => (id == other.id && pt == other.pt &&
         happy == other.happy && attributes.deep == other.attributes.deep)
     case _ => false
+  }
+  override def hashCode(): Int = {
+    3 * Objects.hashCode(id) + 7 * Objects.hashCode(zip) + 11 * Objects.hashCode(pt) +
+    13 * Arrays.hashCode(attributes)
   }
 }
 

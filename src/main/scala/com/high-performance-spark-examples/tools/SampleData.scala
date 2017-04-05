@@ -20,7 +20,8 @@ object SampleData {
   /**
    * Construct a stratified sample
    */
-  def stratifiedSample(rdd: RDD[(String, Array[Double])]): RDD[(String, Array[Double])] = {
+  def stratifiedSample(rdd: RDD[(String, Array[Double])]):
+      RDD[(String, Array[Double])] = {
     // tag::stratifiedSample[]
     // 5% of the red pandas, and 50% of the giant pandas
     val stratas = Map("red" -> 0.05, "giant" -> 0.50)
@@ -29,7 +30,8 @@ object SampleData {
   }
 
   /**
-   * Custom random sample with RNG. This is intended as an example of how to save setup overhead.
+   * Custom random sample with RNG. This is intended as an example of how
+   * to save setup overhead.
    */
   def slowSampleInput[T: ClassTag](rdd: RDD[T]): RDD[T] = {
     rdd.flatMap{x => val r = new Random()
@@ -41,7 +43,8 @@ object SampleData {
   }
 
   /**
-   * Custom random sample with RNG. This is intended as an example of how to save setup overhead.
+   * Custom random sample with RNG. This is intended as an example of how to
+   * save setup overhead.
    */
   def customSampleInput[T: ClassTag](rdd: RDD[T]): RDD[T] = {
     // tag::mapPartitions[]

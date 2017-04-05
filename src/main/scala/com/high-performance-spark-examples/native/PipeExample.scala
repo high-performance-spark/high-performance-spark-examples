@@ -25,12 +25,14 @@ object PipeExample {
     // Copy our script to the worker nodes with sc.addFile
     // Add file requires absolute paths
     val distScriptName = "ghinfo.pl"
-    val localScript = System.getProperty("user.dir") + "/src/main/perl/" + distScriptName
+    val userDir = System.getProperty("user.dir")
+    val localScript = s"${userDir}/src/main/perl/${distScriptName}"
     val addedFile = sc.addFile(localScript)
 
     // Pass enviroment variables to our worker
     val enviromentVars = Map("user" -> "apache", "repo" -> "spark")
-    val result = input.map(x => x.toString).pipe(SparkFiles.get(distScriptName), enviromentVars)
+    val result = input.map(x => x.toString)
+      .pipe(SparkFiles.get(distScriptName), enviromentVars)
     // Parse the results
     result.map{record =>
       val elems: Array[String] = record.split(" ")

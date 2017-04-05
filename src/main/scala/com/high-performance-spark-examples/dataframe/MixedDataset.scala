@@ -14,13 +14,16 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
 
+case class MiniPandaInfo(zip: String, size: Double)
+
 class MixedDataset(sqlCtx: SQLContext) {
   import sqlCtx.implicits._
 
   /**
    * A sample function on a Dataset of RawPandas.
-   * This is contrived, since our reduction could also be done with SQL aggregates, but
-   * we can see the flexibility of being able to specify arbitrary Scala code.
+   *
+   * This is contrived, since our reduction could also be done with SQL aggregates,
+   * but we can see the flexibility of being able to specify arbitrary Scala code.
    */
   def happyPandaSums(ds: Dataset[RawPanda]): Double = {
     ds.toDF().filter($"happy" === true).as[RawPanda].
@@ -58,7 +61,8 @@ class MixedDataset(sqlCtx: SQLContext) {
 
   //tag::maxPandaSizePerZip[]
   def maxPandaSizePerZip(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
-    ds.groupByKey(rp => rp.zip).agg(max("attributes(2)").as[Double])
+    ds.map(rp => MiniPandaInfo(rp.zip, rp.attributes(2)))
+      .groupByKey(mp => mp.zip).agg(max("size").as[Double])
   }
   //end::maxPandaSizePerZip[]
 
@@ -71,8 +75,8 @@ class MixedDataset(sqlCtx: SQLContext) {
   //end::maxPandaSizePerZipScala[]
 
   /**
-   * Illustrate how we make typed queries, using some of the float properties to produce boolean
-   * values.
+   * Illustrate how we make typed queries, using some of the float properties
+   * to produce boolean values.
    */
   def typedQueryExample(ds: Dataset[RawPanda]): Dataset[Double] = {
     ds.select($"attributes"(0).as[Double])
@@ -129,8 +133,8 @@ class MixedDataset(sqlCtx: SQLContext) {
   //end::toRDDDF[]
 
   /**
-   * Illustrate DataFrame to Dataset. Its important to note that if the schema does not match what
-   * is expected by the Dataset this fails fast.
+   * Illustrate DataFrame to Dataset. Its important to note that if the schema
+   * does not match what is expected by the Dataset this fails fast.
    */
   //tag::DataFrameAsDataset[]
   def fromDF(df: DataFrame): Dataset[RawPanda] = {

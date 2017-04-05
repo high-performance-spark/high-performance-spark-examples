@@ -5,18 +5,21 @@ class SmartAggregations {
 
   //tag::naiveAggregation[]
   /**
-    * Given an RDD of (PandaInstructor, ReportCardText) aggregate by instructor to an RDD of distinct
-    * keys of (PandaInstructor, ReportCardStatistics) where ReportCardMetrics is a case class with
-       * longestWord -> The longest word in all of the reports written by this instructor
-       * happyMentions -> The number of times this intructor mentioned the word happy
-       * averageWords -> The average number of words per report card for this instructor
-    */
+   * Given an RDD of (PandaInstructor, ReportCardText) aggregate by instructor
+   * to an RDD of distinct keys of (PandaInstructor, ReportCardStatistics)
+   * where ReportCardMetrics is a case class with
+   *
+   * longestWord -> The longest word in all of the reports written by this instructor
+   * happyMentions -> The number of times this intructor mentioned the word happy
+   * averageWords -> The average number of words per report card for this instructor
+   */
   def calculateReportCardStatistics(rdd : RDD[(String, String)]
   ): RDD[(String, ReportCardMetrics)] ={
 
     rdd.aggregateByKey(new MetricsCalculator(totalWords = 0,
       longestWord = 0, happyMentions = 0, numberReportCards = 0))(
-      seqOp = (reportCardMetrics, reportCardText) => reportCardMetrics.sequenceOp(reportCardText),
+      seqOp = ((reportCardMetrics, reportCardText) =>
+        reportCardMetrics.sequenceOp(reportCardText)),
       combOp = (x, y) => x.compOp(y))
     .mapValues(_.toReportCardMetrics)
   }
@@ -24,16 +27,18 @@ class SmartAggregations {
 
 
   /**
-    * Same as above, but rather than using the 'MetricsCalculator' class for computing the aggregations
-    * functions, we use a modified implementation called 'MetricsCalculator_ReuseObjects' which modifies
-    * the original accumulator and returns it for both the sequnece op and the aggregatio op.
-    * @param rdd
-    * @return
-    */
-  def calculateReportCardStatistics_ReuseObjects(rdd : RDD[(String, String)]
+    * Same as above, but rather than using the 'MetricsCalculator' class for
+   * computing the aggregations functions, we use a modified implementation
+   * called 'MetricsCalculatorReuseObjects' which modifies the original
+   * accumulator and returns it for both the sequnece op and the aggregatio op.
+   *
+   * @param rdd
+   * @return
+   */
+  def calculateReportCardStatisticsReuseObjects(rdd : RDD[(String, String)]
   ): RDD[(String, ReportCardMetrics)] ={
 
-    rdd.aggregateByKey(new MetricsCalculator_ReuseObjects(totalWords = 0,
+    rdd.aggregateByKey(new MetricsCalculatorReuseObjects(totalWords = 0,
       longestWord = 0, happyMentions = 0, numberReportCards = 0))(
       seqOp = (reportCardMetrics, reportCardText) =>
         reportCardMetrics.sequenceOp(reportCardText),
@@ -42,7 +47,7 @@ class SmartAggregations {
   }
 
   //tag::goodAggregation[]
-  def calculateReportCardStatistics_withArrays(rdd : RDD[(String, String)]
+  def calculateReportCardStatisticsWithArrays(rdd : RDD[(String, String)]
   ): RDD[(String, ReportCardMetrics)] = {
 
     rdd.aggregateByKey(
@@ -60,7 +65,10 @@ class SmartAggregations {
 
 }
 //tag::caseClass[]
-case class ReportCardMetrics(longestWord : Int, happyMentions : Int, averageWords : Double)
+case class ReportCardMetrics(
+  longestWord : Int,
+  happyMentions : Int,
+  averageWords : Double)
 //end::caseClass[]
 
 
@@ -93,12 +101,15 @@ case class ReportCardMetrics(longestWord : Int, happyMentions : Int, averageWord
    }
 
    def toReportCardMetrics =
-     ReportCardMetrics(longestWord, happyMentions, totalWords.toDouble/numberReportCards)
+     ReportCardMetrics(
+       longestWord,
+       happyMentions,
+       totalWords.toDouble/numberReportCards)
 }
 //end::firstCalculator[]
 
 //tag::calculator_reuse[]
-class MetricsCalculator_ReuseObjects(
+class MetricsCalculatorReuseObjects(
   var totalWords : Int,
   var longestWord: Int,
   var happyMentions : Int,
@@ -113,7 +124,7 @@ class MetricsCalculator_ReuseObjects(
     this
   }
 
-  def compOp(other : MetricsCalculator_ReuseObjects) : this.type = {
+  def compOp(other : MetricsCalculatorReuseObjects) : this.type = {
     totalWords += other.totalWords
     longestWord = Math.max(this.longestWord, other.longestWord)
     happyMentions += other.happyMentions
@@ -122,7 +133,10 @@ class MetricsCalculator_ReuseObjects(
   }
 
   def toReportCardMetrics =
-    ReportCardMetrics(longestWord, happyMentions, totalWords.toDouble/numberReportCards)
+    ReportCardMetrics(
+      longestWord,
+      happyMentions,
+      totalWords.toDouble/numberReportCards)
 }
 //end::calculator_reuse[]
 
@@ -140,15 +154,18 @@ object MetricsCalculator_Arrays extends Serializable {
     val words = reportCardContent.split(" ")
     //modify each of the elements in the array
     reportCardMetrics(totalWordIndex) += words.length
-    reportCardMetrics(longestWordIndex) = Math.max(reportCardMetrics(longestWordIndex),
-      words.map( w => w.length).max)
-    reportCardMetrics(happyMentionsIndex) += words.count(w => w.toLowerCase.equals("happy"))
+    reportCardMetrics(longestWordIndex) = Math.max(
+      reportCardMetrics(longestWordIndex),
+      words.map(w => w.length).max)
+    reportCardMetrics(happyMentionsIndex) += words.count(
+      w => w.toLowerCase.equals("happy"))
     reportCardMetrics(numberReportCardsIndex) +=1
     reportCardMetrics
   }
 
   def compOp(x : Array[Int], y : Array[Int]) : Array[Int] = {
-    //combine the first and second arrays by modifying the elements in the first array
+    //combine the first and second arrays by modifying the elements
+    // in the first array
     x(totalWordIndex)  += y(totalWordIndex)
     x(longestWordIndex) = Math.max(x(longestWordIndex), y(longestWordIndex))
     x(happyMentionsIndex) += y(happyMentionsIndex)
@@ -179,8 +196,9 @@ object CollectionRoutines{
         mentionsOfHappy +=1
       }
       val length = n.length
-      if(length> longestWordSoFar)
+      if(length> longestWordSoFar) {
         longestWordSoFar = length
+      }
 
     }
     (longestWordSoFar, mentionsOfHappy)

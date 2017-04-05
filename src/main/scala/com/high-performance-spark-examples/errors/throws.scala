@@ -7,7 +7,8 @@ object Throws {
   def throwInner(sc: SparkContext) = {
     //tag::throwInner1[]
     val data = sc.parallelize(List(1, 2, 3))
-    val transform1 = data.map(x => x/0) // Will throw an exception when forced to evaluate
+    // Will throw an exception when forced to evaluate
+    val transform1 = data.map(x => x/0)
     val transform2 = transform1.map(x => x + 1)
     transform2.collect() // Forces evaluation
     //end::throwInner1[]
@@ -17,7 +18,8 @@ object Throws {
     //tag::throwOuter1[]
     val data = sc.parallelize(List(1, 2, 3))
     val transform1 = data.map(x => x + 1)
-    val transform2 = transform1.map(x => x/0) // Will throw an exception when forced to evaluate
+    // Will throw an exception when forced to evaluate
+    val transform2 = transform1.map(x => x/0)
     transform2.collect() // Forces evaluation
     //end::throwOuter1[]
   }
@@ -35,7 +37,8 @@ object Throws {
   //tag::badEx3[]
   def throwInner2(sc: SparkContext) = {
     val data = sc.parallelize(List(1, 2, 3))
-    val transform1 = data.map(divZero) // Will throw an exception when forced to evaluate
+    // Will throw an exception when forced to evaluate
+    val transform1 = data.map(divZero)
     val transform2 = transform1.map(add1)
     transform2.collect() // Forces evaluation
   }
@@ -43,7 +46,8 @@ object Throws {
   def throwOuter2(sc: SparkContext) = {
     val data = sc.parallelize(List(1, 2, 3))
     val transform1 = data.map(add1)
-    val transform2 = transform1.map(divZero) // Will throw an exception when forced to evaluate
+    // Will throw an exception when forced to evaluate
+    val transform2 = transform1.map(divZero)
     transform2.collect() // Forces evaluation
   }
   //end::badEx3
