@@ -14,7 +14,8 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     // tag::MapValues[]
     val sortedData = data.sortByKey()
     val mapValues: RDD[(Double, String)] = sortedData.mapValues(_.toString)
-    assert(mapValues.partitioner.isDefined, "Using Map Values preserves partitioning")
+    assert(mapValues.partitioner.isDefined,
+      "Using Map Values preserves partitioning")
 
     val map = sortedData.map( pair => (pair._1, pair._2.toString))
     assert(map.partitioner.isEmpty, "Using map does not preserve partitioning")
@@ -46,7 +47,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
   }
 
   test("Itereative Computations "){
-    def RMSE(rdd : RDD[(Int, Int )]) = {
+    def rmse(rdd : RDD[(Int, Int )]) = {
       val n = rdd.count()
       math.sqrt(rdd.map(x => (x._1 - x._2) * (x._1 - x._2)).reduce(_ + _) / n)
     }
@@ -54,14 +55,19 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     val validationSet = sc.parallelize(keyValuePairs)
 
     // tag::iterativeComp[]
-    val testSet: Array[RDD[(Double, Int)]] = Array(validationSet.mapValues(_ + 1), validationSet.mapValues(_ + 2), validationSet)
+    val testSet: Array[RDD[(Double, Int)]] =
+      Array(
+        validationSet.mapValues(_ + 1),
+        validationSet.mapValues(_ + 2),
+        validationSet)
     validationSet.persist() //persist since we are using this RDD several times
     val errors = testSet.map( rdd => {
-        RMSE(rdd.join(validationSet).values)
+        rmse(rdd.join(validationSet).values)
     })
     // end::iterativeComp[]
 
-    //the one where we didn't change anything should have the lowest root mean squared error
+    // the one where we didn't change anything should have the
+    // lowest root mean squared error
     assert(errors.min == errors(2))
 
   }
@@ -91,4 +97,3 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
 
 
 }
-
