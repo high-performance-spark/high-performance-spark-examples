@@ -1,5 +1,5 @@
 /**
- * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
+ * Tests that we filter out bad pandas.
  */
 package com.highperformancespark.examples.tools
 
@@ -16,8 +16,10 @@ class FilterInvalidPandasSuite extends FunSuite with SharedSparkContext {
       RawPanda(1L, "94110", "giant", true, Array(0.0)),
       RawPanda(3L, "94110", "giant", true, Array(0.0)))
     val input = sc.parallelize(inputPandas)
-    val result1 = FilterInvalidPandas.filterInvalidPandas(sc, invalidPandas, input)
-    val result2 = FilterInvalidPandas.filterInvalidPandasWithLogs(sc, invalidPandas, input)
+    val result1 =
+      FilterInvalidPandas.filterInvalidPandas(sc, invalidPandas, input)
+    val result2 =
+      FilterInvalidPandas.filterInvalidPandasWithLogs(sc, invalidPandas, input)
     assert(result1.collect() === result2.collect())
     assert(result1.count() === 1)
   }

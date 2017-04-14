@@ -36,7 +36,7 @@ class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase {
     val inputDS = inputDF.as[RawPanda]
     val mixedDS = new MixedDataset(sqlCtx)
     val squishy = mixedDS.squishyPandas(inputDS).collect()
-    assert(squishy(0)._2 == true)
+    assert(squishy(0)._2 === true)
   }
 
   test("funquery") {

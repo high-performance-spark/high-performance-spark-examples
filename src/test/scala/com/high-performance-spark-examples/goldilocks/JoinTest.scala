@@ -12,8 +12,9 @@ class JoinTest extends FunSuite with SharedSparkContext {
     val largeRDD: RDD[(String, Double)] =
       sc.parallelize(keySet.flatMap{ letter =>
         Range(1, 50).map(i => (letter, letter.hashCode() / i.toDouble))})
-    val result: RDD[(String, (Double, Int))] = RDDJoinExamples.manualBroadCastHashJoin(
-      largeRDD, smallRDD)
+    val result: RDD[(String, (Double, Int))] =
+      RDDJoinExamples.manualBroadCastHashJoin(
+        largeRDD, smallRDD)
     val nativeJoin: RDD[(String, (Double, Int))] = largeRDD.join(smallRDD)
 
     assert(result.subtract(nativeJoin).count == 0)
