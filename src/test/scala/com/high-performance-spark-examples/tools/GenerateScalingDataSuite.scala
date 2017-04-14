@@ -10,8 +10,8 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.FunSuite
 
 class GeneratescalaingDataSuite extends FunSuite with SharedSparkContext {
-  // The number of entries depends somewhat on the partition split because we zip multiple
-  // seperate RDDs so its more of a "request"
+  // The number of entries depends somewhat on the partition split because we
+  // zip multiple separate RDDs so its more of a "request"
   test("expected num entries") {
     val result = GenerateScalingData.generateFullGoldilocks(sc, 10L, 20)
     assert(result.count() <= 10)

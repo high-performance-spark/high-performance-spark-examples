@@ -1,5 +1,6 @@
 /**
- * Happy Panda Example for DataFrames. Computes the % of happy pandas. Very contrived.
+ * Happy Panda Example for DataFrames.
+ * Computes the % of happy pandas. Very contrived.
  */
 package com.highperformancespark.examples.dataframe
 
@@ -46,7 +47,9 @@ class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
   test("simple explode test") {
     val inputDF = sqlContext.createDataFrame(pandaPlaces)
     val pandaInfo = sqlContext.createDataFrame(rawPandaList)
-    val expectedDf = pandaInfo.select((pandaInfo("attributes")(0) / pandaInfo("attributes")(1)).as("squishyness"))
+    val expectedDf = pandaInfo.select(
+      (pandaInfo("attributes")(0) / pandaInfo("attributes")(1))
+        .as("squishyness"))
     val result = HappyPandas.squishPandaFromPace(inputDF)
 
     assertDataFrameApproximateEquals(expectedDf, result, 1E-5)
@@ -55,7 +58,9 @@ class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
   //tag::approxEqualDataFrames[]
 
   test("verify simple happy pandas Percentage") {
-    val expectedList = List(Row(toronto, 0.5), Row(sandiego, 2/3.0), Row(virginia, 1/10.0))
+    val expectedList = List(Row(toronto, 0.5),
+      Row(sandiego, 2/3.0),
+      Row(virginia, 1/10.0))
     val expectedDf = createDF(expectedList, ("place", StringType),
                                               ("percentHappy", DoubleType))
 
@@ -71,7 +76,9 @@ class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
     val resultDF = HappyPandas.happyPandasPercentage(inputDF)
     val resultRows = resultDF.collect()
 
-    val expectedRows = List(Row(toronto, 0.5), Row(sandiego, 2/3.0), Row(virginia, 1/10.0))
+    val expectedRows = List(Row(toronto, 0.5),
+      Row(sandiego, 2/3.0),
+      Row(virginia, 1/10.0))
 
     //tag::approxEqualRow[]
     assert(expectedRows.length === resultRows.length)
@@ -174,7 +181,8 @@ class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
                                             ("min(pandaSize)", IntegerType),
                                             ("avg(pandaSize)", DoubleType))
 
-    assertDataFrameApproximateEquals(expectedDF.orderBy("zip"), resultDF.orderBy("zip"), 1e-5)
+    assertDataFrameApproximateEquals(expectedDF.orderBy("zip"),
+      resultDF.orderBy("zip"), 1e-5)
   }
 
 
@@ -208,10 +216,12 @@ class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
 
     val expectedDF = getExpectedPandasRelativeSize(inputPandaList, -10, 10)
 
-    assertDataFrameApproximateEquals(expectedDF.orderBy("name"), resultDF.orderBy("name"), 1e-5)
+    assertDataFrameApproximateEquals(expectedDF.orderBy("name"),
+      resultDF.orderBy("name"), 1e-5)
   }
 
-  private def getExpectedPandasRelativeSize(pandaList: List[Pandas], start: Int, end: Int):DataFrame = {
+  private def getExpectedPandasRelativeSize(pandaList: List[Pandas],
+    start: Int, end: Int):DataFrame = {
 
     val expectedRows =
       pandaList
@@ -234,7 +244,11 @@ class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
             val average = totalSum.toDouble / count
 
             val panda = pandas(i)
-            result += Row(panda.name, panda.zip, panda.pandaSize, panda.age, panda.pandaSize - average)
+            result += Row(panda.name,
+              panda.zip,
+              panda.pandaSize,
+              panda.age,
+              panda.pandaSize - average)
           }
 
           result
