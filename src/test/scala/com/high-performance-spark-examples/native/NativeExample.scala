@@ -10,7 +10,8 @@ import org.scalatest.FunSuite
 import org.scalatest.prop.Checkers
 import org.scalatest.Matchers._
 
-class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers with RDDComparisons {
+class NativeExampleSuite extends FunSuite
+    with SharedSparkContext with Checkers with RDDComparisons {
 
   test("local sum") {
     val input = Array(1, 2, 3)
@@ -28,7 +29,9 @@ class NativeExampleSuite extends FunSuite with SharedSparkContext with Checkers 
   }
 
   test("native call should find sum correctly") {
-    val property = forAll(RDDGenerator.genRDD[(String, Array[Int])](sc)(Arbitrary.arbitrary[(String, Array[Int])])) {
+    val property = forAll(
+      RDDGenerator.genRDD[(String, Array[Int])](sc)(
+        Arbitrary.arbitrary[(String, Array[Int])])) {
       rdd =>
         val expected = rdd.mapValues(_.sum)
         val result = NativeExample.jniSum(rdd)

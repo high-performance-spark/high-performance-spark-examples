@@ -13,7 +13,8 @@ class WordCountTest extends FunSuite with SharedSparkContext {
     val stopWords: Set[String] = Set("a", "the", "in", "was", "there", "she", "he")
     val illegalTokens: Array[Char] = "#$%?!.".toCharArray
 
-    val wordCounts = WordCount.withStopWordsFiltered(wordRDD, illegalTokens, stopWords)
+    val wordCounts = WordCount.withStopWordsFiltered(
+      wordRDD, illegalTokens, stopWords)
     val wordCountsAsMap = wordCounts.collectAsMap()
     assert(!wordCountsAsMap.contains("the"))
     assert(!wordCountsAsMap.contains("?"))

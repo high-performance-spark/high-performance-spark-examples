@@ -19,8 +19,8 @@ class GoldilocksMLlibSuite extends FunSuite with SharedSparkContext {
     RawPanda(3L, "94110", "giant", true, Array(0.0, 2.0)))
 
   test("boolean to double") {
-    assert(1.0 == GoldilocksMLlib.booleanToDouble(true))
-    assert(0.0 == GoldilocksMLlib.booleanToDouble(false))
+    assert(1.0 === GoldilocksMLlib.booleanToDouble(true))
+    assert(0.0 === GoldilocksMLlib.booleanToDouble(false))
   }
 
   test("encoding") {
