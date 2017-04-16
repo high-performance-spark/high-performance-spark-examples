@@ -16,9 +16,10 @@ public final class WordCount {
   public static void main(String[] args) throws Exception {
     JavaSparkContext jsc = new JavaSparkContext();
     JavaRDD<String> lines = jsc.textFile(args[0]);
-    JavaRDD<String> words = lines.flatMap(e -> Arrays.asList(pattern.split(e)).iterator());
+    JavaRDD<String> words = lines.flatMap(e -> Arrays.asList(
+                                            pattern.split(e)).iterator());
     JavaPairRDD<String, Integer> wordsIntial = words.mapToPair(
-      e -> new Tuple2<String, Integer>(e, 1));                                                         
+      e -> new Tuple2<String, Integer>(e, 1));
   }
 }
 //end::wordCount[]

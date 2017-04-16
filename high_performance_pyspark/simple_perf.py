@@ -40,16 +40,19 @@ def generate_scale_data(sqlCtx, rows, numCols):
     scalasc = jsc.sc()
     gateway = sc._gateway
     # Call a java method that gives us back an RDD of JVM Rows (Int, Double)
-    # While Python RDDs are wrapped Java RDDs (even of Rows) the contents are different, so we
-    # can't directly wrap this.
+    # While Python RDDs are wrapped Java RDDs (even of Rows) the contents are
+    # different, so we can't directly wrap this.
     # This returns a Java RDD of Rows - normally it would better to
-    # return a DataFrame directly, but for illustration we will work with an RDD
-    # of Rows.
-    java_rdd = gateway.jvm.com.highperformancespark.examples.tools.GenerateScalingData. \
-               generateMiniScaleRows(scalasc, rows, numCols)
+    # return a DataFrame directly, but for illustration we will work
+    # with an RDD of Rows.
+    java_rdd = (gateway.jvm.com.highperformancespark.examples.
+                tools.GenerateScalingData.
+                generateMiniScaleRows(scalasc, rows, numCols))
     # Schemas are serialized to JSON and sent back and forth
     # Construct a Python Schema and turn it into a Java Schema
-    schema = StructType([StructField("zip", IntegerType()), StructField("fuzzyness", DoubleType())])
+    schema = StructType([
+        StructField("zip", IntegerType()),
+        StructField("fuzzyness", DoubleType())])
     # 2.1 / pre-2.1
     try:
         jschema = javaSqlCtx.parseDataType(schema.json())

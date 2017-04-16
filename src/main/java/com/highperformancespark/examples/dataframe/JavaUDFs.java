@@ -10,7 +10,9 @@ public class JavaUDFs {
 
   public static void setupUDFs(SQLContext sqlContext) {
     //tag::basicUDF[]
-    sqlContext.udf().register("strlen", (String s) -> s.length(), DataTypes.StringType);
+    sqlContext.udf()
+      .register("strlen",
+                (String s) -> s.length(), DataTypes.StringType);
     //end::basicUDF[]
   }
 
