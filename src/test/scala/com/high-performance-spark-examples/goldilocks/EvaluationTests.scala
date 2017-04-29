@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class EvaluationTests extends FunSuite with SharedSparkContext {
   val doubleList = Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0)
-  val keyValuePairs =  Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0).zipWithIndex
+  val keyValuePairs = Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0).zipWithIndex
   val path = "target/testResults"
 
   test("MapValues preserves Partitioning "){
@@ -28,7 +28,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     val b = Array(3, 4)
     val rddA = sc.parallelize(a)
     val rddB = sc.parallelize(b)
-    val rddC =  rddA.subtract(rddB)
+    val rddC = rddA.subtract(rddB)
     assert(rddC.count() < rddA.count() - rddB.count())
     // end::Subtract[]
   }
@@ -39,7 +39,7 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     val b = Array(3, 4)
     val rddA = sc.parallelize(a)
     val rddB = sc.parallelize(b)
-    val intersection =  rddA.intersection(rddB)
+    val intersection = rddA.intersection(rddB)
     val subtraction = rddA.subtract(rddB)
     val union = intersection.union(subtraction)
     assert(!rddA.collect().sorted.sameElements(union.collect().sorted))
