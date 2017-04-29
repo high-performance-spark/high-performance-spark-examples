@@ -5,18 +5,18 @@ from pyspark.sql.session import SparkSession
 
 global sc
 
-def nonExistantInput(sc):
+def nonExistentInput(sc):
     """
-    Attempt to load non existant input
-    >>> nonExistantInput(sc)
+    Attempt to load non existent input
+    >>> nonExistentInput(sc)
     Traceback (most recent call last):
         ...
     Py4JJavaError:...
     """
-    # tag::nonExistant[]
+    # tag::nonExistent[]
     failedRdd = sc.textFile("file:///doesnotexist")
     failedRdd.count()
-    # end::nonExistant[]
+    # end::nonExistent[]
 
 def throwOuter(sc):
     """
