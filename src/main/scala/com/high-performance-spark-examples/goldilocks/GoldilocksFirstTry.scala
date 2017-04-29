@@ -10,7 +10,7 @@ import scala.collection.{Map, mutable}
 object GoldilocksGroupByKey {
   //tag::groupByKey[]
   def findRankStatistics(
-    dataFrame: DataFrame ,
+    dataFrame: DataFrame,
     ranks: List[Long]): Map[Int, Iterable[Double]] = {
     require(ranks.forall(_ > 0))
     //Map to column index, value pairs
@@ -199,7 +199,7 @@ object GoldilocksFirstTry {
     def aggregateColumnFrequencies (partitionIndex : Int,
       valueColumnPairs : Iterator[(Double, Int)]) = {
       val columnsFreq : Array[Long] = valueColumnPairs.aggregate(zero)(
-        (a : Array[Long], v : (Double ,Int)) => {
+        (a : Array[Long], v : (Double, Int)) => {
           val (value, colIndex) = v
           //increment the cell in the zero array corresponding to this column index
           a(colIndex) = a(colIndex) + 1L
