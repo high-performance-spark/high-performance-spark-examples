@@ -45,7 +45,7 @@ object GoldilocksWithHashMap {
     val sortedAggregatedValueColumnPairs = aggregatedValueColumnPairs.sortByKey()
     sortedAggregatedValueColumnPairs.persist(StorageLevel.MEMORY_AND_DISK)
 
-    val numOfColumns =  dataFrame.schema.length
+    val numOfColumns = dataFrame.schema.length
     val partitionColumnsFreq =
       getColumnsFreqPerPartition(sortedAggregatedValueColumnPairs, numOfColumns)
     val ranksLocations  =
@@ -79,7 +79,7 @@ object GoldilocksWithHashMap {
   def getAggregatedValueColumnPairs(dataFrame: DataFrame):
       RDD[((Double, Int), Long)] = {
 
-    val aggregatedValueColumnRDD =  dataFrame.rdd.mapPartitions(rows => {
+    val aggregatedValueColumnRDD = dataFrame.rdd.mapPartitions(rows => {
       val valueColumnMap = new mutable.HashMap[(Double, Int), Long]()
       rows.foreach(row => {
         row.toSeq.zipWithIndex.foreach{ case (value, columnIndex) =>
@@ -312,7 +312,7 @@ object FindTargetsSubRoutine extends Serializable {
     // A HashMap with the running totals of each column index. As we loop through
     // the iterator. We will update the hashmap as we see elements of each
     // column index.
-      val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+      val runningTotals : mutable.HashMap[Int, Long]= new mutable.HashMap()
       runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
     //we use an array buffer to build the resulting iterator
@@ -327,7 +327,7 @@ object FindTargetsSubRoutine extends Serializable {
             val total = runningTotals(colIndex)
             //the ranks that are contains by this element of the input iterator.
             //get by filtering the
-            val ranksPresent =  columnsRelativeIndex(colIndex)
+            val ranksPresent = columnsRelativeIndex(colIndex)
               .filter(index => (index <= count + total) && (index > total))
             ranksPresent.foreach(r => result += ((colIndex, value)))
             //update the running totals.
@@ -352,11 +352,11 @@ object FindTargetsSubRoutine extends Serializable {
     val columnsRelativeIndex = targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
     val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 
-    val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()
+    val runningTotals : mutable.HashMap[Int, Long]= new mutable.HashMap()
      runningTotals ++= columnsInThisPart.map(columnIndex => (columnIndex, 0L)).toMap
 
     //filter out the pairs that don't have a column index that is in this part
-    val pairsWithRanksInThisPart =  valueColumnPairsIter.filter{
+    val pairsWithRanksInThisPart = valueColumnPairsIter.filter{
       case (((value, colIndex), count)) =>
         columnsInThisPart contains colIndex
      }
