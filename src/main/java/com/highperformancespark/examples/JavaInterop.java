@@ -16,7 +16,8 @@ import static org.apache.spark.sql.functions.*;
 public class JavaInterop {
 
   //tag::realClassTag[]
-  public static JavaPairRDD wrapPairRDD(RDD<Tuple2<String, Object>> rdd) {
+  public static JavaPairRDD wrapPairRDD(
+    RDD<Tuple2<String, Object>> rdd) {
     // Construct the class tags
     ClassTag<String> strCt = ClassTag$.MODULE$.apply(String.class);
     ClassTag<Long> longCt = ClassTag$.MODULE$.apply(scala.Long.class);
@@ -25,10 +26,11 @@ public class JavaInterop {
   //end::realClassTag[]
 
   //tag::fakeClassTag[]
-  public static JavaPairRDD wrapPairRDDFakeCt(RDD<Tuple2<String, Object>> rdd) {
-    // Construct the class tags by casting AnyRef - this would be more commonly done with
-    // generic or templated code where we can't explicitly construct the correct class tag
-    // as using fake class tags may result in degraded performance.
+  public static JavaPairRDD wrapPairRDDFakeCt(
+    RDD<Tuple2<String, Object>> rdd) {
+    // Construct the class tags by casting AnyRef - this would be more commonly done
+    // with generic or templated code where we can't explicitly construct the correct
+    // class tag as using fake class tags may result in degraded performance.
     ClassTag<Object> fake = ClassTag$.MODULE$.AnyRef();
     return new JavaPairRDD(rdd, fake, fake);
   }

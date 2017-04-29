@@ -1,4 +1,3 @@
-
 package com.highperformancespark.examples.transformations
 
 import org.apache.spark.rdd.RDD
@@ -26,7 +25,7 @@ object NarrowAndWide {
   def simpleSparkProgram(rdd : RDD[Double]): Long ={
   //stage1
     rdd.filter(_< 1000.0)
-      .map(x => (x , x) )
+      .map(x => (x, x) )
   //stage2
       .groupByKey()
       .map{ case(value, groups) => (groups.sum, value)}
