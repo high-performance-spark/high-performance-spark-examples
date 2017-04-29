@@ -67,7 +67,7 @@ object DataCreationUtils {
 
     val cols = Range(0,numberCols).toArray
     val scalers = cols.map(x => 1.0)
-    val rowRange =  Range(0, numberOfRows)
+    val rowRange = Range(0, numberOfRows)
     val columnArray: Array[IndexedSeq[Double]] = cols.map(
       columnIndex => {
         val columnValues = rowRange.map(
