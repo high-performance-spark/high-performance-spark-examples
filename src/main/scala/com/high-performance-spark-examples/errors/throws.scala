@@ -52,12 +52,12 @@ object Throws {
   }
   //end::badEx3
 
-  def nonExistantInput(sc: SparkContext) = {
-    //tag::nonExistantInput[]
+  def nonExistentInput(sc: SparkContext) = {
+    //tag::nonExistentInput[]
     val input = sc.textFile("file:///doesnotexist.txt")
     val data = input.map(x => x.toInt)
     val transform = data.map(x => x + 1)
     transform.collect() // Forces evaluation
-    //end::nonExistantInput[]
+    //end::nonExistentInput[]
   }
 }
