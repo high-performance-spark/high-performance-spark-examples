@@ -123,8 +123,7 @@ class SimpleIndexer(override val uid: String)
     val words = dataset.select(dataset($(inputCol)).as[String]).distinct
       .collect()
     val model = new SimpleIndexerModel(uid, words)
-    model.set(inputCol, $(inputCol))
-    model.set(outputCol, $(outputCol))
+    this.copyValues(model)
     model
   }
 }
