@@ -77,9 +77,9 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
 
     // tag::TwoActions[]
     val sorted = rddA.sortByKey()
-    val count = sorted.count()
+    val count = sorted.count() // sorted Action 1
     val sample: Long = count / 10
-    sorted.take(sample.toInt)
+    val sampled = sorted.take(sample.toInt) // sorted Action 2
     // end::TwoActions[]
   }
 
@@ -87,10 +87,10 @@ class EvaluationTests extends FunSuite with SharedSparkContext {
     val rddA: RDD[(Double, Int)] = sc.parallelize(keyValuePairs)
     // tag::TwoActionsCache[]
     val sorted = rddA.sortByKey()
-    val count = sorted.count()
+    sorted.persist()
+    val count = sorted.count() // sorted Action 1
     val sample: Long = count / 10
-    rddA.persist()
-    sorted.take(sample.toInt)
+    val sampled = sorted.take(sample.toInt) // sorted Action 2
     // end::TwoActionsCache[]
   }
 
