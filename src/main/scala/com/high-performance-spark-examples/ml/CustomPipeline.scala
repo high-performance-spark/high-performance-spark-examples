@@ -122,7 +122,9 @@ class SimpleIndexer(override val uid: String)
     import dataset.sparkSession.implicits._
     val words = dataset.select(dataset($(inputCol)).as[String]).distinct
       .collect()
-    new SimpleIndexerModel(uid, words)
+    val model = new SimpleIndexerModel(uid, words)
+    this.copyValues(model)
+    model
   }
 }
 
