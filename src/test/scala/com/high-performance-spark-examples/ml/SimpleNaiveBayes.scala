@@ -41,5 +41,6 @@ class SimpleNaiveBayesSuite extends FunSuite with DataFrameSuiteBase {
     assert(predicted.count() === miniPandasList.size)
     val nbModel = model.stages(1).asInstanceOf[SimpleNaiveBayesModel]
     assert(nbModel.getFeaturesCol === "magical_features")
+    assert(nbModel.copy().getFeaturesCol === "magical_features")
   }
 }
