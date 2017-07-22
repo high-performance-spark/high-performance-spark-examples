@@ -126,7 +126,6 @@ class SimpleIndexer(override val uid: String)
     val model = new SimpleIndexerModel(uid, words)
     // Copy the parameters to the model
     copyValues(model)
-    model
   }
 }
 
