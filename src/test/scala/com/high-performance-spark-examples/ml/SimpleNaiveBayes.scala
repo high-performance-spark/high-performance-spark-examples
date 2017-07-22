@@ -30,14 +30,16 @@ class SimpleNaiveBayesSuite extends FunSuite with DataFrameSuiteBase {
     val ds: Dataset[MiniPanda] = session.createDataset(miniPandasList)
     val assembler = new VectorAssembler()
     assembler.setInputCols(Array("fuzzy", "old"))
-    assembler.setOutputCol("features")
+    assembler.setOutputCol("magical_features")
     val snb = new SimpleNaiveBayes()
     snb.setLabelCol("happy")
-    snb.setFeaturesCol("features")
+    snb.setFeaturesCol("magical_features")
     val pipeline = new Pipeline().setStages(Array(assembler, snb))
     val model = pipeline.fit(ds)
     val test = ds.select("fuzzy", "old")
     val predicted = model.transform(test)
-    println(predicted.collect())
+    assert(predicted.count() === miniPandasList.size)
+    val nbModel = model.stages(1).asInstanceOf[SimpleNaiveBayesModel]
+    assert(nbModel.getFeaturesCol === "magical_features")
   }
 }
