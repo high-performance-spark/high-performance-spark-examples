@@ -89,7 +89,7 @@ class SimpleNaiveBayes(val uid: String)
     copyValues(model)
   }
 
-  override def copy(extra: ParamMap) = {
+  override def copy(extra: ParamMap): SimpleNaiveBayes = {
     defaultCopy(extra)
   }
 }
@@ -103,7 +103,7 @@ case class SimpleNaiveBayesModel(
   val theta: DenseMatrix) extends
     ClassificationModel[Vector, SimpleNaiveBayesModel] {
 
-  override def copy(extra: ParamMap) = {
+  override def copy(extra: ParamMap): SimpleNaiveBayesModel = {
     defaultCopy(extra)
   }
 

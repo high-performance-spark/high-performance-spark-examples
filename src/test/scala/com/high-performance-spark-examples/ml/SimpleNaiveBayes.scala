@@ -9,6 +9,7 @@ import com.holdenkarau.spark.testing._
 
 import org.apache.spark.ml._
 import org.apache.spark.ml.feature._
+import org.apache.spark.ml.param._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SQLContext}
 import org.scalatest.Matchers._
@@ -41,6 +42,6 @@ class SimpleNaiveBayesSuite extends FunSuite with DataFrameSuiteBase {
     assert(predicted.count() === miniPandasList.size)
     val nbModel = model.stages(1).asInstanceOf[SimpleNaiveBayesModel]
     assert(nbModel.getFeaturesCol === "magical_features")
-    assert(nbModel.copy().getFeaturesCol === "magical_features")
+    assert(nbModel.copy(ParamMap.empty).getFeaturesCol === "magical_features")
   }
 }
