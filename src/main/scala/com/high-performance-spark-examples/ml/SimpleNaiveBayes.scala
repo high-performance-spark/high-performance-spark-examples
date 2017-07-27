@@ -82,11 +82,14 @@ class SimpleNaiveBayes(val uid: String)
     // Unpersist now that we are done computing everything
     ds.unpersist()
     // Construct a model
-    new SimpleNaiveBayesModel(uid, numClasses, numFeatures, Vectors.dense(pi),
+    val model = new SimpleNaiveBayesModel(
+      uid, numClasses, numFeatures, Vectors.dense(pi),
       new DenseMatrix(numClasses, theta(0).length, theta.flatten, true))
+    // Copy the params values to the model
+    copyValues(model)
   }
 
-  override def copy(extra: ParamMap) = {
+  override def copy(extra: ParamMap): SimpleNaiveBayes = {
     defaultCopy(extra)
   }
 }
@@ -100,8 +103,9 @@ case class SimpleNaiveBayesModel(
   val theta: DenseMatrix) extends
     ClassificationModel[Vector, SimpleNaiveBayesModel] {
 
-  override def copy(extra: ParamMap) = {
-    defaultCopy(extra)
+  override def copy(extra: ParamMap): SimpleNaiveBayesModel = {
+    val copied = new SimpleNaiveBayesModel(uid, numClasses, numFeatures, pi, theta)
+    copyValues(copied, extra).setParent(parent)
   }
 
   // We have to do some tricks here because we are using Spark's
