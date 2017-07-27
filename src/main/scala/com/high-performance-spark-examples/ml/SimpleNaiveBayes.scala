@@ -104,7 +104,8 @@ case class SimpleNaiveBayesModel(
     ClassificationModel[Vector, SimpleNaiveBayesModel] {
 
   override def copy(extra: ParamMap): SimpleNaiveBayesModel = {
-    defaultCopy(extra)
+    val copied = new SimpleNaiveBayesModel(uid, numClasses, numFeatures, pi, theta)
+    copyValues(copied, extra).setParent(parent)
   }
 
   // We have to do some tricks here because we are using Spark's
