@@ -108,11 +108,11 @@ object RDDJoinExamples {
  V2 : ClassTag](bigRDD : RDD[(K, V1)],
   smallRDD : RDD[(K, V2)])= {
   val smallRDDLocal: Map[K, V2] = smallRDD.collectAsMap()
-  bigRDD.sparkContext.broadcast(smallRDDLocal)
+  val smallRDDLocalBcast = bigRDD.sparkContext.broadcast(smallRDDLocal)
   bigRDD.mapPartitions(iter => {
    iter.flatMap{
     case (k,v1 ) =>
-     smallRDDLocal.get(k) match {
+     smallRDDLocalBcast.value.get(k) match {
       case None => Seq.empty[(K, (V1, V2))]
       case Some(v2) => Seq((k, (v1, v2)))
      }
