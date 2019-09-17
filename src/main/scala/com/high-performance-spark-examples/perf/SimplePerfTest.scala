@@ -28,6 +28,7 @@ import org.apache.spark.sql.types._
  * A simple performance test to compare a simple sort between DataFrame, and RDD
  */
 object SimplePerfTest {
+  // $COVERAGE-OFF$
   def main(args: Array[String]) = {
     val sparkConf = new SparkConf().setAppName("simple-perf-test")
     val sparkSession = SparkSession.builder().enableHiveSupport().getOrCreate()
@@ -81,4 +82,5 @@ object SimplePerfTest {
     println(s"Time ${t1 - t0}ns")
     (result, t1 - t0)
   }
+  // $COVERAGE-ON$
 }

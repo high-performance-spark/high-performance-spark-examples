@@ -22,4 +22,42 @@ class WordCountTest extends FunSuite with SharedSparkContext {
     assert(wordCountsAsMap.contains("ing"))
     assert(wordCountsAsMap.get("panda").get.equals(3))
   }
+
+  test("word count with simple counting") {
+    val wordRDD = sc.parallelize(
+      Seq(
+        "a b c d",
+        "b c d e"
+      )
+    )
+    val wordCounts = WordCount.simpleWordCount(wordRDD)
+
+    val wordCountsAsMap = wordCounts.collectAsMap()
+
+    for (character <- 'a' to 'e') {
+      assert(wordCountsAsMap.contains(character.toString))
+    }
+    for (character <- 'b' to 'd') {
+      assert(wordCountsAsMap.get(character.toString).get == 2)
+    }
+  }
+
+  test("word count with bad idea") {
+    val wordRDD = sc.parallelize(
+      Seq(
+        "a b c d",
+        "b c d e"
+      )
+    )
+    val wordCounts = WordCount.badIdea(wordRDD)
+
+    val wordCountsAsMap = wordCounts.collectAsMap()
+
+    for (character <- 'a' to 'e') {
+      assert(wordCountsAsMap.contains(character.toString))
+    }
+    for (character <- 'b' to 'd') {
+      assert(wordCountsAsMap.get(character.toString).get == 2)
+    }
+  }
 }
