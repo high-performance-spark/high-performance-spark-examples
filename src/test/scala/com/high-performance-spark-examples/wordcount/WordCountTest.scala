@@ -26,7 +26,7 @@ class WordCountTest extends FunSuite with SharedSparkContext {
   test("word count with simple counting") {
     val wordRDD = sc.parallelize(
       Seq(
-        "a b c d", 
+        "a b c d",
         "b c d e"
       )
     )
@@ -37,7 +37,6 @@ class WordCountTest extends FunSuite with SharedSparkContext {
     for (character <- 'a' to 'e') {
       assert(wordCountsAsMap.contains(character.toString))
     }
-    
     for (character <- 'b' to 'd') {
       assert(wordCountsAsMap.get(character.toString).get == 2)
     }
@@ -46,7 +45,7 @@ class WordCountTest extends FunSuite with SharedSparkContext {
   test("word count with bad idea") {
     val wordRDD = sc.parallelize(
       Seq(
-        "a b c d", 
+        "a b c d",
         "b c d e"
       )
     )
@@ -57,7 +56,6 @@ class WordCountTest extends FunSuite with SharedSparkContext {
     for (character <- 'a' to 'e') {
       assert(wordCountsAsMap.contains(character.toString))
     }
-    
     for (character <- 'b' to 'd') {
       assert(wordCountsAsMap.get(character.toString).get == 2)
     }

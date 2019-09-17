@@ -14,7 +14,10 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.Random
 
-class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase with DatasetSuiteBase with RDDComparisons {
+class MixedDatasetSuite extends FunSuite
+  with DataFrameSuiteBase
+  with DatasetSuiteBase
+  with RDDComparisons {
 
   val rawPandaList = List(
     RawPanda(10L, "94110", "giant", true, Array(1.0, 0.9, 20.0)),
@@ -97,7 +100,10 @@ class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase with DatasetSui
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
     val pandaDS = sqlCtx.createDataFrame(rawPandaList).as[RawPanda]
-    val rawCoffeeShop = List(CoffeeShop("94110", "Starbucks"), CoffeeShop("98765", "Caribou"))
+    val rawCoffeeShop = List(
+      CoffeeShop("94110", "Starbucks"),
+      CoffeeShop("98765", "Caribou")
+    )
     val coffeeShopDS = sqlCtx.createDataFrame(rawCoffeeShop).as[CoffeeShop]
     val mixedDS = new MixedDataset(sqlCtx)
     val joinResult = mixedDS.joinSample(pandaDS, coffeeShopDS)
@@ -118,7 +124,7 @@ class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase with DatasetSui
     val selfJoinResult = mixedDS.selfJoin(inputDS)
     val expected = for {
       left <- rawPandaList
-      right <- rawPandaList 
+      right <- rawPandaList
       if (left.zip == right.zip)
     } yield (left, right)
     assert(selfJoinResult.collect().toSet == expected.toSet)
@@ -138,7 +144,7 @@ class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase with DatasetSui
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
     val mixedDS = new MixedDataset(sqlCtx)
-    val rdd = sc.parallelize(rawPandaList)  
+    val rdd = sc.parallelize(rawPandaList)
     val dataset = sqlCtx.createDataFrame(rawPandaList).as[RawPanda]
     val result = mixedDS.toRDD(dataset)
     val expected = sc.parallelize(rawPandaList)
@@ -149,7 +155,7 @@ class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase with DatasetSui
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
     val mixedDS = new MixedDataset(sqlCtx)
-    val rdd = sc.parallelize(rawPandaList)  
+    val rdd = sc.parallelize(rawPandaList)
     val dataset = sqlCtx.createDataFrame(rawPandaList).as[RawPanda]
     val result = mixedDS.toDF(dataset)
     val expected = sqlCtx.createDataFrame(rawPandaList)
@@ -161,8 +167,7 @@ class MixedDatasetSuite extends FunSuite with DataFrameSuiteBase with DatasetSui
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
     val mixedDS = new MixedDataset(sqlCtx)
-    val rdd = sc.parallelize(rawPandaList)  
-    val dataframe =  sqlCtx.createDataFrame(rawPandaList)
+    val dataframe = sqlCtx.createDataFrame(rawPandaList)
     val result = mixedDS.fromDF(dataframe)
     val expected = sqlCtx.createDataFrame(rawPandaList).as[RawPanda]
     assertDatasetEquals(expected, result)
