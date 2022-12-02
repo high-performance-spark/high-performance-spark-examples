@@ -89,7 +89,7 @@ class MixedDataset(sqlCtx: SQLContext) {
       Dataset[(RawPanda, CoffeeShop)] = {
     //tag::joinWith[]
     val result: Dataset[(RawPanda, CoffeeShop)] = pandas.joinWith(coffeeShops,
-      $"zip" === $"zip")
+      pandas("zip") === coffeeShops("zip"))
     //end::joinWith[]
     result
   }
@@ -100,8 +100,8 @@ class MixedDataset(sqlCtx: SQLContext) {
   def selfJoin(pandas: Dataset[RawPanda]):
       Dataset[(RawPanda, RawPanda)] = {
     //tag::selfJoin[]
-    val result: Dataset[(RawPanda, RawPanda)] = pandas.joinWith(pandas,
-      $"zip" === $"zip")
+    val result: Dataset[(RawPanda, RawPanda)] = pandas.as("l").joinWith(pandas.as("r"),
+      $"l.zip" === $"r.zip")
     //end::selfJoin[]
     result
   }
