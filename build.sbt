@@ -2,7 +2,7 @@ organization := "com.highperformancespark"
 
 //tag::addSparkScalaFix[]
 ThisBuild / scalafixDependencies +=
-  "com.holdenkarau" %% "spark-scalafix-rules-2.4.8" % "0.1.4"
+  "com.holdenkarau" %% "spark-scalafix-rules-2.4.8" % "0.1.5"
 ThisBuild / scalafixDependencies +=
   "com.github.liancheng" %% "organize-imports" % "0.6.0"
 //end::addSparkScalaFix[]
