@@ -4,9 +4,7 @@
 package com.highperformancespark.examples.tools
 
 import com.highperformancespark.examples.dataframe.RawPanda
-
 import com.holdenkarau.spark.testing._
-
 import org.scalatest.FunSuite
 
 class FilterInvalidPandasSuite extends FunSuite with SharedSparkContext {

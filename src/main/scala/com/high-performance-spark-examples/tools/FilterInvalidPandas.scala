@@ -2,12 +2,10 @@ package com.highperformancespark.examples.tools
 
 import scala.collection.immutable.HashSet
 
-import com.highperformancespark.examples.dataframe.RawPanda
-
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
 
-//tag::loggerImport[]
+import com.highperformancespark.examples.dataframe.RawPanda
 import com.typesafe.scalalogging.LazyLogging
 //end::loggerImport[]
 

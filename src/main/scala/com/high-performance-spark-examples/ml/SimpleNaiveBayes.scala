@@ -1,22 +1,23 @@
 package com.highperformancespark.examples.ml
 
-import com.highperformancespark.examples.dataframe._
-
-import scala.collection.{Map, mutable}
-import scala.collection.mutable.{ArrayBuffer, MutableList}
+import scala.collection.Map
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.MutableList
 
 import org.apache.spark._
+import org.apache.spark.ml._
+import org.apache.spark.ml.classification._
+import org.apache.spark.ml.linalg._
+import org.apache.spark.ml.param._
+import org.apache.spark.ml.util.Identifiable
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-import org.apache.spark.ml._
-import org.apache.spark.ml.classification._
-import org.apache.spark.ml.linalg._
-//tag::extraImports[]
-import org.apache.spark.ml.param._
-import org.apache.spark.ml.util.Identifiable
+
+import com.highperformancespark.examples.dataframe._
 //end::extraImports[]
 
 case class LabeledToken(label: Double, index: Integer)

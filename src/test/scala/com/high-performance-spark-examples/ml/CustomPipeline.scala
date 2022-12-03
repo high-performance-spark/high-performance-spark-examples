@@ -3,8 +3,9 @@
   */
 package com.highperformancespark.examples.ml
 
-import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import org.apache.spark.sql.Dataset
+
+import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import org.scalatest.FunSuite
 
 case class TestRow(id: Int, inputColumn: String)

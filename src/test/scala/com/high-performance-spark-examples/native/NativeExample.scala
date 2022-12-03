@@ -4,11 +4,12 @@
 package com.highperformancespark.examples.ffi
 
 import com.holdenkarau.spark.testing._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import org.scalatest.FunSuite
-import org.scalatest.prop.Checkers
 import org.scalatest.Matchers._
+import org.scalatest.prop.Checkers
 
 class NativeExampleSuite extends FunSuite
     with SharedSparkContext with Checkers with RDDComparisons {

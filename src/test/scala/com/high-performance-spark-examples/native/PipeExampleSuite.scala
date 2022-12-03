@@ -5,8 +5,8 @@ package com.highperformancespark.examples.ffi
 
 import com.holdenkarau.spark.testing._
 import org.scalatest.FunSuite
-import org.scalatest.prop.Checkers
 import org.scalatest.Matchers._
+import org.scalatest.prop.Checkers
 
 
 class PipeExampleSuite extends FunSuite with SharedSparkContext with Checkers {

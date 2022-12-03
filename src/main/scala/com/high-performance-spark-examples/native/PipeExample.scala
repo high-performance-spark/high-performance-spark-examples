@@ -16,8 +16,9 @@
  */
 package com.highperformancespark.examples.ffi
 
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkFiles
 import org.apache.spark.rdd._
-import org.apache.spark.{SparkContext, SparkFiles}
 
 object PipeExample {
   //tag::pipeExample[]

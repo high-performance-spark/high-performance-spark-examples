@@ -3,16 +3,20 @@
  */
 package com.highperformancespark.examples.dataframe
 
-import com.highperformancespark.examples.dataframe.HappyPandas.{PandaInfo, Pandas}
-import com.holdenkarau.spark.testing._
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.scalatest.Matchers._
-import org.scalatest.FunSuite
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.Random
+
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.types._
+
+import com.highperformancespark.examples.dataframe.HappyPandas.PandaInfo
+import com.highperformancespark.examples.dataframe.HappyPandas.Pandas
+import com.holdenkarau.spark.testing._
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 
 class MixedDatasetSuite extends FunSuite
   with DataFrameSuiteBase

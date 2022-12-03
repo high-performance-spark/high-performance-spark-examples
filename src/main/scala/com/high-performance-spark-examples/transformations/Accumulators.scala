@@ -9,8 +9,8 @@ import java.{lang => jl}
 import scala.collection.mutable.HashSet
 
 import org.apache.spark._
-import org.apache.spark.util.AccumulatorV2
 import org.apache.spark.rdd._
+import org.apache.spark.util.AccumulatorV2
 
 import com.highperformancespark.examples.dataframe.RawPanda
 object Accumulators {

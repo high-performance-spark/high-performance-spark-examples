@@ -3,11 +3,11 @@
  */
 package com.highperformancespark.examples.tokenize
 
+import java.lang.Thread
+
 import org.apache.spark.streaming._
 
-import java.lang.Thread
 import com.holdenkarau.spark.testing._
-
 import org.scalatest.FunSuite
 
 class SampleTokenizeSuite extends FunSuite with SharedSparkContext {

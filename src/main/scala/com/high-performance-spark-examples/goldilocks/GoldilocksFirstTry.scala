@@ -1,11 +1,13 @@
 package com.highperformancespark.examples.goldilocks
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
-import org.apache.spark.storage.StorageLevel
-
+import scala.collection.Map
+import scala.collection.mutable
 import scala.collection.mutable.MutableList
-import scala.collection.{Map, mutable}
+
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Row
+import org.apache.spark.storage.StorageLevel
 
 object GoldilocksGroupByKey {
   //tag::groupByKey[]

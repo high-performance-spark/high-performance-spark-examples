@@ -16,13 +16,17 @@
  */
 package com.highperformancespark.examples.perf
 
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types._
+
 import com.highperformancespark.examples.dataframe.RawPanda
 import com.highperformancespark.examples.tools._
-
-import org.apache.spark.rdd._
-import org.apache.spark.{SparkContext, SparkConf}
-import org.apache.spark.sql.{SparkSession, DataFrame, Dataset, Row}
-import org.apache.spark.sql.types._
 
 /**
  * A simple performance test to compare a simple sort between DataFrame, and RDD
