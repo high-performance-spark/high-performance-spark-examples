@@ -4,12 +4,15 @@
  */
 package com.highperformancespark.examples.transformations
 
-import com.highperformancespark.examples.dataframe.RawPanda
-
-import org.apache.spark._
-import org.apache.spark.rdd._
+import java.{lang => jl}
 
 import scala.collection.mutable.HashSet
+
+import org.apache.spark._
+import org.apache.spark.util.AccumulatorV2
+import org.apache.spark.rdd._
+
+import com.highperformancespark.examples.dataframe.RawPanda
 object Accumulators {
   /**
    * Compute the total fuzzyness with an accumulator while generating
@@ -19,8 +22,8 @@ object Accumulators {
   def computeTotalFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]):
       (RDD[(String, Long)], Double) = {
     // Create an accumulator with the initial value of 0.0
-    val acc = sc.accumulator(0.0)
-    val transformed = rdd.map{x => acc += x.attributes(0); (x.zip, x.id)}
+    val acc = sc.doubleAccumulator
+    val transformed = rdd.map{x => acc.add(x.attributes(0)); (x.zip, x.id)}
     // accumulator still has zero value
     // Note: This example is dangerous since the transformation may be
     // evaluated multiple times.
@@ -36,15 +39,43 @@ object Accumulators {
   //tag::maxFuzzyAcc[]
   def computeMaxFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]):
       (RDD[(String, Long)], Double) = {
-    object MaxDoubleParam extends AccumulatorParam[Double] {
-      override def zero(initValue: Double) = initValue
-      override def addInPlace(r1: Double, r2: Double): Double = {
-        Math.max(r1, r2)
+    class MaxDoubleParam extends AccumulatorV2[jl.Double, jl.Double] {
+      var _value = Double.MinValue
+      override def isZero(): Boolean = {
+        _value == Double.MinValue
       }
+      override def reset() = {
+        _value = Double.MinValue
+      }
+
+      override def add(r1: jl.Double): Unit = {
+        _value = Math.max(r1, _value)
+      }
+
+      def add(r1: Double): Unit = {
+        _value = Math.max(r1, _value)
+      }
+
+      def copy(): MaxDoubleParam = {
+        val newAcc = new MaxDoubleParam()
+        newAcc._value = _value
+        newAcc
+      }
+
+      override def merge(other: AccumulatorV2[jl.Double, jl.Double]): Unit = other match {
+        case o: MaxDoubleParam =>
+          _value = Math.max(_value, o._value)
+        case _ =>
+          throw new UnsupportedOperationException(
+            s"Cannot merge ${this.getClass.getName} with ${other.getClass.getName}")
+      }
+
+      override def value: jl.Double = _value
     }
     // Create an accumulator with the initial value of Double.MinValue
-    val acc = sc.accumulator(Double.MinValue)(MaxDoubleParam)
-    val transformed = rdd.map{x => acc += x.attributes(0); (x.zip, x.id)}
+    val acc = new MaxDoubleParam()
+    sc.register(acc)
+    val transformed = rdd.map{x => acc.add(x.attributes(0)); (x.zip, x.id)}
     // accumulator still has Double.MinValue
     // Note: This example is dangerous since the transformation may be
     // evaluated multiple times.
