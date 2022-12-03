@@ -3,12 +3,11 @@
  */
 package com.highperformancespark.examples.transformations
 
-import com.highperformancespark.examples.dataframe.RawPanda
-
-import com.holdenkarau.spark.testing._
-
-import org.scalatest.FunSuite
 import scala.collection.immutable.HashSet
+
+import com.highperformancespark.examples.dataframe.RawPanda
+import com.holdenkarau.spark.testing._
+import org.scalatest.FunSuite
 
 class AccumulatorsTest extends FunSuite with SharedSparkContext {
   test("accumulator max should function") {

@@ -6,15 +6,13 @@
  */
 package com.highperformancespark.examples.transformations
 
-import com.highperformancespark.examples.dataframe.RawPanda
+import scala.collection.mutable.HashSet
 
 import org.apache.spark._
-//tag::import[]
-import org.apache.spark.util.AccumulatorV2
-//end::import[]
 import org.apache.spark.rdd._
+import org.apache.spark.util.AccumulatorV2
 
-import scala.collection.mutable.HashSet
+import com.highperformancespark.examples.dataframe.RawPanda
 object NewAccumulators {
   /**
    * Compute the total fuzzyness with an accumulator while generating
