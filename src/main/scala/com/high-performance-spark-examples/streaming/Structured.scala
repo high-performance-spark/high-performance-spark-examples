@@ -5,6 +5,7 @@ import scala.concurrent.duration._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming._
+import org.apache.spark.sql.streaming.Trigger
 
 
 object Structured {
@@ -21,7 +22,7 @@ object Structured {
       // Write out the result as parquet
       format("parquet").
       // Specify the interval at which new data will be picked up
-      trigger(ProcessingTime(1.second)).
+      trigger(Trigger.ProcessingTime(1.second)).
       queryName("pandas").start()
     //end::writeComplete[]
   }
