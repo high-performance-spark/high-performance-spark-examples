@@ -1,22 +1,23 @@
-addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.8.0")
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
 resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 
-//tag::addSparkPackagesPlugin[]
-resolvers += "Spark Package Main Repo" at "https://dl.bintray.com/spark-packages/maven"
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
-addSbtPlugin("org.spark-packages" % "sbt-spark-package" % "0.2.5")
-//end::addSparkPackagesPlugin[]
+addDependencyTreePlugin
 
-//addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
-
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
 
 //tag::sbtJNIPlugin[]
-addSbtPlugin("ch.jodersky" %% "sbt-jni" % "1.0.0-RC3")
+addSbtPlugin("com.github.sbt" %% "sbt-jni" % "1.5.4")
 //end::sbtJNIPlugin[]
 
-addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.8.0")
+//tag::xmlVersionConflict[]
+// See https://github.com/scala/bug/issues/12632
+ThisBuild / libraryDependencySchemes ++= Seq(
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+)
+//end::xmlVersionConflict[]
