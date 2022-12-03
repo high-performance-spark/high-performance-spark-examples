@@ -7,9 +7,9 @@ import scala.collection.immutable.HashSet
 
 import com.highperformancespark.examples.dataframe.RawPanda
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class AccumulatorsTest extends FunSuite with SharedSparkContext {
+class AccumulatorsTest extends AnyFunSuite with SharedSparkContext {
   test("accumulator max should function") {
     val input = sc.parallelize(1.to(100)).map(x =>
       RawPanda(1L, "1", "red", true, Array(x.toDouble)))

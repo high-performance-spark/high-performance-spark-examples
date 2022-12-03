@@ -5,9 +5,9 @@ package com.highperformancespark.examples.tools
 
 import com.highperformancespark.examples.dataframe.RawPanda
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class FilterInvalidPandasSuite extends FunSuite with SharedSparkContext {
+class FilterInvalidPandasSuite extends AnyFunSuite with SharedSparkContext {
   test("simple filter") {
     val invalidPandas = List(1L, 2L)
     val inputPandas = List(

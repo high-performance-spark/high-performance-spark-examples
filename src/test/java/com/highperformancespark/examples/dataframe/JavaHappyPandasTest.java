@@ -3,7 +3,7 @@ package com.highperformancespark.examples.dataframe;
 import com.highperformancespark.examples.objects.JavaPandaInfo;
 import com.highperformancespark.examples.objects.JavaPandas;
 import com.highperformancespark.examples.objects.JavaRawPanda;
-import com.holdenkarau.spark.testing.JavaDataFrameSuiteBase;
+//import com.holdenkarau.spark.testing.JavaDataFrameSuiteBase;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -16,6 +16,8 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+// Temporarily disable until we upgrade to Spark 3.3
+/*
 public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
   String toronto = "toronto";
   String sandiego = "san diego";
@@ -149,3 +151,4 @@ public class JavaHappyPandasTest extends JavaDataFrameSuiteBase {
   }
 
 }
+*/

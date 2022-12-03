@@ -10,9 +10,9 @@ import java.lang.Thread
 import org.apache.spark.streaming._
 
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class DStreamExamplesSuite extends FunSuite with SharedSparkContext {
+class DStreamExamplesSuite extends AnyFunSuite with SharedSparkContext {
   test("simple set up") {
     val ssc = DStreamExamples.makeStreamingContext(sc)
     val inputStream = DStreamExamples.fileAPIExample(ssc, "./")

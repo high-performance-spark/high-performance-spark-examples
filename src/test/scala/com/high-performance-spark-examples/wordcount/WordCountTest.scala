@@ -2,9 +2,9 @@ package com.highperformancespark.examples.wordcount
 
 
 import com.holdenkarau.spark.testing.SharedSparkContext
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class WordCountTest extends FunSuite with SharedSparkContext {
+class WordCountTest extends AnyFunSuite with SharedSparkContext {
   test("word count with Stop Words Removed"){
     val wordRDD = sc.parallelize(Seq(
       "How happy was the panda? You ask.",

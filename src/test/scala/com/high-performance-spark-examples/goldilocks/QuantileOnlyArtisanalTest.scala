@@ -5,11 +5,12 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLContext
 
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.apache.spark.sql.SparkSession
 
 
 // tag::MAGIC_PANDA[]
-class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
+class QuantileOnlyArtisanalTest extends AnyFunSuite with BeforeAndAfterAll {
   @transient private var _sc: SparkContext = _
   def sc: SparkContext = _sc
 
@@ -34,7 +35,7 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
     3 -> Set(6.0, 7.0))
 
   test("Goldilocks naive Solution"){
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder.getOrCreate().sqlContext
     val input = sqlContext.createDataFrame(inputList)
     val whileLoopSolution = GoldilocksWhileLoop.findRankStatistics(
       input, List(2L, 3L)).mapValues(_.toSet)
@@ -59,7 +60,7 @@ class QuantileOnlyArtisanalTest extends FunSuite with BeforeAndAfterAll {
 // We don't need the rest of the tests included.
 class QuantileOnlyArtisanalTestContinued extends QuantileOnlyArtisanalTest {
   test("Goldilocks first try ") {
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder.getOrCreate().sqlContext
     val input = sqlContext.createDataFrame(inputList)
     val secondAndThird = GoldilocksFirstTry.findRankStatistics(
       input, targetRanks = List(2L, 3L))
@@ -115,7 +116,7 @@ class QuantileOnlyArtisanalTestContinued extends QuantileOnlyArtisanalTest {
 
 
   test("GoldiLocks With Hashmap ") {
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder.getOrCreate().sqlContext
     val input = sqlContext.createDataFrame(inputList)
     val secondAndThird = GoldilocksWithHashMap.findRankStatistics(
       input, targetRanks = List(2L, 3L))
@@ -130,7 +131,7 @@ class QuantileOnlyArtisanalTestContinued extends QuantileOnlyArtisanalTest {
   }
 
   test("Goldilocks Secondary Sort"){
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder.getOrCreate().sqlContext
     val input = sqlContext.createDataFrame(inputList)
     val secondarySortSolution =
       GoldilocksWithHashMap.findRankStatistics(
