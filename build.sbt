@@ -35,7 +35,7 @@ val sparkVersion = settingKey[String]("Spark version")
 val sparkTestingVersion = settingKey[String]("Spark testing base version without Spark version part")
 
 // 2.4.5 is the highest version we have with the old spark-testing-base deps
-sparkVersion := System.getProperty("sparkVersion", "2.4.8")
+sparkVersion := System.getProperty("sparkVersion", "3.3.0")
 sparkTestingVersion := "1.3.0"
 
 // additional libraries
