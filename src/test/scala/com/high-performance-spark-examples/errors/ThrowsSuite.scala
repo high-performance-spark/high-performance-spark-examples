@@ -1,9 +1,9 @@
 package com.highperformancespark.examples.errors
 
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ThrowsSuite extends FunSuite with SharedSparkContext {
+class ThrowsSuite extends AnyFunSuite with SharedSparkContext {
   test("inner throw & outer throw should both throw SparkExceptions exceptions") {
     intercept[org.apache.spark.SparkException] {
       Throws.throwInner(sc)

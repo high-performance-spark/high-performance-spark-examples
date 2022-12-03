@@ -7,9 +7,9 @@ import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 
 import com.highperformancespark.examples.dataframe.RawPanda
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class GoldilocksMLlibSuite extends FunSuite with SharedSparkContext {
+class GoldilocksMLlibSuite extends AnyFunSuite with SharedSparkContext {
   val rps = List(
     RawPanda(1L, "94110", "giant", true, Array(0.0, 0.0)),
     RawPanda(2L, "94110", "giant", false, Array(0.0, 3.0)),

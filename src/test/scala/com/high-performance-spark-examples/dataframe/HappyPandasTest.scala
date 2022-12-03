@@ -15,10 +15,10 @@ import org.apache.spark.sql.types._
 import com.highperformancespark.examples.dataframe.HappyPandas.PandaInfo
 import com.highperformancespark.examples.dataframe.HappyPandas.Pandas
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers._
 
-class HappyPandasTest extends FunSuite with DataFrameSuiteBase {
+class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
   val toronto = "toronto"
   val sandiego = "san diego"
   val virginia = "virginia"

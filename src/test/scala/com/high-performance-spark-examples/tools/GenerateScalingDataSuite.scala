@@ -5,9 +5,9 @@ package com.highperformancespark.examples.tools
 
 import com.highperformancespark.examples.dataframe.RawPanda
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class GeneratescalaingDataSuite extends FunSuite with SharedSparkContext {
+class GeneratescalaingDataSuite extends AnyFunSuite with SharedSparkContext {
   // The number of entries depends somewhat on the partition split because we
   // zip multiple separate RDDs so its more of a "request"
   test("expected num entries") {

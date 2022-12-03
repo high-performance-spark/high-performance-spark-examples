@@ -6,11 +6,11 @@ package com.highperformancespark.examples.ml
 import org.apache.spark.sql.Dataset
 
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 case class TestRow(id: Int, inputColumn: String)
 
-class CustomPipelineSuite extends FunSuite with DataFrameSuiteBase {
+class CustomPipelineSuite extends AnyFunSuite with DataFrameSuiteBase {
   val d = List(
     TestRow(0, "a"),
     TestRow(1, "b"),

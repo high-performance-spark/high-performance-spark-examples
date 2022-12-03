@@ -7,11 +7,11 @@ import com.holdenkarau.spark.testing._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import org.scalatest.FunSuite
-import org.scalatest.Matchers._
-import org.scalatest.prop.Checkers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers._
+import org.scalatestplus.scalacheck.Checkers
 
-class NativeExampleSuite extends FunSuite
+class NativeExampleSuite extends AnyFunSuite
     with SharedSparkContext with Checkers with RDDComparisons {
 
   test("local sum") {

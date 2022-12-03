@@ -6,10 +6,10 @@ import scala.reflect.ClassTag
 import org.apache.spark.rdd.RDD
 
 import com.holdenkarau.spark.testing.SharedSparkContext
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 
-class SortingTests extends FunSuite with SharedSparkContext {
+class SortingTests extends AnyFunSuite with SharedSparkContext {
 
   test("Test Sort by two keys"){
 

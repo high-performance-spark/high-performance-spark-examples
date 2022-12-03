@@ -12,9 +12,10 @@ import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StructType
 
 import com.holdenkarau.spark.testing.SharedSparkContext
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.apache.spark.sql.SparkSession
 
-class GoldilocksLargeTests extends FunSuite with SharedSparkContext{
+class GoldilocksLargeTests extends AnyFunSuite with SharedSparkContext{
 
 
   def testGoldilocksImplementations(
@@ -52,7 +53,7 @@ class GoldilocksLargeTests extends FunSuite with SharedSparkContext{
   }
 
   test("Goldilocks on local data solution "){
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder.getOrCreate().sqlContext
     val testRanks = List(3L, 8L)
     val (smallTestData, result) =
       DataCreationUtils.createLocalTestData(5, 10, testRanks)

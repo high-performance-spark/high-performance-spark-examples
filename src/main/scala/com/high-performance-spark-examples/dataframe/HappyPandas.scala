@@ -14,8 +14,8 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.expressions.aggregate._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hive.thriftserver._
+import org.apache.spark.sql.Encoders
 //end::legacySparkHiveImports[]
 
 object HappyPandas {
@@ -40,7 +40,7 @@ object HappyPandas {
    */
   def sqlContext(sc: SparkContext): SQLContext = {
     //tag::createSQLContext[]
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder.getOrCreate().sqlContext
     // Import the implicits, unlike in core Spark the implicits are defined
     // on the context.
     import sqlContext.implicits._
@@ -51,9 +51,9 @@ object HappyPandas {
   /**
    * Creates HiveContext Spark with an existing SparkContext using hive.
    */
-  def hiveContext(sc: SparkContext): HiveContext = {
+  def hiveContext(sc: SparkContext): SQLContext = {
     //tag::createHiveContext[]
-    val hiveContext = new HiveContext(sc)
+    val hiveContext = SparkSession.builder.enableHiveSupport().getOrCreate().sqlContext
     // Import the implicits, unlike in core Spark the implicits are defined
     // on the context.
     import hiveContext.implicits._
@@ -75,7 +75,7 @@ object HappyPandas {
     //end::loadPandaJSONComplex[]
     val jsonRDD = sc.textFile(path)
     //tag::loadPandaJsonRDD[]
-    val df3 = session.read.json(jsonRDD)
+    val df3 = session.read.json(session.createDataset(jsonRDD)(Encoders.STRING))
     //end::loadPandaJSONRDD[]
     df1
   }
@@ -83,7 +83,7 @@ object HappyPandas {
   def jsonLoadFromRDD(session: SparkSession, input: RDD[String]): DataFrame = {
     //tag::loadPandaJSONRDD[]
     val rdd: RDD[String] = input.filter(_.contains("panda"))
-    val df = session.read.json(rdd)
+    val df = session.read.json(session.createDataset(rdd)(Encoders.STRING))
     //end::loadPandaJSONRDD[]
     df
   }
@@ -255,7 +255,7 @@ object HappyPandas {
     miniPandas
   }
 
-  def startJDBCServer(hiveContext: HiveContext): Unit = {
+  def startJDBCServer(hiveContext: SQLContext): Unit = {
     //tag::startJDBC[]
     hiveContext.setConf("hive.server2.thrift.port", "9090")
     HiveThriftServer2.startWithContext(hiveContext)

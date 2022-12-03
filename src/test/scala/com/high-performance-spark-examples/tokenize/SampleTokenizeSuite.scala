@@ -8,9 +8,9 @@ import java.lang.Thread
 import org.apache.spark.streaming._
 
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class SampleTokenizeSuite extends FunSuite with SharedSparkContext {
+class SampleTokenizeSuite extends AnyFunSuite with SharedSparkContext {
   val input = List("hi holden", "I like coffee")
   val expected = List("hi", "holden", "I", "like", "coffee")
 

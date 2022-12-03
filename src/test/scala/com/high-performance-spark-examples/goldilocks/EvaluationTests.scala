@@ -3,9 +3,9 @@ package com.highperformancespark.examples.goldilocks
 import org.apache.spark.rdd.RDD
 
 import com.holdenkarau.spark.testing.SharedSparkContext
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class EvaluationTests extends FunSuite with SharedSparkContext {
+class EvaluationTests extends AnyFunSuite with SharedSparkContext {
   val doubleList = Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0)
   val keyValuePairs = Array(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0).zipWithIndex
   val path = "target/testResults"

@@ -15,12 +15,12 @@ import org.apache.spark.sql.types._
 import com.highperformancespark.examples.dataframe.HappyPandas.PandaInfo
 import com.highperformancespark.examples.dataframe.HappyPandas.Pandas
 import com.holdenkarau.spark.testing._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers._
 
 case class MiniPanda(happy: Double, fuzzy: Double, old: Double)
 
-class SimpleNaiveBayesSuite extends FunSuite with DataFrameSuiteBase {
+class SimpleNaiveBayesSuite extends AnyFunSuite with DataFrameSuiteBase {
   val miniPandasList = List(
     MiniPanda(1.0, 1.0, 1.0),
     MiniPanda(1.0, 1.0, 0.0),
