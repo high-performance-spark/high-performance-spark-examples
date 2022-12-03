@@ -3,17 +3,20 @@
  */
 package com.highperformancespark.examples.ml
 
-import com.highperformancespark.examples.dataframe.HappyPandas.{PandaInfo, Pandas}
-
-import com.holdenkarau.spark.testing._
-
 import org.apache.spark.ml._
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.param._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SQLContext}
-import org.scalatest.Matchers._
+
+import com.highperformancespark.examples.dataframe.HappyPandas.PandaInfo
+import com.highperformancespark.examples.dataframe.HappyPandas.Pandas
+import com.holdenkarau.spark.testing._
 import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 
 case class MiniPanda(happy: Double, fuzzy: Double, old: Double)
 

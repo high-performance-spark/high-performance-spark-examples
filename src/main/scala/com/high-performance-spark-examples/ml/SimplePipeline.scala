@@ -1,26 +1,24 @@
 package com.highperformancespark.examples.ml
 
-import com.highperformancespark.examples.dataframe._
-
-import scala.collection.{Map, mutable}
-import scala.collection.mutable.{ArrayBuffer, MutableList}
+import scala.collection.Map
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.MutableList
 
 import org.apache.spark._
+import org.apache.spark.ml._
+import org.apache.spark.ml.classification._
+import org.apache.spark.ml.feature._
+import org.apache.spark.ml.linalg.{Vector => SparkVector}
+import org.apache.spark.ml.param._
+import org.apache.spark.ml.tuning._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-//tag::basicImport[]
-import org.apache.spark.ml._
-import org.apache.spark.ml.feature._
-import org.apache.spark.ml.classification._
-//end::basicImport[]
-//tag::renameImport[]
-import org.apache.spark.ml.linalg.{Vector => SparkVector}
-//end::renameImport[]
-import org.apache.spark.ml.param._
-import org.apache.spark.ml.tuning._
+
+import com.highperformancespark.examples.dataframe._
 
 object SimplePipeline {
   def constructAndSetParams(df: DataFrame) = {

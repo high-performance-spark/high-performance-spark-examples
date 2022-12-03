@@ -1,5 +1,5 @@
+import scala.reflect.ClassTag
 import scala.util.Random
-import scala.reflect.{ClassTag}
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD

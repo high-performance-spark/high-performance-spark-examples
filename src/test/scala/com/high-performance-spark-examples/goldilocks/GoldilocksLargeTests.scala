@@ -1,13 +1,18 @@
 package com.highperformancespark.examples.goldilocks
 
-import com.holdenkarau.spark.testing.SharedSparkContext
+import scala.collection.immutable.IndexedSeq
+
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types.{StructType, DoubleType, StructField}
-import org.apache.spark.sql.{Row, SQLContext, DataFrame}
-import org.scalatest.FunSuite
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.types.DoubleType
+import org.apache.spark.sql.types.StructField
+import org.apache.spark.sql.types.StructType
 
-import scala.collection.immutable.IndexedSeq
+import com.holdenkarau.spark.testing.SharedSparkContext
+import org.scalatest.FunSuite
 
 class GoldilocksLargeTests extends FunSuite with SharedSparkContext{
 

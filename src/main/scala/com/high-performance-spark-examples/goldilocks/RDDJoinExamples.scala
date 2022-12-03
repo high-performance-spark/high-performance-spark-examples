@@ -1,10 +1,10 @@
 package  com.highperformancespark.examples.goldilocks
 
-import org.apache.spark.HashPartitioner
-import org.apache.spark.rdd.RDD
-
 import scala.collection.Map
 import scala.reflect.ClassTag
+
+import org.apache.spark.HashPartitioner
+import org.apache.spark.rdd.RDD
 
 object RDDJoinExamples {
 

@@ -1,11 +1,11 @@
 package com.highperformancespark.examples.goldilocks
 
+import scala.collection.Map
+import scala.collection.mutable.ArrayBuffer
+
 import org.apache.spark.Partitioner
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-
-import scala.collection.Map
-import scala.collection.mutable.ArrayBuffer
 
 //tag::colIndex_partition[]
 class ColumnIndexPartition(override val numPartitions: Int)

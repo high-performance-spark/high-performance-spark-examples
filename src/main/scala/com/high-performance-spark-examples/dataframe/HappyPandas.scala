@@ -6,17 +6,14 @@ package com.highperformancespark.examples.dataframe
 
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
-//tag::sparkSQLImports[]
-import org.apache.spark.sql.{Dataset, DataFrame, SparkSession, Row}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.expressions.aggregate._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
-//end::sparkSQLImports[]
-
-//tag::legacySparkSQLImports[]
-import org.apache.spark.sql.SQLContext
-//end::legacySparkSQLImports[]
-//tag::legacySparkHiveImports[]
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hive.thriftserver._
 //end::legacySparkHiveImports[]

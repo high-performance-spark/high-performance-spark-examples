@@ -5,15 +5,14 @@ package com.highperformancespark.examples.streaming
 
 import scala.reflect.ClassTag
 
-import org.apache.hadoop.io.{LongWritable, Text}
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
-
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
-
-//tag::DStreamImports[]
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream._
+
+import org.apache.hadoop.io.LongWritable
+import org.apache.hadoop.io.Text
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 //end::DStreamImports[]
 
 object DStreamExamples {

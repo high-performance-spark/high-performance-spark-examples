@@ -1,21 +1,21 @@
 package com.highperformancespark.examples.mllib
 
-import com.highperformancespark.examples.dataframe._
-
-import scala.collection.{Map, mutable}
-import scala.collection.mutable.{ArrayBuffer, MutableList}
+import scala.collection.Map
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.MutableList
 
 import org.apache.spark._
-import org.apache.spark.rdd.RDD
-//tag::imports[]
-import com.github.fommil.netlib.BLAS.{getInstance => blas}
+import org.apache.spark.mllib.classification.LogisticRegressionModel
+import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
+import org.apache.spark.mllib.feature._
 import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS,
-  LogisticRegressionModel}
-// Rename Vector to SparkVector to avoid conflicts with Scala's Vector class
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.feature._
+import org.apache.spark.rdd.RDD
+
+import com.github.fommil.netlib.BLAS.{getInstance => blas}
+import com.highperformancespark.examples.dataframe._
 //end::imports[]
 
 object GoldilocksMLlib {

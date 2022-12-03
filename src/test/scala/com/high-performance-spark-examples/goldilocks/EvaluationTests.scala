@@ -1,7 +1,8 @@
 package com.highperformancespark.examples.goldilocks
 
-import com.holdenkarau.spark.testing.SharedSparkContext
 import org.apache.spark.rdd.RDD
+
+import com.holdenkarau.spark.testing.SharedSparkContext
 import org.scalatest.FunSuite
 
 class EvaluationTests extends FunSuite with SharedSparkContext {

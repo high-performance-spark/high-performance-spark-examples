@@ -1,11 +1,12 @@
 package com.highperformancespark.examples.goldilocks
 
+import scala.collection.Map
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.storage.StorageLevel
-
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Map, mutable}
 
 
 object GoldilocksWithHashMap {

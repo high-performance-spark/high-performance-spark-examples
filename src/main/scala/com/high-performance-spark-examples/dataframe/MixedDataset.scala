@@ -9,10 +9,9 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.aggregate._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types._
-// Additional imports for using HiveContext
 import org.apache.spark.sql.hive._
 import org.apache.spark.sql.hive.thriftserver._
+import org.apache.spark.sql.types._
 
 case class MiniPandaInfo(zip: String, size: Double)
 

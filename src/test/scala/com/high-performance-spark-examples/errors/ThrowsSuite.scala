@@ -1,7 +1,6 @@
 package com.highperformancespark.examples.errors
 
 import com.holdenkarau.spark.testing._
-
 import org.scalatest.FunSuite
 
 class ThrowsSuite extends FunSuite with SharedSparkContext {

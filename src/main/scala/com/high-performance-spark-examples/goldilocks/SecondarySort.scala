@@ -3,7 +3,8 @@ package  com.highperformancespark.examples.goldilocks
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
-import org.apache.spark.{HashPartitioner, Partitioner}
+import org.apache.spark.HashPartitioner
+import org.apache.spark.Partitioner
 import org.apache.spark.rdd.RDD
 
 object PandaSecondarySort {

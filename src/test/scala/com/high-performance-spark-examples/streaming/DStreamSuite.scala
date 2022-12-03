@@ -5,11 +5,11 @@
  */
 package com.highperformancespark.examples.streaming
 
+import java.lang.Thread
+
 import org.apache.spark.streaming._
 
-import java.lang.Thread
 import com.holdenkarau.spark.testing._
-
 import org.scalatest.FunSuite
 
 class DStreamExamplesSuite extends FunSuite with SharedSparkContext {

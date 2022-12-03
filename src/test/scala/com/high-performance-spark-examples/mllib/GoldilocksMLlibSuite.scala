@@ -3,14 +3,11 @@
  */
 package com.highperformancespark.examples.mllib
 
-import com.highperformancespark.examples.dataframe.RawPanda
-
-import com.holdenkarau.spark.testing._
-
-import org.scalatest.FunSuite
-
-
 import org.apache.spark.mllib.linalg.{Vector => SparkVector}
+
+import com.highperformancespark.examples.dataframe.RawPanda
+import com.holdenkarau.spark.testing._
+import org.scalatest.FunSuite
 
 class GoldilocksMLlibSuite extends FunSuite with SharedSparkContext {
   val rps = List(

@@ -1,8 +1,11 @@
 package com.highperformancespark.examples.goldilocks
 
 import org.apache.spark._
-import org.apache.spark.sql.{Row, SQLContext}
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SQLContext
+
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.FunSuite
 
 
 // tag::MAGIC_PANDA[]
