@@ -1,6 +1,6 @@
 package com.highperformancespark.examples.ffi
 
-import ch.jodersky.jni.nativeLoader
+import com.github.sbt.jni.nativeLoader
 
 //tag::sumJNIDecorator[]
 @nativeLoader("high-performance-spark0")
