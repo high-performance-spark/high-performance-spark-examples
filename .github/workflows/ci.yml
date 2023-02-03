@@ -29,4 +29,4 @@ jobs:
         java-version: ${{ matrix.java }}
         cache: sbt
     - name: Build and Test
-      run: sbt clean +test
+      run: sbt clean package +test
