@@ -6,15 +6,16 @@ import org.apache.spark._
 import org.apache.spark.rdd.RDD
 
 import com.highperformancespark.examples.dataframe.RawPanda
-import com.typesafe.scalalogging.LazyLogging
+//tag::loggerImport[]
+import org.apache.logging.log4j.LogManager
 //end::loggerImport[]
 
-object FilterInvalidPandas extends LazyLogging {
+object FilterInvalidPandas {
 
   def filterInvalidPandas(sc: SparkContext, invalidPandas: List[Long],
     input: RDD[RawPanda]) = {
     //tag::broadcast[]
-    val invalid = HashSet() ++ invalidPandas
+    val invalid: HashSet[Long] = HashSet() ++ invalidPandas
     val invalidBroadcast = sc.broadcast(invalid)
     input.filter{panda => !invalidBroadcast.value.contains(panda.id)}
     //end::broadcast[]
@@ -23,11 +24,12 @@ object FilterInvalidPandas extends LazyLogging {
   def filterInvalidPandasWithLogs(sc: SparkContext, invalidPandas: List[Long],
     input: RDD[RawPanda]) = {
     //tag::broadcastAndLog[]
-    val invalid = HashSet() ++ invalidPandas
+    val invalid: HashSet[Long] = HashSet() ++ invalidPandas
     val invalidBroadcast = sc.broadcast(invalid)
     def keepPanda(pandaId: Long) = {
+      val logger = LogManager.getLogger("fart based logs")
       if (invalidBroadcast.value.contains(pandaId)) {
-        logger.debug(s"Invalid panda ${pandaId} discovered")
+        logger.debug("hi")
         false
       } else {
         true
@@ -37,3 +39,24 @@ object FilterInvalidPandas extends LazyLogging {
     //end::broadcastAndLog[]
   }
 }
+
+//tag::broadcastAndLogClass[]
+class AltLog() {
+  lazy val logger = LogManager.getLogger("fart based logs")
+  def filterInvalidPandasWithLogs(sc: SparkContext, invalidPandas: List[Long],
+      input: RDD[RawPanda]) = {
+    val invalid: HashSet[Long] = HashSet() ++ invalidPandas
+    val invalidBroadcast = sc.broadcast(invalid)
+    def keepPanda(pandaId: Long) = {
+      val logger = LogManager.getLogger("fart based logs")
+      if (invalidBroadcast.value.contains(pandaId)) {
+        logger.debug("hi")
+        false
+      } else {
+        true
+      }
+    }
+    input.filter{panda => keepPanda(panda.id)}
+  }
+}
+//end::broadcastAndLogClass[]

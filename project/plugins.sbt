@@ -9,7 +9,9 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
 addDependencyTreePlugin
 
+//tag::scalaFix[]
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
+//end::scalaFix[]
 
 //tag::sbtJNIPlugin[]
 addSbtPlugin("com.github.sbt" %% "sbt-jni" % "1.5.4")
