@@ -31,12 +31,21 @@ fork := true
 
 javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-Djna.nosys=true")
 
-Test / javaOptions ++= Seq(
-  "base/java.lang", "base/java.lang.invoke", "base/java.lang.reflect", "base/java.io", "base/java.net", "base/java.nio",
-  "base/java.util", "base/java.util.concurrent", "base/java.util.concurrent.atomic",
-  "base/sun.nio.ch", "base/sun.nio.cs", "base/sun.security.action",
-  "base/sun.util.calendar", "security.jgss/sun.security.krb5",
-  ).map("--add-opens=java." + _ + "=ALL-UNNAMED")
+def specialOptions = {
+  // We only need these extra props for JRE>17
+  if (sys.props("java.specification.version") > "1.17") {
+    Seq(
+      "base/java.lang", "base/java.lang.invoke", "base/java.lang.reflect", "base/java.io", "base/java.net", "base/java.nio",
+      "base/java.util", "base/java.util.concurrent", "base/java.util.concurrent.atomic",
+      "base/sun.nio.ch", "base/sun.nio.cs", "base/sun.security.action",
+      "base/sun.util.calendar", "security.jgss/sun.security.krb5",
+    ).map("--add-opens=java." + _ + "=ALL-UNNAMED")
+  } else {
+    Seq()
+  }
+}
+
+Test / javaOptions ++= specialOptions
 
 val sparkVersion = settingKey[String]("Spark version")
 val sparkTestingVersion = settingKey[String]("Spark testing base version without Spark version part")
