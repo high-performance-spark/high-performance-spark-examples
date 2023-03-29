@@ -14,7 +14,7 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
 //end::scalaFix[]
 
 //tag::sbtJNIPlugin[]
-addSbtPlugin("com.github.sbt" %% "sbt-jni" % "1.5.4")
+addSbtPlugin("com.github.sbt" %% "sbt-jni" % "1.6.0")
 //end::sbtJNIPlugin[]
 
 //tag::xmlVersionConflict[]

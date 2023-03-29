@@ -21,19 +21,21 @@ name := "examples"
 
 publishMavenStyle := true
 
-version := "0.0.1"
-
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+version := "0.2.0"
 
 parallelExecution in Test := false
 
 fork := true
 
+javah / target := (compile / sourceDirectory).value / "include"
+
+sbtJniCoreScope := Compile
+
 javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-Djna.nosys=true")
 
 def specialOptions = {
   // We only need these extra props for JRE>17
-  if (sys.props("java.specification.version") > "1.17") {
+  if (sys.props("java.specification.version") >= "17") {
     Seq(
       "base/java.lang", "base/java.lang.invoke", "base/java.lang.reflect", "base/java.io", "base/java.net", "base/java.nio",
       "base/java.util", "base/java.util.concurrent", "base/java.util.concurrent.atomic",
@@ -95,6 +97,11 @@ licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICE
 enablePlugins(JniNative)
 
 sourceDirectory in nativeCompile := sourceDirectory.value
+
+test in Test := (test in Test).dependsOn(packageBin in Compile).dependsOn(packagedArtifacts in Compile).value
+dependencyClasspath in Test := (dependencyClasspath in Test).value ++ Seq(Attributed.blank((packageBin in Compile).value))
+
+
 
 //tag::xmlVersionConflict[]
 // See https://github.com/scala/bug/issues/12632
