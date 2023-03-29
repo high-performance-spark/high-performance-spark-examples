@@ -28,5 +28,7 @@ jobs:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: sbt
-    - name: Build and Test
+    - name: Scala Build and Test
       run: sbt clean package +test
+    - name: Python Build and Test
+      run: cd python; tox
