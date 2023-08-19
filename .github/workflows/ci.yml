@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Sync the current branch with the latest in spark-testing-base
+    - name: Sync the current branch with the latest
       if: github.repository != 'high-performance-spark/high-performance-spark-examples'
       id: sync-branch
       run: |
@@ -43,3 +43,25 @@ jobs:
     - name: Run tox
       run: |
         cd python; tox
+  run-sql-examples:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Cache Spark and friends
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/spark*.tgz
+          ~/iceberg*.jar
+    - name: Run sql examples
+      run:
+        ./run_sql_examples.sh
+  style:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Shellcheck
+      run:
+        apt-get install -y shellcheck
+        shellcheck $(find -name "*.sh")
+    - name: scala
+      run:
+        sbt scalastyle
