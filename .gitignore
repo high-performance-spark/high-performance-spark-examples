@@ -70,3 +70,11 @@ MANIFEST
 *.tgz
 iceberg-spark-runtime-*.jar
 spark-*-bin-hadoop*/
+
+# Warehouse
+spark-warehouse/
+warehouse/
+metastore_db/
+
+# Misc internal stuff
+sql/*.sql.out
