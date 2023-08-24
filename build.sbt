@@ -63,9 +63,9 @@ val sparkTestingVersion = settingKey[String]("Spark testing base version without
 // Core (non-JNI bits)
 
 lazy val core = (project in file("core")) // regular scala code with @native methods
-  .settings(javah / target := (native / nativeCompile / sourceDirectory).value / "include")
   .dependsOn(native % Runtime)
-  .dependsOn(native)
+  .settings(javah / target := (native / nativeCompile / sourceDirectory).value / "include")
+  .settings(sbtJniCoreScope := Compile)
   .settings(
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     parallelExecution in Test := false,
@@ -98,9 +98,6 @@ lazy val core = (project in file("core")) // regular scala code with @native met
 lazy val native = (project in file("native")) // native code and build script
   .settings(nativeCompile / sourceDirectory := sourceDirectory.value)
   .enablePlugins(JniNative) // JniNative needs to be explicitly enabled
-
-sbtJniCoreScope := Compile
-
 
 //tag::xmlVersionConflict[]
 // See https://github.com/scala/bug/issues/12632

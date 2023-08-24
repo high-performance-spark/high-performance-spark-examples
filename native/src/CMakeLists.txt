@@ -12,7 +12,7 @@ option(SBT "Set if invoked from sbt-jni" OFF)
 # Define project and related variables
 # (required by sbt-jni) please use semantic versioning
 #
-project (libhigh-performance-spark)
+project (high-performance-spark)
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 0)
