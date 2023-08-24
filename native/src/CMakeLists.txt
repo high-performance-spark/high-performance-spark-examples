@@ -13,6 +13,7 @@ option(SBT "Set if invoked from sbt-jni" OFF)
 # (required by sbt-jni) please use semantic versioning
 #
 project (high-performance-spark)
+enable_language(Fortran)
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 0)
@@ -31,10 +32,13 @@ include_directories(${JNI_INCLUDE_DIRS})
 # Sources
 file(GLOB LIB_SRC
   "*.c"
+  "*.f95"
+  "*.f*"
   "*.cc"
   "*.cpp"
   "./c/*.c"
   "./c/*.cpp"
+  "./fortran/*.f95"
   "./fortran/*.f*"
 )
 
