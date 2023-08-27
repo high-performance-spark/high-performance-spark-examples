@@ -10,7 +10,6 @@ jobs:
         include:
           - java: 17
           - java: 11
-          - java: 8
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
