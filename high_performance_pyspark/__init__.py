@@ -22,4 +22,3 @@ Python version of selected examples from High Performance Spark
 
 import os
 import sys
-
