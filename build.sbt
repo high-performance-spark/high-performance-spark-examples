@@ -1,3 +1,7 @@
+lazy val root = (project in file("."))
+  .aggregate(core, native)
+
+
 organization := "com.highperformancespark"
 
 //tag::addSparkScalaFix[]
@@ -22,59 +26,6 @@ name := "examples"
 publishMavenStyle := true
 
 version := "0.0.1"
-
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
-
-parallelExecution in Test := false
-
-fork := true
-
-javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-Djna.nosys=true")
-
-def specialOptions = {
-  // We only need these extra props for JRE>17
-  if (sys.props("java.specification.version") > "1.17") {
-    Seq(
-      "base/java.lang", "base/java.lang.invoke", "base/java.lang.reflect", "base/java.io", "base/java.net", "base/java.nio",
-      "base/java.util", "base/java.util.concurrent", "base/java.util.concurrent.atomic",
-      "base/sun.nio.ch", "base/sun.nio.cs", "base/sun.security.action",
-      "base/sun.util.calendar", "security.jgss/sun.security.krb5",
-    ).map("--add-opens=java." + _ + "=ALL-UNNAMED")
-  } else {
-    Seq()
-  }
-}
-
-Test / javaOptions ++= specialOptions
-
-val sparkVersion = settingKey[String]("Spark version")
-val sparkTestingVersion = settingKey[String]("Spark testing base version without Spark version part")
-
-// 2.4.5 is the highest version we have with the old spark-testing-base deps
-sparkVersion := System.getProperty("sparkVersion", "3.3.0")
-sparkTestingVersion := "1.4.0"
-
-// additional libraries
-libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core"                % sparkVersion.value,
-  "org.apache.spark" %% "spark-streaming"           % sparkVersion.value,
-  "org.apache.spark" %% "spark-sql"                 % sparkVersion.value,
-  "org.apache.spark" %% "spark-hive"                % sparkVersion.value,
-  "org.apache.spark" %% "spark-hive-thriftserver"   % sparkVersion.value,
-  "org.apache.spark" %% "spark-catalyst"            % sparkVersion.value,
-  "org.apache.spark" %% "spark-yarn"                % sparkVersion.value,
-  "org.apache.spark" %% "spark-mllib"               % sparkVersion.value,
-  "com.holdenkarau" %% "spark-testing-base"         % s"${sparkVersion.value}_${sparkTestingVersion.value}",
-  //tag::scalaLogging[]
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
-  //end::scalaLogging[]
-  "net.java.dev.jna" % "jna" % "5.12.1")
-
-
-scalacOptions ++= Seq("-deprecation", "-unchecked")
-
-pomIncludeRepository := { x => false }
-
 resolvers ++= Seq(
   "JBoss Repository" at "https://repository.jboss.org/nexus/content/repositories/releases/",
   "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
@@ -90,11 +41,63 @@ resolvers ++= Seq(
 
 licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
-// JNI
+def specialOptions = {
+  // We only need these extra props for JRE>17
+  if (sys.props("java.specification.version") > "1.17") {
+    Seq(
+      "base/java.lang", "base/java.lang.invoke", "base/java.lang.reflect", "base/java.io", "base/java.net", "base/java.nio",
+      "base/java.util", "base/java.util.concurrent", "base/java.util.concurrent.atomic",
+      "base/sun.nio.ch", "base/sun.nio.cs", "base/sun.security.action",
+      "base/sun.util.calendar", "security.jgss/sun.security.krb5",
+    ).map("--add-opens=java." + _ + "=ALL-UNNAMED")
+  } else {
+    Seq()
+  }
+}
 
-enablePlugins(JniNative)
 
-sourceDirectory in nativeCompile := sourceDirectory.value
+val sparkVersion = settingKey[String]("Spark version")
+val sparkTestingVersion = settingKey[String]("Spark testing base version without Spark version part")
+
+
+// Core (non-JNI bits)
+
+lazy val core = (project in file("core")) // regular scala code with @native methods
+  .dependsOn(native % Runtime)
+  .settings(javah / target := (native / nativeCompile / sourceDirectory).value / "include")
+  .settings(sbtJniCoreScope := Compile)
+  .settings(
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    parallelExecution in Test := false,
+    fork := true,
+    javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-Djna.nosys=true"),
+    Test / javaOptions ++= specialOptions,
+    // 2.4.5 is the highest version we have with the old spark-testing-base deps
+    sparkVersion := System.getProperty("sparkVersion", "3.3.0"),
+    sparkTestingVersion := "1.4.0",
+    // additional libraries
+    libraryDependencies ++= Seq(
+      "org.apache.spark" %% "spark-core"                % sparkVersion.value,
+      "org.apache.spark" %% "spark-streaming"           % sparkVersion.value,
+      "org.apache.spark" %% "spark-sql"                 % sparkVersion.value,
+      "org.apache.spark" %% "spark-hive"                % sparkVersion.value,
+      "org.apache.spark" %% "spark-hive-thriftserver"   % sparkVersion.value,
+      "org.apache.spark" %% "spark-catalyst"            % sparkVersion.value,
+      "org.apache.spark" %% "spark-yarn"                % sparkVersion.value,
+      "org.apache.spark" %% "spark-mllib"               % sparkVersion.value,
+      "com.holdenkarau" %% "spark-testing-base"         % s"${sparkVersion.value}_${sparkTestingVersion.value}",
+      //tag::scalaLogging[]
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
+      //end::scalaLogging[]
+      "net.java.dev.jna" % "jna" % "5.12.1"),
+    scalacOptions ++= Seq("-deprecation", "-unchecked"),
+    pomIncludeRepository := { x => false },
+  )
+
+// JNI Magic!
+lazy val native = (project in file("native")) // native code and build script
+  .settings(nativeCompile / sourceDirectory := sourceDirectory.value)
+  .enablePlugins(JniNative) // JniNative needs to be explicitly enabled
 
 //tag::xmlVersionConflict[]
 // See https://github.com/scala/bug/issues/12632

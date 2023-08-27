@@ -11,6 +11,7 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+.bsp
 
 # Scala-IDE specific
 .scala_dependencies
@@ -22,6 +23,15 @@ project/plugins/project/
 \.\#*
 *~
 sbt/*launch*.jar
+
+# VSCode specific
+.vscode
+.history
+
+# Metals
+.metals
+.bloop
+metals.sbt
 
 # python
 *.pyc
