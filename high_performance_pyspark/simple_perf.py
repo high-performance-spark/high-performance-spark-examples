@@ -9,6 +9,7 @@ from pyspark.sql import *
 import timeit
 import time
 
+
 def generate_scale_data(sqlCtx, rows, numCols):
     """
     Generate scale data for the performance test.
@@ -45,14 +46,14 @@ def generate_scale_data(sqlCtx, rows, numCols):
     # This returns a Java RDD of Rows - normally it would better to
     # return a DataFrame directly, but for illustration we will work
     # with an RDD of Rows.
-    java_rdd = (gateway.jvm.com.highperformancespark.examples.
-                tools.GenerateScalingData.
-                generateMiniScaleRows(scalasc, rows, numCols))
+    java_rdd = gateway.jvm.com.highperformancespark.examples.tools.GenerateScalingData.generateMiniScaleRows(
+        scalasc, rows, numCols
+    )
     # Schemas are serialized to JSON and sent back and forth
     # Construct a Python Schema and turn it into a Java Schema
-    schema = StructType([
-        StructField("zip", IntegerType()),
-        StructField("fuzzyness", DoubleType())])
+    schema = StructType(
+        [StructField("zip", IntegerType()), StructField("fuzzyness", DoubleType())]
+    )
     # 2.1 / pre-2.1
     try:
         jschema = javaSqlCtx.parseDataType(schema.json())
@@ -67,18 +68,24 @@ def generate_scale_data(sqlCtx, rows, numCols):
     return (python_dataframe, pairRDD)
     # end::javaInterop[]
 
+
 def runOnDF(df):
     result = df.groupBy("zip").avg("fuzzyness").count()
     return result
 
+
 def runOnRDD(rdd):
-    result = rdd.map(lambda (x, y): (x, (y, 1))). \
-             reduceByKey(lambda x, y: (x[0] + y [0], x[1] + y[1])). \
-             count()
+    result = (
+        rdd.map(lambda x, y: (x, (y, 1)))
+        .reduceByKey(lambda x, y: (x[0] + y[0], x[1] + y[1]))
+        .count()
+    )
     return result
+
 
 def groupOnRDD(rdd):
     return rdd.groupByKey().mapValues(lambda v: sum(v) / float(len(v))).count()
+
 
 def run(sc, sqlCtx, scalingFactor, size):
     """
@@ -98,17 +105,30 @@ def run(sc, sqlCtx, scalingFactor, size):
     """
     (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
-    rddTimeings = timeit.repeat(stmt=lambda: runOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
-    groupTimeings = timeit.repeat(stmt=lambda: groupOnRDD(input_rdd), repeat=10, number=1, timer=time.time, setup='gc.enable()')
+    rddTimeings = timeit.repeat(
+        stmt=lambda: runOnRDD(input_rdd),
+        repeat=10,
+        number=1,
+        timer=time.time,
+        setup="gc.enable()",
+    )
+    groupTimeings = timeit.repeat(
+        stmt=lambda: groupOnRDD(input_rdd),
+        repeat=10,
+        number=1,
+        timer=time.time,
+        setup="gc.enable()",
+    )
     input_df.cache().count()
-    dfTimeings = timeit.repeat(stmt=lambda: runOnDF(input_df), repeat=10, number=1, timer=time.time, setup='gc.enable()')
-    print "RDD:"
-    print rddTimeings
-    print "group:"
-    print groupTimeings
-    print "df:"
-    print dfTimeings
-    print "yay"
+    dfTimeings = timeit.repeat(
+        stmt=lambda: runOnDF(input_df),
+        repeat=10,
+        number=1,
+        timer=time.time,
+        setup="gc.enable()",
+    )
+    print(f"RDD: {rddTimeings}, group: {groupTimeings}, df: {dfTimeings}")
+
 
 def parseArgs(args):
     """
@@ -130,6 +150,7 @@ if __name__ == "__main__":
     import sys
     from pyspark import SparkContext
     from pyspark.sql import SQLContext
+
     (scalingFactor, size) = parseArgs(sys.argv)
     session = SparkSession.appName("SimplePythonPerf").builder.getOrCreate()
     sc = session._sc
