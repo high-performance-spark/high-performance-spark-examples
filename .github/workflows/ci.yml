@@ -46,6 +46,8 @@ jobs:
   run-sql-examples:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Cache Spark and friends
       uses: actions/cache@v3
       with:
@@ -59,6 +61,8 @@ jobs:
   style:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Shellcheck
       run:
         sudo apt-get install -y shellcheck
