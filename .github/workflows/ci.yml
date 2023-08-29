@@ -58,6 +58,21 @@ jobs:
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
+  run-pyspark-examples:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache Spark and friends
+      uses: actions/cache@v3
+      with:
+        path: |
+          spark*.tgz
+          iceberg*.jar
+        key: spark-artifacts
+    - name: Run PySpark examples
+      run:
+        ./run_pyspark_examples.sh
   style:
     runs-on: ubuntu-latest
     steps:

@@ -1,7 +1,7 @@
 # This script triggers a number of different PySpark errors
 
-from pyspark import *
 from pyspark.sql.session import SparkSession
+import sys
 
 global sc
 
@@ -166,7 +166,7 @@ def _test():
     """
     import doctest
 
-    globs = setupTest()
+    globs = _setupTest()
     (failure_count, test_count) = doctest.testmod(
         globs=globs, optionflags=doctest.ELLIPSIS
     )
@@ -174,8 +174,6 @@ def _test():
     if failure_count:
         exit(-1)
 
-
-import sys
 
 if __name__ == "__main__":
     _test()
