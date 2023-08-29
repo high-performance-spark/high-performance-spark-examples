@@ -170,9 +170,12 @@ def _test():
     (failure_count, test_count) = doctest.testmod(
         globs=globs, optionflags=doctest.ELLIPSIS
     )
+    print("All tests done, stopping Spark context.")
     globs["sc"].stop()
     if failure_count:
         exit(-1)
+    else:
+        exit(0)
 
 
 if __name__ == "__main__":
