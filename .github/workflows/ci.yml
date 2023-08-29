@@ -52,8 +52,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ~/spark*.tgz
-          ~/iceberg*.jar
+          spark*.tgz
+          iceberg*.jar
         key: spark-artifacts
     - name: Run sql examples
       run:
