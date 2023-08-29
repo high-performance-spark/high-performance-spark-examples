@@ -52,6 +52,7 @@ jobs:
         path: |
           ~/spark*.tgz
           ~/iceberg*.jar
+        key: spark-artifacts
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
@@ -60,8 +61,14 @@ jobs:
     steps:
     - name: Shellcheck
       run:
-        apt-get install -y shellcheck
+        sudo apt-get install -y shellcheck
         shellcheck $(find -name "*.sh")
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java }}
+        cache: sbt
     - name: scala
       run:
         sbt scalastyle
