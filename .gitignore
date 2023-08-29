@@ -57,9 +57,24 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+# scala stuff
+.metals
 
 # native
 *.o
 *.so
 *.so.0.0.0
 *.so.0
+
+# Spark files
+*.tgz
+iceberg-spark-runtime-*.jar
+spark-*-bin-hadoop*/
+
+# Warehouse
+spark-warehouse/
+warehouse/
+metastore_db/
+
+# Misc internal stuff
+sql/*.sql.out
