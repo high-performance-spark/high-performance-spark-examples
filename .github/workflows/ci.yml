@@ -64,7 +64,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Shellcheck
-      run:
+      run: |
         sudo apt-get install -y shellcheck
         shellcheck $(find -name "*.sh")
     - name: Setup JDK
