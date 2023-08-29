@@ -35,14 +35,15 @@ mkdir -p /tmp/spark-events
 # For each SQL
 for sql_file in sql/*.sql; do
   echo "Processing ${sql_file}"
+  # shellcheck disable=SC2046
   spark-sql --master local[5] \
 	    --conf spark.eventLog.enabled=true \
 	    --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog \
 	    --conf spark.sql.catalog.spark_catalog.type=hive \
 	    --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
 	    --conf spark.sql.catalog.local.type=hadoop \
-	    --conf spark.sql.catalog.local.warehouse=$PWD/warehouse \
-	    $(cat ${sql_file}.conf || echo "") \
+	    --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
+	    $(cat "${sql_file}.conf" || echo "") \
 	    --name "${sql_file}" \
 	    -f "${sql_file}" | tee -a "${sql_file}.out"
 done
