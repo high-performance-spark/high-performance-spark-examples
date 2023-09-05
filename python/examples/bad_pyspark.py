@@ -159,8 +159,8 @@ def _setupTest():
 def _test():
     """
     Run the tests.
-    Note this will print a lot of error message to stderr since we don't capture the JVM sub process
-    stdout/stderr for doctests.
+    Note this will print a lot of error message to stderr since we don't
+    capture the JVM sub process stdout/stderr for doctests.
     """
     import doctest
 

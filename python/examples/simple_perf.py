@@ -1,5 +1,8 @@
 # When running this example make sure to include the built Scala jar :
-# $SPARK_HOME/bin/pyspark --jars ./target/examples-0.0.1.jar --driver-class-path ./target/examples-0.0.1.jar
+#
+# $SPARK_HOME/bin/pyspark --jars \
+# ./target/examples-0.0.1.jar --driver-class-path ./target/examples-0.0.1.jar
+#
 # This example illustrates how to interface Scala and Python code, but caution
 # should be taken as it depends on many private members that may change in
 # future releases of Spark.
