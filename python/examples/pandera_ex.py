@@ -3,6 +3,7 @@ from pyspark.sql.session import SparkSession
 # tags::pandera_imports[]
 import pandera.pyspark as pa
 import pyspark.sql.types as T
+
 # end::pandera_imports[]
 
 
@@ -41,9 +42,7 @@ if __name__ == "__main__":
     # end::validate_gender_data[]
 
     # tag::validate_project_data[]
-    project_data = spark.read.csv(
-        "./data/project.csv",
-        header=True, inferSchema=True)
+    project_data = spark.read.csv("./data/project.csv", header=True, inferSchema=True)
     validated_df = ProjectDataSchema(project_data)
     # Print out the errors. You may wish to exit with an error condition.
     if validated_df.pandera.errors != {}:
