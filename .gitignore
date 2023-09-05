@@ -79,3 +79,4 @@ metastore_db/
 # Misc internal stuff
 sql/*.sql.out
 python/examples/*.py.out
+data/fetched/*

@@ -55,6 +55,12 @@ jobs:
           spark*.tgz
           iceberg*.jar
         key: spark-artifacts
+    - name: Cache Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          data/fetched/*
+        key: data-fetched
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
@@ -70,6 +76,12 @@ jobs:
           spark*.tgz
           iceberg*.jar
         key: spark-artifacts
+    - name: Cache Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          data/fetched/*
+        key: data-fetched
     - name: Run PySpark examples
       run:
         ./run_pyspark_examples.sh

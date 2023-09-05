@@ -31,3 +31,7 @@ export PATH=${SPARK_PATH}:${SPARK_PATH}/python:${SPARK_PATH}/bin:${SPARK_PATH}/s
 # Make sure we have a history directory
 mkdir -p /tmp/spark-events
 
+mkdir -p ./data/fetched/
+if [ ! -f ./data/fetched/2021 ]; then
+  wget "https://gender-pay-gap.service.gov.uk/viewing/download-data/2021" -O ./data/fetched/2021
+fi

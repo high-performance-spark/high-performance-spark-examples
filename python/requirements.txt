@@ -4,3 +4,4 @@ pyarrow
 pyspark
 pyspark-asyncactions
 pandera
+pandera[pyspark]
