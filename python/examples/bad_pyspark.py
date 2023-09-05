@@ -1,7 +1,7 @@
 # This script triggers a number of different PySpark errors
 
-from pyspark import *
 from pyspark.sql.session import SparkSession
+import sys
 
 global sc
 
@@ -131,22 +131,20 @@ def throwInner3(sc):
 
 def runOutOfMemory(sc):
     """
-    Run out of memory on the workers.
-    In standalone modes results in a memory error, but in YARN may trigger YARN container
-    overhead errors.
-    >>> runOutOfMemory(sc)
+    Run out of memory on the workers from a skewed shuffle.
+    >>> runOutOfMemory(sc) # doctest: +SKIP
     Traceback (most recent call last):
         ...
     Py4JJavaError:...
     """
     # tag::worker_oom[]
-    data = sc.parallelize(range(10))
+    data = sc.parallelize(range(10000))
 
-    def generate_too_much(itr):
-        return range(10000000000000)
+    def generate_too_much(i: int):
+        return list(map(lambda v: (i % 2, v), range(100000 * i)))
 
-    itr = data.flatMap(generate_too_much)
-    itr.count()
+    bad = data.flatMap(generate_too_much).groupByKey()
+    bad.count()
     # end::worker_oom[]
 
 
@@ -166,16 +164,17 @@ def _test():
     """
     import doctest
 
-    globs = setupTest()
+    globs = _setupTest()
     (failure_count, test_count) = doctest.testmod(
         globs=globs, optionflags=doctest.ELLIPSIS
     )
+    print("All tests done, stopping Spark context.")
     globs["sc"].stop()
     if failure_count:
         exit(-1)
+    else:
+        exit(0)
 
-
-import sys
 
 if __name__ == "__main__":
     _test()

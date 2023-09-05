@@ -1,3 +1,13 @@
+from pyspark.sql import DataFrame, Row
+from pyspark.sql.session import SparkSession
+import sys
+
+global df
+global sc
+global rdd
+global spark
+
+
 """
 >>> df = rdd.toDF()
 >>> df2 = cutLineage(df)
@@ -7,14 +17,6 @@ True
 True
 """
 
-global df
-global sc
-global rdd
-global spark
-
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame, Row
-from pyspark.sql.session import SparkSession
 
 # tag::cutLineage[]
 def cutLineage(df):
@@ -31,11 +33,8 @@ def cutLineage(df):
     jSchema = df._jdf.schema()
     jRDD.cache()
     sqlCtx = df.sql_ctx
-    try:
-        javaSqlCtx = sqlCtx._jsqlContext
-    except:
-        javaSqlCtx = sqlCtx._ssql_ctx
-    newJavaDF = javaSqlCtx.createDataFrame(jRDD, jSchema)
+    javaSparkSession = sqlCtx._jSparkSession
+    newJavaDF = javaSparkSession.createDataFrame(jRDD, jSchema)
     newDF = DataFrame(newJavaDF, sqlCtx)
     return newDF
 
@@ -50,7 +49,7 @@ def _setupTest():
     sc.setLogLevel("ERROR")
     globs["sc"] = sc
     globs["spark"] = spark
-    globs["rdd"] = rdd = sc.parallelize(
+    globs["rdd"] = sc.parallelize(
         [
             Row(field1=1, field2="row1"),
             Row(field1=2, field2="row2"),
@@ -74,8 +73,6 @@ def _test():
     if failure_count:
         exit(-1)
 
-
-import sys
 
 if __name__ == "__main__":
     _test()

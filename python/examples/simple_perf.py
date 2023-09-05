@@ -4,8 +4,9 @@
 # should be taken as it depends on many private members that may change in
 # future releases of Spark.
 
-from pyspark.sql.types import *
-from pyspark.sql import *
+from pyspark.sql.types import StructType, IntegerType, DoubleType, StructField
+from pyspark.sql import DataFrame, SparkSession
+import sys
 import timeit
 import time
 
@@ -29,14 +30,7 @@ def generate_scale_data(sqlCtx, rows, numCols):
     """
     # tag::javaInterop[]
     sc = sqlCtx._sc
-    # Get the SQL Context, 2.1, 2.0 and pre-2.0 syntax - yay internals :p
-    try:
-        try:
-            javaSqlCtx = sqlCtx._jsqlContext
-        except:
-            javaSqlCtx = sqlCtx._ssql_ctx
-    except:
-        javaSqlCtx = sqlCtx._jwrapped
+    javaSparkSession = sqlCtx._jSparkSession
     jsc = sc._jsc
     scalasc = jsc.sc()
     gateway = sc._gateway
@@ -54,13 +48,9 @@ def generate_scale_data(sqlCtx, rows, numCols):
     schema = StructType(
         [StructField("zip", IntegerType()), StructField("fuzzyness", DoubleType())]
     )
-    # 2.1 / pre-2.1
-    try:
-        jschema = javaSqlCtx.parseDataType(schema.json())
-    except:
-        jschema = sqlCtx._jsparkSession.parseDataType(schema.json())
+    jschema = javaSparkSession.parseDataType(schema.json())
     # Convert the Java RDD to Java DataFrame
-    java_dataframe = javaSqlCtx.createDataFrame(java_rdd, jschema)
+    java_dataframe = javaSparkSession.createDataFrame(java_rdd, jschema)
     # Wrap the Java DataFrame into a Python DataFrame
     python_dataframe = DataFrame(java_dataframe, sqlCtx)
     # Convert the Python DataFrame into an RDD
@@ -143,13 +133,9 @@ def parseArgs(args):
 
 
 if __name__ == "__main__":
-
     """
     Usage: simple_perf_test scalingFactor size
     """
-    import sys
-    from pyspark import SparkContext
-    from pyspark.sql import SQLContext
 
     (scalingFactor, size) = parseArgs(sys.argv)
     session = SparkSession.appName("SimplePythonPerf").builder.getOrCreate()
