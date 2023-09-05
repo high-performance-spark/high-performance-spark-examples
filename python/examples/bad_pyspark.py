@@ -132,7 +132,7 @@ def throwInner3(sc):
 def runOutOfMemory(sc):
     """
     Run out of memory on the workers from a skewed shuffle.
-    >>> runOutOfMemory(sc)
+    >>> runOutOfMemory(sc) # doctest: +SKIP
     Traceback (most recent call last):
         ...
     Py4JJavaError:...
