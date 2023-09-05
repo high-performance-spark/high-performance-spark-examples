@@ -17,6 +17,7 @@ class ProjectDataSchema(pa.DataFrameModel):
 
 # end::simple_data_schema[]
 
+
 # tag::gender_data[]
 class GenderData(pa.DataFrameModel):
     MaleBonusPercent: T.DoubleType() = pa.Field(nullable=True, le=5)
