@@ -3,3 +3,4 @@ pandas
 pyarrow
 pyspark
 pyspark-asyncactions
+pandera
