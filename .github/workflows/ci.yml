@@ -64,6 +64,27 @@ jobs:
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
+  run-target-examples:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache Spark and friends
+      uses: actions/cache@v3
+      with:
+        path: |
+          spark*.tgz
+          iceberg*.jar
+        key: spark-artifacts
+    - name: Cache Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          data/fetched/*
+        key: data-fetched
+    - name: Run sql examples
+      run:
+        cd target-validator; ./runme.sh
   run-pyspark-examples:
     runs-on: ubuntu-latest
     steps:

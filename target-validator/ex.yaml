@@ -1,4 +1,5 @@
 detailedErrors: true
+numKeyCols: 4
 # We might have a large number of errors so just show the first 5
 numErrorsToReport: 5
 
@@ -10,8 +11,8 @@ email:
     - professor-timbit@example.com
 
 tables:
-  - db: uk_data
-    table: adult
+  - db: gender_paygaps
+    table: uk
     # Columns that taken together uniquely specifies each row (think of groupBy)
     keyColumns:
       - CompanyNumber
