@@ -21,6 +21,9 @@ wait
 if [ ! -d "${SPARK_PATH}" ]; then
   tar -xf ${SPARK_FILE}
 fi
+
+export SPARK_HOME="${SPARK_PATH}"
+
 if [ ! -f "${SPARK_PATH}/jars/${ICEBERG_FILE}" ]; then
   cp "${ICEBERG_FILE}" "${SPARK_PATH}/jars/${ICEBERG_FILE}"
 fi
