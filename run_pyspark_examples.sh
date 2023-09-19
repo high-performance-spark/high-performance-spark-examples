@@ -29,6 +29,7 @@ function run_example () {
 	       --master local[5] \
 	       --conf spark.eventLog.enabled=true \
 	       --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog \
+	       --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
 	       --conf spark.sql.catalog.spark_catalog.type=hive \
 	       --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
 	       --conf spark.sql.catalog.local.type=hadoop \
