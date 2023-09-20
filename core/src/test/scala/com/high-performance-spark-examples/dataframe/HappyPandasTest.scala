@@ -9,7 +9,7 @@ import scala.util.Random
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.sql.types._
 
 import com.highperformancespark.examples.dataframe.HappyPandas.PandaInfo
@@ -68,7 +68,7 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
     val expectedDf = createDF(expectedList, ("place", StringType),
                                               ("percentHappy", DoubleType))
 
-    val inputDF = sqlContext.createDataFrame(pandaInfoList)
+    val inputDF = spark.createDataFrame(pandaInfoList)
     val resultDF = HappyPandas.happyPandasPercentage(inputDF)
 
     assertDataFrameApproximateEquals(expectedDf, resultDF, 1E-5)
@@ -76,7 +76,7 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
   //end::approxEqualDataFrames[]
 
   test("verify approx by hand") {
-    val inputDF = sqlContext.createDataFrame(pandaInfoList)
+    val inputDF = spark.createDataFrame(pandaInfoList)
     val resultDF = HappyPandas.happyPandasPercentage(inputDF)
     val resultRows = resultDF.collect()
 
@@ -94,7 +94,7 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
   }
 
   test("test encode Panda type") {
-    val inputDF = sqlContext.createDataFrame(rawPandaList)
+    val inputDF = spark.createDataFrame(rawPandaList)
     val resultDF = HappyPandas.encodePandaType(inputDF)
 
     val expectedRows = List(Row(10L, 0), Row(11L, 1))
@@ -107,7 +107,7 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
   //tag::exactEqualDataFrames[]
   test("verify exact equality") {
     // test minHappyPandas
-    val inputDF = sqlContext.createDataFrame(pandaInfoList)
+    val inputDF = spark.createDataFrame(pandaInfoList)
     val result = HappyPandas.minHappyPandas(inputDF, 2)
     val resultRows = result.collect()
 
@@ -117,12 +117,12 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
   //end::exactEqualDataFrames[]
 
   test("test happyPandasPlaces") {
-    val inputDF = sqlContext.createDataFrame(pandaInfoList)
+    val inputDF = spark.createDataFrame(pandaInfoList)
     val resultDF = HappyPandas.happyPandasPlaces(inputDF)
 
     val expectedRows = List(PandaInfo(toronto, "giant", 1, 2),
                             PandaInfo(sandiego, "red", 2, 3))
-    val expectedDF = sqlContext.createDataFrame(expectedRows)
+    val expectedDF = spark.createDataFrame(expectedRows)
 
     assertDataFrameEquals(expectedDF, resultDF)
   }
