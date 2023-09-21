@@ -82,7 +82,7 @@ jobs:
         path: |
           data/fetched/*
         key: data-fetched
-    - name: Run sql examples
+    - name: Run the target validator example
       run:
         cd target-validator; ./runme.sh
   run-pyspark-examples:
