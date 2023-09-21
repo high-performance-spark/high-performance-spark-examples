@@ -4,7 +4,7 @@
 source ../env_setup.sh 
 set -ex
 export SPARK_VERSION="${SPARK_VERSION:-3.4.1}"
-git clone git@github.com:holdenk/data-validator.git
+git clone git@github.com:holdenk/data-validator.git || git clone https://github.com/holdenk/data-validator.git
 cd data-validator
 git checkout upgrade-to-modern-spark
 sbt -Dspark="${SPARK_VERSION}" clean assembly
