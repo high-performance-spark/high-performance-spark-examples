@@ -1,0 +1,31 @@
+detailedErrors: true
+numKeyCols: 4
+# We might have a large number of errors so just show the first 5
+numErrorsToReport: 5
+
+email:
+  smtpHost: smtp.example.com
+  subject: Data Validation Summary
+  from: data-validator-no-reply@example.com
+  to:
+    - professor-timbit@example.com
+
+tables:
+  - db: gender_paygaps
+    table: uk
+    # Columns that taken together uniquely specifies each row (think of groupBy)
+    keyColumns:
+      - CompanyNumber
+      - EmployerId
+      - CompanyLinkToGPGInfo
+      - ResponsiblePerson
+    # Used to filter
+    condition: MaleBonusPercent >= FemaleBonusPercent
+    checks:
+      # We expect at least 500 records
+      - type: rowCount
+        minNumRows: 500
+      # We don't expect more than 1% not companies in the dataset.
+      - type: nullCheck
+        column: CompanyNumber
+        threshold: 0.01

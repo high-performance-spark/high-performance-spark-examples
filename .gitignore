@@ -79,3 +79,8 @@ metastore_db/
 # Misc internal stuff
 sql/*.sql.out
 python/examples/*.py.out
+data/fetched/*
+
+# more python
+pyspark_venv.tar.gz
+pyspark_venv/

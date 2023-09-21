@@ -3,3 +3,9 @@ pandas
 pyarrow
 pyspark
 pyspark-asyncactions
+pandera
+pandera[pyspark]
+spark-expectations
+venv-pack
+delta-spark
+requests
