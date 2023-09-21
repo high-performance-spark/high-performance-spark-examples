@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091,SC2034
 
 source env_setup.sh
 
@@ -6,6 +7,7 @@ set -ex
 
 set -o pipefail
 
+#tag::package_venv[]
 if [ ! -d pyspark_venv ]; then
   python -m venv pyspark_venv
 fi
@@ -18,9 +20,12 @@ if [ ! -f pyspark_venv.tar.gz ]; then
 fi
 
 
-export PYSPARK_PYTHON=$(which python)
-export PYSPARK_DRIVER_PYTHON=$(which python)
+# Set in local and client mode where the driver uses the Python present
+# (requires that you have activated the venv as we did above)
+PYSPARK_DRIVER_PYTHON=python
+export PYSPARK_DRIVER_PYTHON
 export PYTHON_PATH=./environment/bin/python
+#end::package_venv[]
 
 function run_example () {
   local ex="$1"
@@ -33,15 +38,12 @@ function run_example () {
 	       --conf spark.sql.catalog.spark_catalog.type=hive \
 	       --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
 	       --conf spark.sql.catalog.local.type=hadoop \
-	       --conf spark.pyspark.driver.python=${PYSPARK_DRIVER_PYTHON} \
-	       --conf spark.pyspark.driver.python=${PYSPARK_PYTHON} \
 	       --archives pyspark_venv.tar.gz#environment \
 	       --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
 	       $(cat "${ex}.conf" || echo "") \
 	       --name "${ex}" \
 	       "${ex}" 2>&1 | tee -a "${ex}.out" || echo "ok"
 }
-
 
 if [ $# -eq 1 ]; then
   run_example "python/examples/$1"
