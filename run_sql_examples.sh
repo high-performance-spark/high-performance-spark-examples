@@ -2,6 +2,8 @@
 set -ex
 set -o pipefail
 
+set -o pipefail
+
 source env_setup.sh
 
 # We use `` for mid multi-line command comments. (see https://stackoverflow.com/questions/9522631/how-to-put-a-line-comment-for-a-multi-line-command).
