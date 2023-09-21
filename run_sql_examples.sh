@@ -2,11 +2,7 @@
 set -ex
 set -o pipefail
 
-set -o pipefail
-
 source env_setup.sh
-
-# We use `` for mid multi-line command comments. (see https://stackoverflow.com/questions/9522631/how-to-put-a-line-comment-for-a-multi-line-command).
 
 function run_example () {
   local sql_file="$1"
@@ -21,7 +17,7 @@ function run_example () {
 	    --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
 	    $(cat "${sql_file}.conf" || echo "") \
 	    --name "${sql_file}" \
-	    -f "${sql_file}" | tee -a "${sql_file}.out"
+	    -f "${sql_file}" | tee -a "${sql_file}.out" || ls "${sql_file}.expected_to_fail"
 }
 
 
