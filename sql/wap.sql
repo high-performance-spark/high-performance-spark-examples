@@ -10,4 +10,5 @@ ALTER TABLE local.projects CREATE BRANCH IF NOT EXISTS `audit`;
 SET spark.wap.branch = 'branch';
 INSERT INTO local.projects VALUES("krisnova", "aurae");
 SELECT count(*) FROM local.projects VERSION AS OF 'audit' WHERE creator is NULL;
-CALL local.system.fastForward("local.projects", "main", "audit-branch");
+-- This does not work until we upgrade to 3.5 + Iceberg 1.4.
+-- CALL local.system.fastForward("local.projects", "main", "audit-branch");
