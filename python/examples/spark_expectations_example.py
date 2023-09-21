@@ -5,7 +5,7 @@ from spark_expectations.core.expectations import SparkExpectations
 spark = SparkSession.builder.master("local[4]").getOrCreate()
 sc = spark.sparkContext
 
-#tag::global_setup[]
+# tag::global_setup[]
 from spark_expectations.config.user_config import *
 
 se_global_spark_Conf = {
@@ -17,14 +17,15 @@ se_global_spark_Conf = {
     "se_notifications_on_fail": True,
     "se_notifications_on_error_drop_exceeds_threshold_breach": True,
     "se_notifications_on_error_drop_threshold": 15,
-    "se_enable_streaming": False, # Required or tries to publish to kafka.
+    "se_enable_streaming": False,  # Required or tries to publish to kafka.
 }
-#end::gloabl_setup[]
+# end::gloabl_setup[]
 
 
-#tag::setup_and_load[]
+# tag::setup_and_load[]
 spark.sql("DROP TABLE IF EXISTS local.magic_validation")
-spark.sql("""
+spark.sql(
+    """
 create table local.magic_validation (
     product_id STRING,
     table_name STRING,
@@ -40,8 +41,10 @@ create table local.magic_validation (
     is_active BOOLEAN,
     enable_error_drop_alert BOOLEAN,
     error_drop_threshold INT
-)""")
-spark.sql("""
+)"""
+)
+spark.sql(
+    """
 create table if not exists local.pay_stats (
     product_id STRING,
     table_name STRING,
@@ -63,7 +66,8 @@ create table if not exists local.pay_stats (
     meta_dq_run_id STRING,
     meta_dq_run_date DATE,
     meta_dq_run_datetime TIMESTAMP
-);""")
+);"""
+)
 rule_file = "./spark_expectations_sample_rules.json"
 sc.addFile(rule_file)
 df = spark.read.json(SparkFiles.get(rule_file))
@@ -71,11 +75,12 @@ print(df)
 df.write.option("byname", "true").mode("append").saveAsTable("local.magic_validation")
 spark.read.table("local.magic_validation").show()
 se: SparkExpectations = SparkExpectations(
-    product_id="pay", # Used to filter which rules we apply
-    debugger=True)
-#end::setup_and_load[]
+    product_id="pay", debugger=True  # Used to filter which rules we apply
+)
+# end::setup_and_load[]
 
-#tag::run_validation[]
+
+# tag::run_validation[]
 # Only row data quality checking
 @se.with_expectations(
     se.reader.get_rules_from_table(
@@ -88,11 +93,13 @@ se: SparkExpectations = SparkExpectations(
     # This does not work currently (Iceberg)
     spark_conf={"format": "iceberg"},
     options={"format": "iceberg"},
-    options_error_table={"format": "iceberg"})
+    options_error_table={"format": "iceberg"},
+)
 def load_data():
     raw_df = spark.read.csv("data/fetched/2021", header=True, inferSchema=True)
     uk_df = raw_df.select("CompanyNumber", "MaleBonusPercent", "FemaleBonuspercent")
     return uk_df
 
+
 data = load_data()
-#end::run_validation[]
+# end::run_validation[]
