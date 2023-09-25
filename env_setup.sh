@@ -2,13 +2,13 @@
 
 
 # Download Spark and iceberg if not present
-SPARK_MAJOR="3.4"
-SPARK_VERSION=3.4.1
-SCALA_VERSION="2.12"
+SPARK_MAJOR=${SPARK_MAJOR:-"3.4"}
+SPARK_VERSION=${SPARK_VERSION:-"3.4.1"}
+SCALA_VERSION=${SCALA_VERSION:-"2.12"}
 HADOOP_VERSION="3"
 SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
-ICEBERG_VERSION="1.3.1"
+ICEBERG_VERSION=${ICEBERG_VERSION:-"1.3.1"}
 if [ ! -f "${SPARK_FILE}" ]; then
   wget "https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}" &
 fi
