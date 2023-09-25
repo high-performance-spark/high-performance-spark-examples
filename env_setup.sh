@@ -20,7 +20,7 @@ fi
 wait
 # Setup the env
 if [ ! -d "${SPARK_PATH}" ]; then
-  tar -xf ${SPARK_FILE}
+  tar -xf "${SPARK_FILE}"
 fi
 
 export SPARK_HOME="${SPARK_PATH}"
@@ -30,7 +30,7 @@ if [ ! -f "${SPARK_PATH}/jars/${ICEBERG_FILE}" ]; then
 fi
 
 # Set up for running pyspark and friends
-export PATH=${SPARK_PATH}:${SPARK_PATH}/python:${SPARK_PATH}/bin:${SPARK_PATH}/sbin:${PATH}
+export PATH="${SPARK_PATH}:${SPARK_PATH}/python:${SPARK_PATH}/bin:${SPARK_PATH}/sbin:${PATH}"
 
 # Make sure we have a history directory
 mkdir -p /tmp/spark-events
