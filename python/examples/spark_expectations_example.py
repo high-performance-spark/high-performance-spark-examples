@@ -1,14 +1,13 @@
 from pyspark import SparkFiles
 from pyspark.sql import *
-from spark_expectations.core.expectations import SparkExpectations
+from spark_expectations.core.expectations import SparkExpectations, WrappedDataFrameWriter
 
 spark = SparkSession.builder.master("local[4]").getOrCreate()
 sc = spark.sparkContext
+sc.setLogLevel("ERROR")
 
-# tag::global_setup[]
-from spark_expectations.config.user_config import *
-
-se_global_spark_Conf = {
+#tag::global_setup[]
+se_conf = {
     "se_notifications_enable_email": False,
     "se_notifications_email_smtp_host": "mailhost.example.com",
     "se_notifications_email_smtp_port": 25,
@@ -17,12 +16,13 @@ se_global_spark_Conf = {
     "se_notifications_on_fail": True,
     "se_notifications_on_error_drop_exceeds_threshold_breach": True,
     "se_notifications_on_error_drop_threshold": 15,
-    "se_enable_streaming": False,  # Required or tries to publish to kafka.
 }
-# end::gloabl_setup[]
+#end::gloabl_setup[]
 
 
-# tag::setup_and_load[]
+#tag::setup_and_load[]
+from spark_expectations.config.user_config import Constants as user_config
+
 spark.sql("DROP TABLE IF EXISTS local.magic_validation")
 spark.sql(
     """
@@ -43,57 +43,39 @@ create table local.magic_validation (
     error_drop_threshold INT
 )"""
 )
-spark.sql(
-    """
-create table if not exists local.pay_stats (
-    product_id STRING,
-    table_name STRING,
-    input_count LONG,
-    error_count LONG,
-    output_count LONG,
-    output_percentage FLOAT,
-    success_percentage FLOAT,
-    error_percentage FLOAT,
-    source_agg_dq_results array<map<string, string>>,
-    final_agg_dq_results array<map<string, string>>,
-    source_query_dq_results array<map<string, string>>,
-    final_query_dq_results array<map<string, string>>,
-    row_dq_res_summary array<map<string, string>>,
-    row_dq_error_threshold array<map<string, string>>,
-    dq_status map<string, string>,
-    dq_run_time map<string, float>,
-    dq_rules map<string, map<string,int>>,
-    meta_dq_run_id STRING,
-    meta_dq_run_date DATE,
-    meta_dq_run_datetime TIMESTAMP
-);"""
-)
-rule_file = "./spark_expectations_sample_rules.json"
+# Reminder: addFile does not handle directories well.
+rule_file = "spark_expectations_sample_rules.json"
 sc.addFile(rule_file)
 df = spark.read.json(SparkFiles.get(rule_file))
 print(df)
 df.write.option("byname", "true").mode("append").saveAsTable("local.magic_validation")
 spark.read.table("local.magic_validation").show()
+
+# Can be used to point to your desired metastore.
+se_writer = WrappedDataFrameWriter().mode("append").format("iceberg")
+
+rule_df = spark.sql("select * from local.magic_validation")
+
 se: SparkExpectations = SparkExpectations(
-    product_id="pay", debugger=True  # Used to filter which rules we apply
+    rules_df=rule_df, # See if we can replace this with the DF we wrote out.
+    product_id="pay", # We will only apply rules matching this product id
+    stats_table="local.dq_stats",
+    stats_table_writer=se_writer,
+    target_and_error_table_writer=se_writer,
+    stats_streaming_options={user_config.se_enable_streaming: False},
 )
-# end::setup_and_load[]
+#end::setup_and_load[]
+rule_df.show(truncate=200)
 
 
-# tag::run_validation[]
-# Only row data quality checking
+#tag::run_validation_row[]
 @se.with_expectations(
-    se.reader.get_rules_from_table(
-        product_rules_table="local.magic_validation",
-        target_table_name="local.bonuses",
-        dq_stats_table_name="local.pay_stats",
-    ),
-    write_to_table=False,
-    row_dq=True,
-    # This does not work currently (Iceberg)
-    spark_conf={"format": "iceberg"},
-    options={"format": "iceberg"},
-    options_error_table={"format": "iceberg"},
+    user_conf=se_conf,
+    write_to_table=False, # If set to true SE will write to the target table.
+    target_and_error_table_writer=se_writer,
+    # target_table is used to create the error table (e.g. here local.fake_table_name_error)
+    # and filter the rules on top of the global product filter.
+    target_table="local.fake_table_name",
 )
 def load_data():
     raw_df = spark.read.csv("data/fetched/2021", header=True, inferSchema=True)
@@ -101,5 +83,25 @@ def load_data():
     return uk_df
 
 
-data = load_data()
-# end::run_validation[]
+#data = load_data()
+#end::run_validation_row[]
+
+#tag::run_validation_complex[]
+@se.with_expectations(
+    user_conf=se_conf,
+    write_to_table=True, # If set to true SE will write to the target table.
+    target_and_error_table_writer=se_writer,
+    # target_table is used to create the error table (e.g. here local.fake_table_name_error)
+    # and filter the rules on top of the global product filter.
+    target_table="local.3rd_fake",
+)
+def load_data2():
+    raw_df = spark.read.csv("data/fetched/2021", header=True, inferSchema=True)
+    uk_df = raw_df.select("CompanyNumber", "MaleBonusPercent", "FemaleBonuspercent")
+    return uk_df
+
+
+data = load_data2()
+#end::run_validation_complex[]
+
+spark.sql("SELECT table_name, error_percentage, * FROM local.dq_stats").show(truncate=300)
