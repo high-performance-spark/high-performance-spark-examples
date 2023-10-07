@@ -74,7 +74,7 @@ lazy val core = (project in file("core")) // regular scala code with @native met
     Test / javaOptions ++= specialOptions,
     // 2.4.5 is the highest version we have with the old spark-testing-base deps
     sparkVersion := System.getProperty("sparkVersion", "3.5.0"),
-    sparkTestingVersion := "1.4.0",
+    sparkTestingVersion := "1.4.4",
     // additional libraries
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core"                % sparkVersion.value,
