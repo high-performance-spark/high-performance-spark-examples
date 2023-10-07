@@ -8,7 +8,7 @@ SCALA_VERSION=${SCALA_VERSION:-"2.12"}
 HADOOP_VERSION="3"
 SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
-ICEBERG_VERSION=${ICEBERG_VERSION:-"1.3.1"}
+ICEBERG_VERSION=${ICEBERG_VERSION:-"1.4.0"}
 if [ ! -f "${SPARK_FILE}" ]; then
   wget "https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}" &
 fi
@@ -26,7 +26,8 @@ fi
 export SPARK_HOME="${SPARK_PATH}"
 
 if [ ! -f "${SPARK_PATH}/jars/${ICEBERG_FILE}" ]; then
-  cp "${ICEBERG_FILE}" "${SPARK_PATH}/jars/${ICEBERG_FILE}"
+    rm "${SPARK_PATH}/jars/iceberg-spark-runtime*.jar"
+    cp "${ICEBERG_FILE}" "${SPARK_PATH}/jars/${ICEBERG_FILE}"
 fi
 
 # Set up for running pyspark and friends
