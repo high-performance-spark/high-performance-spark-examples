@@ -80,6 +80,7 @@ metastore_db/
 sql/*.sql.out
 python/examples/*.py.out
 data/fetched/*
+spark_expectations_sample_rules.json
 
 # more python
 pyspark_venv.tar.gz

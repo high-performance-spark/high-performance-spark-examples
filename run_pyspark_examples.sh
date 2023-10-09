@@ -27,6 +27,9 @@ export PYSPARK_DRIVER_PYTHON
 export PYTHON_PATH=./environment/bin/python
 #end::package_venv[]
 
+# Some hack for our json magic
+cat se*.json > spark_expectations_sample_rules.json
+
 function run_example () {
   local ex="$1"
   # shellcheck disable=SC2046
