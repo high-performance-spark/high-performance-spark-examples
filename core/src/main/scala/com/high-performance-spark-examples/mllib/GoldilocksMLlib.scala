@@ -14,7 +14,6 @@ import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
-import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import com.highperformancespark.examples.dataframe._
 //end::imports[]
 
