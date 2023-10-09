@@ -26,8 +26,9 @@ fi
 export SPARK_HOME="${SPARK_PATH}"
 
 if [ ! -f "${SPARK_PATH}/jars/${ICEBERG_FILE}" ]; then
-    rm "${SPARK_PATH}/jars/iceberg-spark-runtime*.jar"
-    cp "${ICEBERG_FILE}" "${SPARK_PATH}/jars/${ICEBERG_FILE}"
+  # Delete the old JAR first.
+  rm "${SPARK_PATH}/jars/iceberg-spark-runtime*.jar" || echo "No old version to delete."
+  cp "${ICEBERG_FILE}" "${SPARK_PATH}/jars/${ICEBERG_FILE}"
 fi
 
 # Set up for running pyspark and friends
