@@ -1,12 +1,15 @@
 from pyspark import SparkFiles
 from pyspark.sql import *
-from spark_expectations.core.expectations import SparkExpectations, WrappedDataFrameWriter
+from spark_expectations.core.expectations import (
+    SparkExpectations,
+    WrappedDataFrameWriter,
+)
 
 spark = SparkSession.builder.master("local[4]").getOrCreate()
 sc = spark.sparkContext
 sc.setLogLevel("ERROR")
 
-#tag::global_setup[]
+# tag::global_setup[]
 se_conf = {
     "se_notifications_enable_email": False,
     "se_notifications_email_smtp_host": "mailhost.example.com",
@@ -17,10 +20,10 @@ se_conf = {
     "se_notifications_on_error_drop_exceeds_threshold_breach": True,
     "se_notifications_on_error_drop_threshold": 15,
 }
-#end::gloabl_setup[]
+# end::gloabl_setup[]
 
 
-#tag::setup_and_load[]
+# tag::setup_and_load[]
 from spark_expectations.config.user_config import Constants as user_config
 
 spark.sql("DROP TABLE IF EXISTS local.magic_validation")
@@ -57,21 +60,21 @@ se_writer = WrappedDataFrameWriter().mode("append").format("iceberg")
 rule_df = spark.sql("select * from local.magic_validation")
 
 se: SparkExpectations = SparkExpectations(
-    rules_df=rule_df, # See if we can replace this with the DF we wrote out.
-    product_id="pay", # We will only apply rules matching this product id
+    rules_df=rule_df,  # See if we can replace this with the DF we wrote out.
+    product_id="pay",  # We will only apply rules matching this product id
     stats_table="local.dq_stats",
     stats_table_writer=se_writer,
     target_and_error_table_writer=se_writer,
     stats_streaming_options={user_config.se_enable_streaming: False},
 )
-#end::setup_and_load[]
+# end::setup_and_load[]
 rule_df.show(truncate=200)
 
 
-#tag::run_validation_row[]
+# tag::run_validation_row[]
 @se.with_expectations(
     user_conf=se_conf,
-    write_to_table=False, # If set to true SE will write to the target table.
+    write_to_table=False,  # If set to true SE will write to the target table.
     target_and_error_table_writer=se_writer,
     # target_table is used to create the error table (e.g. here local.fake_table_name_error)
     # and filter the rules on top of the global product filter.
@@ -83,13 +86,14 @@ def load_data():
     return uk_df
 
 
-#data = load_data()
-#end::run_validation_row[]
+# data = load_data()
+# end::run_validation_row[]
 
-#tag::run_validation_complex[]
+
+# tag::run_validation_complex[]
 @se.with_expectations(
     user_conf=se_conf,
-    write_to_table=True, # If set to true SE will write to the target table.
+    write_to_table=True,  # If set to true SE will write to the target table.
     target_and_error_table_writer=se_writer,
     # target_table is used to create the error table (e.g. here local.fake_table_name_error)
     # and filter the rules on top of the global product filter.
@@ -102,6 +106,8 @@ def load_data2():
 
 
 data = load_data2()
-#end::run_validation_complex[]
+# end::run_validation_complex[]
 
-spark.sql("SELECT table_name, error_percentage, * FROM local.dq_stats").show(truncate=300)
+spark.sql("SELECT table_name, error_percentage, * FROM local.dq_stats").show(
+    truncate=300
+)
