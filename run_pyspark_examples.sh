@@ -36,7 +36,7 @@ function check_fail () {
   if [ -f "${ex}.fail" ]; then
     echo "ok";
   else
-    exit $code
+    exit "$code"
   fi
 }
 
