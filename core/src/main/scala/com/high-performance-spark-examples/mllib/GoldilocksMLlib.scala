@@ -14,7 +14,6 @@ import org.apache.spark.mllib.linalg.{Vector => SparkVector}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
-import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import com.highperformancespark.examples.dataframe._
 //end::imports[]
 
@@ -96,42 +95,6 @@ object GoldilocksMLlib {
     (scalerModel, scalerModel.transform(rdd))
   }
   //end::trainScaler[]
-
-  //tag::word2vecSimple[]
-  def word2vec(sc: SparkContext, rdd: RDD[String]): RDD[SparkVector] = {
-    // Tokenize our data
-    val tokenized = rdd.map(_.split(" ").toIterable)
-    // Construct our word2vec model
-    val wv = new Word2Vec()
-    val wvm = wv.fit(tokenized)
-    val wvmb = sc.broadcast(wvm)
-    // WVM can now transform single words
-    println(wvm.transform("panda"))
-    // Vector size is 100 - we use this to build a transformer on top of WVM that
-    // works on sentences.
-    val vectorSize = 100
-    // The transform function works on a per-word basis, but we have
-    // sentences as input.
-    tokenized.map{words =>
-      // If there is nothing in the sentence output a null vector
-      if (words.isEmpty) {
-        Vectors.sparse(vectorSize, Array.empty[Int], Array.empty[Double])
-      } else {
-        // If there are sentences construct a running sum of the
-        // vectors for each word
-        val sum = Array[Double](vectorSize)
-        words.foreach { word =>
-          blas.daxpy(
-            vectorSize, 1.0, wvmb.value.transform(word).toArray, 1, sum, 1)
-        }
-        // Then scale it by the number of words
-        blas.dscal(sum.length, 1.0 / words.size, sum, 1)
-        // And wrap it in a Spark vector
-        Vectors.dense(sum)
-      }
-    }
-  }
-  //end::word2vecSimple[]
 
   //tag::hashingTFPreserve[]
   def toVectorPerserving(rdd: RDD[RawPanda]): RDD[(RawPanda, SparkVector)] = {
