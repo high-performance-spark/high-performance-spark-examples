@@ -30,6 +30,16 @@ export PYTHON_PATH=./environment/bin/python
 # Some hack for our json magic
 cat se*.json > spark_expectations_sample_rules.json
 
+function check_fail () {
+  local ex="$1"
+  local code="$2"
+  if [ -f "${ex}.fail" ]; then
+    echo "ok";
+  else
+    exit $code
+  fi
+}
+
 function run_example () {
   local ex="$1"
   # shellcheck disable=SC2046
@@ -45,7 +55,7 @@ function run_example () {
 	       --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
 	       $(cat "${ex}.conf" || echo "") \
 	       --name "${ex}" \
-	       "${ex}" 2>&1 | tee -a "${ex}.out" || echo "ok"
+	       "${ex}" 2>&1 | tee -a "${ex}.out" || check_fail "$ex" $?
 }
 
 if [ $# -eq 1 ]; then
