@@ -139,7 +139,7 @@ if __name__ == "__main__":
     """
     Usage: simple_perf_test scalingFactor size
     """
-    
+
     scalingFactor = 1
     size = 1
     if len(sys.argv) > 2:
