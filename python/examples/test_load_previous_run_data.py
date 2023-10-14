@@ -8,7 +8,7 @@ from .load_previous_run_data import LoadPreviousRunData
 
 class TestLoadPreviousRunData(SQLTestCase):
     def test_do_magic(self):
-        lprd = LoadPreviousRunData(SparkSession._getActiveSessionOrCreate())
+        lprd = LoadPreviousRunData(self.session)
         try:
             lprd.do_magic()
         except FileNotFoundError:
