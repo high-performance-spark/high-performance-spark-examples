@@ -33,7 +33,7 @@ def generate_scale_data(sqlCtx, rows, numCols):
     """
     # tag::javaInterop[]
     sc = sqlCtx._sc
-    javaSparkSession = sqlCtx._jSparkSession
+    javaSparkSession = sqlCtx._jsparkSession
     jsc = sc._jsc
     scalasc = jsc.sc()
     gateway = sc._gateway
@@ -139,9 +139,12 @@ if __name__ == "__main__":
     """
     Usage: simple_perf_test scalingFactor size
     """
-
-    (scalingFactor, size) = parseArgs(sys.argv)
-    session = SparkSession.appName("SimplePythonPerf").builder.getOrCreate()
+    
+    scalingFactor = 1
+    size = 1
+    if len(sys.argv) > 2:
+        (scalingFactor, size) = parseArgs(sys.argv)
+    session = SparkSession.builder.appName("SimplePythonPerf").getOrCreate()
     sc = session._sc
     run(sc, session, scalingFactor, size)
 

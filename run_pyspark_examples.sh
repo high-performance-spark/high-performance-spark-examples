@@ -40,6 +40,12 @@ function check_fail () {
   fi
 }
 
+EXAMPLE_JAR="./target/scala-2.12/examples_2.12-0.0.1.jar"
+
+if [ ! -f "${EXAMPLE_JAR}" ]; then
+  sbt core/package
+fi
+
 function run_example () {
   local ex="$1"
   # shellcheck disable=SC2046
@@ -55,6 +61,7 @@ function run_example () {
 	       --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
 	       $(cat "${ex}.conf" || echo "") \
 	       --name "${ex}" \
+	       --jars "${EXAMPLE_JAR}" \
 	       "${ex}" 2>&1 | tee -a "${ex}.out" || check_fail "$ex" $?
 }
 
