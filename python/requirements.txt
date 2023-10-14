@@ -1,11 +1,10 @@
 spark-testing-base
 pandas
 pyarrow
-pyspark<3.5
+pyspark==3.5.0
 pyspark-asyncactions
 pandera
 pandera[pyspark]
 spark-expectations>=1.0
 venv-pack
-delta-spark
 requests
