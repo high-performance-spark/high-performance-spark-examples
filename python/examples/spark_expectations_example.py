@@ -108,6 +108,6 @@ def load_data2():
 data = load_data2()
 # end::run_validation_complex[]
 
-spark.sql("SELECT table_name, error_percentage, * FROM local.dq_stats").show(
+spark.sql("SELECT * FROM local.3rd_fake_error").show(
     truncate=300
 )

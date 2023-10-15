@@ -69,7 +69,7 @@ def runOnDF(df):
 
 def runOnRDD(rdd):
     result = (
-        rdd.map(lambda x, y: (x, (y, 1)))
+        rdd.map(lambda xy: (xy[0], (xy[1], 1)))
         .reduceByKey(lambda x, y: (x[0] + y[0], x[1] + y[1]))
         .count()
     )
