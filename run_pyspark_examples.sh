@@ -69,6 +69,11 @@ if [ $# -eq 1 ]; then
   run_example "python/examples/$1"
 else
   for ex in python/examples/*.py; do
-    run_example "$ex"
+    if [[ "$ex" =~ test.* ]]; then
+      echo "Skipping ex $ex as it is a test and covered by our tests."
+    else
+      echo "Running $ex"
+      run_example "$ex"
+    fi
   done
 fi
