@@ -40,10 +40,10 @@ function check_fail () {
   fi
 }
 
-EXAMPLE_JAR="./target/scala-2.12/examples-assembly-0.0.1.jar"
+EXAMPLE_JAR="./core/target/scala-2.12/core-assembly-0.1.0-SNAPSHOT.jar"
 
 if [ ! -f "${EXAMPLE_JAR}" ]; then
-  sbt core/package
+  sbt core/assembly
 fi
 
 function run_example () {
