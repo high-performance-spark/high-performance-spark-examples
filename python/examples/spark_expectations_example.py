@@ -108,6 +108,4 @@ def load_data2():
 data = load_data2()
 # end::run_validation_complex[]
 
-spark.sql("SELECT * FROM local.3rd_fake_error").show(
-    truncate=300
-)
+spark.sql("SELECT * FROM local.3rd_fake_error").show(truncate=300)
