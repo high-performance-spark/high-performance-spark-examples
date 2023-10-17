@@ -32,10 +32,10 @@ def cutLineage(df):
     jRDD = df._jdf.toJavaRDD()
     jSchema = df._jdf.schema()
     jRDD.cache()
-    sqlCtx = df.sql_ctx
-    javaSparkSession = sqlCtx._jSparkSession
+    session = df.sparkSession
+    javaSparkSession = session._jsparkSession
     newJavaDF = javaSparkSession.createDataFrame(jRDD, jSchema)
-    newDF = DataFrame(newJavaDF, sqlCtx)
+    newDF = DataFrame(newJavaDF, session)
     return newDF
 
 

@@ -70,22 +70,22 @@ lazy val core = (project in file("core")) // regular scala code with @native met
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     parallelExecution in Test := false,
     fork := true,
-    javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-Djna.nosys=true"),
+    javaOptions ++= Seq("-Xms4048M", "-Xmx4048M", "-Djna.nosys=true"),
     Test / javaOptions ++= specialOptions,
     // 2.4.5 is the highest version we have with the old spark-testing-base deps
     sparkVersion := System.getProperty("sparkVersion", "3.5.0"),
     sparkTestingVersion := "1.4.7",
     // additional libraries
     libraryDependencies ++= Seq(
-      "org.apache.spark" %% "spark-core"                % sparkVersion.value,
-      "org.apache.spark" %% "spark-streaming"           % sparkVersion.value,
-      "org.apache.spark" %% "spark-sql"                 % sparkVersion.value,
-      "org.apache.spark" %% "spark-hive"                % sparkVersion.value,
-      "org.apache.spark" %% "spark-hive-thriftserver"   % sparkVersion.value,
-      "org.apache.spark" %% "spark-catalyst"            % sparkVersion.value,
-      "org.apache.spark" %% "spark-yarn"                % sparkVersion.value,
-      "org.apache.spark" %% "spark-mllib"               % sparkVersion.value,
-      "com.holdenkarau" %% "spark-testing-base"         % s"${sparkVersion.value}_${sparkTestingVersion.value}",
+      "org.apache.spark" %% "spark-core"                % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-streaming"           % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-sql"                 % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-hive"                % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-hive-thriftserver"   % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-catalyst"            % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-yarn"                % sparkVersion.value % Provided,
+      "org.apache.spark" %% "spark-mllib"               % sparkVersion.value % Provided,
+      "com.holdenkarau" %% "spark-testing-base"         % s"${sparkVersion.value}_${sparkTestingVersion.value}" % Test,
       //tag::scalaLogging[]
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
       //end::scalaLogging[]
@@ -105,3 +105,15 @@ ThisBuild / libraryDependencySchemes ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
 //end::xmlVersionConflict[]
+
+assemblyMergeStrategy in assembly := {
+      case x => MergeStrategy.first
+}
+
+assemblyMergeStrategy in native := {
+      case x => MergeStrategy.first
+}
+
+assemblyMergeStrategy in core := {
+      case x => MergeStrategy.first
+}

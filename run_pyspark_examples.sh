@@ -30,6 +30,22 @@ export PYTHON_PATH=./environment/bin/python
 # Some hack for our json magic
 cat se*.json > spark_expectations_sample_rules.json
 
+function check_fail () {
+  local ex="$1"
+  local code="$2"
+  if [ -f "${ex}.fail" ]; then
+    echo "ok";
+  else
+    exit "$code"
+  fi
+}
+
+EXAMPLE_JAR="./core/target/scala-2.12/core-assembly-0.1.0-SNAPSHOT.jar"
+
+if [ ! -f "${EXAMPLE_JAR}" ]; then
+  sbt core/assembly
+fi
+
 function run_example () {
   local ex="$1"
   # shellcheck disable=SC2046
@@ -45,13 +61,19 @@ function run_example () {
 	       --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
 	       $(cat "${ex}.conf" || echo "") \
 	       --name "${ex}" \
-	       "${ex}" 2>&1 | tee -a "${ex}.out" || echo "ok"
+	       --jars "${EXAMPLE_JAR}" \
+	       "${ex}" 2>&1 | tee -a "${ex}.out" || check_fail "$ex" $?
 }
 
 if [ $# -eq 1 ]; then
   run_example "python/examples/$1"
 else
   for ex in python/examples/*.py; do
-    run_example "$ex"
+    if [[ "$ex" =~ test.* ]]; then
+      echo "Skipping ex $ex as it is a test and covered by our tests."
+    else
+      echo "Running $ex"
+      run_example "$ex"
+    fi
   done
 fi
