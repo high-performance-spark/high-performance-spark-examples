@@ -89,3 +89,8 @@ pyspark_venv/
 # accel stuff
 accelerators/*.jar
 accelerators/arrow-datafusion-comet
+# ignore gluten
+gluten
+gluten*.jar
+spark-3*hadoop*/
+spark-3*hadoop*.tgz
