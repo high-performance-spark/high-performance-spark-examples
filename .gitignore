@@ -85,3 +85,6 @@ spark_expectations_sample_rules.json
 # more python
 pyspark_venv.tar.gz
 pyspark_venv/
+
+# ignore gluten
+gluten

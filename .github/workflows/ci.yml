@@ -27,6 +27,15 @@ jobs:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: sbt
+    - name: Setup native deps
+      run: |
+        sudo apt-get update && sudo apt-get install -y sudo locales wget tar tzdata git ccache cmake ninja-build build-essential llvm-11-dev clang-11 libiberty-dev libdwarf-dev libre2-dev libz-dev libssl-dev libboost-all-dev libcurl4-openssl-dev openjdk-8-jdk maven rapidjson-dev libdouble-conversion-dev libgflags-dev libgoogle-glog-dev libsodium-dev libsnappy-dev
+    - name: setup velox
+      run: |
+          git clone https://github.com/oap-project/gluten.git
+          cd gluten
+          ./dev/builddeps-veloxbe.sh
+          cd ..
     - name: Scala Build and Test
       run: sbt clean package +test
   python-test:
