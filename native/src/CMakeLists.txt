@@ -19,10 +19,17 @@ set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 0)
 
 # For gluten+velox, you can leave out if not using gluten
-set(GLUTEN_HOME ./glutten)
-find_library(VELOX_LIBRARY REQUIRED NAMES velox HINTS
+set(GLUTEN_HOME ../glutten)
+find_library(VELOX_LIBRARY NAMES velox HINTS
 	     ${GLUTEN_HOME}/cpp/build/releases NO_DEFAULT_PATH)
 # End gluten specific
+
+if(VELOX_LIBRARY)
+    file(GLOB LIB_SRC
+      "./c/velox/*.cpp")
+else()
+    message(WARNING "Velox library not found. Specific path not added.")
+endif()
 
 # Setup JNI
 find_package(JNI REQUIRED)
