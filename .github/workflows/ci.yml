@@ -29,7 +29,7 @@ jobs:
         cache: sbt
     - name: Setup native deps
       run: |
-        sudo apt-get update && sudo apt-get install -y locales wget tar tzdata git ccache cmake ninja-build build-essential llvm-dev clang libiberty-dev libdwarf-dev libre2-dev libz-dev libssl-dev libboost-all-dev libcurl4-openssl-dev maven rapidjson-dev libdouble-conversion-dev libgflags-dev libsodium-dev libsnappy-dev && sudo apt-get install -y libgoogle-glog-dev
+        sudo apt-get update && sudo apt-get install -y locales wget tar tzdata git ccache cmake ninja-build build-essential llvm-dev clang libiberty-dev libdwarf-dev libre2-dev libz-dev libssl-dev libboost-all-dev libcurl4-openssl-dev maven rapidjson-dev libdouble-conversion-dev libgflags-dev libsodium-dev libsnappy-dev
     - name: setup velox
       run: |
           git clone https://github.com/oap-project/gluten.git
