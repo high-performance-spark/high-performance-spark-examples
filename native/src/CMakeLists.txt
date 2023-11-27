@@ -18,15 +18,19 @@ set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 0)
 
+set (LIB_NAME ${PROJECT_NAME}${PROJECT_VERSION_MAJOR})
+
 # For gluten+velox, you can leave out if not using gluten
-set(GLUTEN_HOME ../glutten)
+set(GLUTEN_HOME ../../gluten)
+set(CMAKE_FIND_DEBUG_MODE TRUE)
 find_library(VELOX_LIBRARY NAMES velox HINTS
 	     ${GLUTEN_HOME}/cpp/build/releases NO_DEFAULT_PATH)
 # End gluten specific
 
 if(VELOX_LIBRARY)
-    file(GLOB LIB_SRC
-      "./c/velox/*.cpp")
+    file(GLOB ADDITIONAL_FILES
+      "./c/gluten/*.cpp")
+    include_directories(${GLUTEN_HOME}/cpp ${GLUTEN_HOME}/ep/build-velox/build/velox_ep)
 else()
     message(WARNING "Velox library not found. Specific path not added.")
 endif()
@@ -58,6 +62,5 @@ file(GLOB LIB_SRC
 # Setup installation targets
 # (required by sbt-jni) major version should always be appended to library name
 #
-set (LIB_NAME ${PROJECT_NAME}${PROJECT_VERSION_MAJOR})
-add_library(${LIB_NAME} SHARED ${LIB_SRC})
+add_library(${LIB_NAME} SHARED ${LIB_SRC} ${ADDITIONAL_FILES})
 install(TARGETS ${LIB_NAME} LIBRARY DESTINATION .)
