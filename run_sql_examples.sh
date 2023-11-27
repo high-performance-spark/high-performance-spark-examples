@@ -4,6 +4,15 @@ set -o pipefail
 
 source env_setup.sh
 
+# Check if we gluten and gluten UDFs present
+GLUTEN_NATIVE_LIB_NAME=libhigh-performance-spark-gluten-0.so
+NATIVE_LIB_DIR=./native/src/
+NATIVE_LIB_PATH="${NATIVE_LIB_DIR}{$GLUTEN_NATIVE_LIB_NAME}"
+# TODO: Check for gluten java libs.
+if [ -f "${NATIVE_LIB_PATH}" ]; then
+  # TODO: Finish selectively enabling gluten
+fi
+
 function run_example () {
   local sql_file="$1"
   # shellcheck disable=SC2046
@@ -15,6 +24,7 @@ function run_example () {
 	    --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
 	    --conf spark.sql.catalog.local.type=hadoop \
 	    --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
+	    ${SPARK_EXTRA} \
 	    $(cat "${sql_file}.conf" || echo "") \
 	    --name "${sql_file}" \
 	    -f "${sql_file}" | tee -a "${sql_file}.out" || ls "${sql_file}.expected_to_fail"
