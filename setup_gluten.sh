@@ -10,7 +10,7 @@ if [ ! -d gluten ]; then
   git clone git@github.com:holdenk/gluten.git || git clone https://github.com/holdenk/gluten.git
   cd gluten
   git checkout add-spark35-scala213
-  ./dev/builddeps-veloxbe.sh --build_tests=ON --build_benchmarks=ON --enable_s3=ON  --enable_hdfs=ON 
+  ./dev/builddeps-veloxbe.sh
   mvn clean package -Pbackends-velox -Pspark-3.5 -DskipTests
   cd ..
 fi
