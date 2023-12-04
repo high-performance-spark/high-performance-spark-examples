@@ -27,8 +27,6 @@ jobs:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: sbt
-    - name: setup gluten
-      run: ./setup_gluten.sh
     - name: Scala Build and Test
       run: sbt clean package +test
   python-test:
