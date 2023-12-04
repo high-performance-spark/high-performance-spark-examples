@@ -16,7 +16,7 @@ if [ -f "${NATIVE_LIB_PATH}" ]; then
   GLUTEN_SPARK_EXTRA="--conf spark.plugins=io.glutenproject.GlutenPlugin \
   --conf spark.memory.offHeap.enabled=true \
   --conf spark.memory.offHeap.size=20g \
-  --jars ${gluten_jvm_jar},${gluten_jvm_package} \
+  --jars ${gluten_jvm_jar},${gluten_jvm_package_jar} \
   --conf spark.jars=${gluten_jvm_jar} \
   --conf spark.driver.extraClassPath=${gluten_jvm_package_jar} \
   --conf spark.executor.extraClassPath=${gluten_jvm_package_jar} \
@@ -29,7 +29,7 @@ fi
 function run_example () {
   local sql_file="$1"
   local extra="$2"
-  # shellcheck disable=SC2046
+  # shellcheck disable=SC2046,SC2086
   spark-sql --master local[5] \
 	    --conf spark.eventLog.enabled=true \
 	    --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
