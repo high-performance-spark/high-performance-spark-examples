@@ -88,3 +88,6 @@ pyspark_venv/
 
 # ignore gluten
 gluten
+gluten*.jar
+spark-3*hadoop*/
+spark-3*hadoop*.tgz
