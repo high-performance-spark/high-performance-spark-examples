@@ -19,8 +19,9 @@ set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 0)
 
 set (LIB_NAME ${PROJECT_NAME}${PROJECT_VERSION_MAJOR})
-set (GLUTEN_LIB_NAME ${PROJECT_NAME}-gluten-${PROJECT_VERSION_MAJOR})
 
+#tag::velox[]
+set (GLUTEN_LIB_NAME ${PROJECT_NAME}-gluten-${PROJECT_VERSION_MAJOR})
 # For gluten+velox, you can leave out if not using gluten
 set(GLUTEN_HOME ../../gluten)
 set(CMAKE_FIND_DEBUG_MODE TRUE)
@@ -37,6 +38,7 @@ if(VELOX_LIBRARY)
 else()
     message(WARNING "Velox library not found. Specific path not added.")
 endif()
+#end::velox[]
 
 # Setup JNI
 find_package(JNI REQUIRED)
