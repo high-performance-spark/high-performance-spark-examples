@@ -85,3 +85,7 @@ spark_expectations_sample_rules.json
 # more python
 pyspark_venv.tar.gz
 pyspark_venv/
+
+# accel stuff
+accelerators/*.jar
+accelerators/arrow-datafusion-comet
