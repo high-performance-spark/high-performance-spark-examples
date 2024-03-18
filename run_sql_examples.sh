@@ -4,35 +4,11 @@ set -o pipefail
 
 source env_setup.sh
 
-# Check if we gluten and gluten UDFs present
-GLUTEN_NATIVE_LIB_NAME=libhigh-performance-spark-gluten-0.so
-NATIVE_LIB_DIR=./native/src/
-NATIVE_LIB_PATH="${NATIVE_LIB_DIR}${GLUTEN_NATIVE_LIB_NAME}"
-GLUTEN_HOME=./gluten
-if [ -d ${GLUTEN_HOME} ]; then
-  GLUTEN_EXISTS="true"
-  gluten_jvm_jar=$(ls "${GLUTEN_HOME}"/package/target/gluten-velox-bundle-spark3.5_2.12-ubuntu_*-*-SNAPSHOT.jar) #TBD
-  gluten_jvm_package_jar=$(ls "${GLUTEN_HOME}"/package/target/gluten-package*-*-SNAPSHOT.jar)
-  GLUTEN_SPARK_EXTRA="--conf spark.plugins=io.glutenproject.GlutenPlugin \
-  --conf spark.memory.offHeap.enabled=true \
-  --conf spark.memory.offHeap.size=5g \
-  --conf spark.shuffle.manager=org.apache.spark.shuffle.sort.ColumnarShuffleManager \
-  --conf spark.gluten.sql.columnar.backend.velox.udfLibraryPaths=${GLUTEN_NATIVE_LIB_NAME}"
-  # Enable UDF seperately.
-  if [ -f "${NATIVE_LIB_PATH}" ]; then
-    GLUTEN_SPARK_EXTRA="$GLUTEN_SPARK_EXTRA \
-     --jars ${gluten_jvm_jar},${gluten_jvm_package_jar} \
-     --conf spark.jars=${gluten_jvm_jar} \
-     --conf spark.gluten.loadLibFromJar=true \
-     --files ${NATIVE_LIB_PATH}"
-  fi
-fi
-
 function run_example () {
   local sql_file="$1"
   local extra="$2"
   # shellcheck disable=SC2046,SC2086
-  spark-sql --master local[5] \
+  ${SPARK_HOME}/bin/spark-sql --master local[5] \
 	    --conf spark.eventLog.enabled=true \
 	    --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
 	    --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog \
@@ -40,7 +16,7 @@ function run_example () {
 	    --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
 	    --conf spark.sql.catalog.local.type=hadoop \
 	    --conf "spark.sql.catalog.local.warehouse=$PWD/warehouse" \
-	    ${extra} \
+	    ${extra} ${SPARK_EXTRA} \
 	    $(cat "${sql_file}.conf" || echo "") \
 	    --name "${sql_file}" \
 	    -f "${sql_file}" | tee -a "${sql_file}.out" || ls "${sql_file}.expected_to_fail"
@@ -56,21 +32,25 @@ if [ $# -eq 1 ]; then
   else
     echo "Processing gluten ${sql_file}"
     # shellcheck disable=SC2046
-    run_example "$sql_file" "$GLUTEN_SPARK_EXTRA"
+    run_example "$sql_file"
   fi
 else
   # For each SQL
   for sql_file in sql/*.sql; do
-    if [[ "$sql_file" != *"gluten_only"* ]]; then
+    if [[ "$sql_file" != *"_only"* ]]; then
       echo "Processing ${sql_file}"
       # shellcheck disable=SC2046
       run_example "$sql_file"
-    elif [[ "$GLUTEN_EXISTS" == "true" ]]; then
+    elif [[ "$sql_file" != *"gluten_only"* && "$GLUTEN_EXISTS" == "true" ]]; then
       echo "Processing gluten ${sql_file}"
       # shellcheck disable=SC2046
-      run_example "$sql_file" "$GLUTEN_SPARK_EXTRA"
+      run_example "$sql_file"
+    elif [[ "$sql_file" != *"gluten_udf_only"* && "$GLUTEN_UDF_EXISTS" == "true" ]]; then
+      echo "Processing gluten UDF ${sql_file}"
+      # shellcheck disable=SC2046
+      run_example "$sql_file"
     else
-      echo "Skipping $sql_file since we did not find gluten and this is a gluten only example."
+      echo "Skipping $sql_file since we did not find gluten and this is restricted example."
     fi
   done
 fi

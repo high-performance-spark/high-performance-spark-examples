@@ -94,3 +94,4 @@ gluten
 gluten*.jar
 spark-3*hadoop*/
 spark-3*hadoop*.tgz
+accelerators/incubator-gluten

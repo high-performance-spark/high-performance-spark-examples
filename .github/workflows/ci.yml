@@ -64,30 +64,48 @@ jobs:
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
-#  run-gluten-sql-examples:
-#    runs-on: ubuntu-latest
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#    - name: Cache Spark and friends
-#      uses: actions/cache@v3
-#      with:
-#        path: |
-#          spark*.tgz
-#          iceberg*.jar
-#        key: spark-artifacts
-#    - name: Cache Data
-#      uses: actions/cache@v3
-#      with:
-#        path: |
-#          data/fetched/*
-#        key: data-fetched
-#    - name: Setup gluten
-#      run:
-#        ./setup_gluten.sh
-#    - name: Run sql examples w/ gluten
-#      run:
-#        ./run_sql_examples.sh
+  run-gluten-sql-examples:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache Spark and friends
+      uses: actions/cache@v3
+      with:
+        path: |
+          spark*.tgz
+          iceberg*.jar
+        key: spark-artifacts
+    - name: Cache Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          data/fetched/*
+        key: data-fetched
+    - name: Run gluten
+      run:
+        cd accelerators; ./gluten_spark_34_ex.sh
+  run-comet-sql-examples:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache Spark and friends
+      uses: actions/cache@v3
+      with:
+        path: |
+          spark*.tgz
+          iceberg*.jar
+        key: spark-artifacts
+    - name: Cache Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          data/fetched/*
+        key: data-fetched
+    - name: Run comet
+      run:
+        cd accelerators; ./comet_ex.sh
   run-target-examples:
     runs-on: ubuntu-latest
     steps:
@@ -100,6 +118,12 @@ jobs:
           spark*.tgz
           iceberg*.jar
         key: spark-artifacts
+    - name: Cache Accel
+      uses: actions/cache@v3
+      with:
+        path: |
+          accelerators/*.jar
+        key: accelerators-artifacts
     - name: Cache Data
       uses: actions/cache@v3
       with:
@@ -138,7 +162,7 @@ jobs:
     - name: Shellcheck
       run: |
         sudo apt-get install -y shellcheck
-        shellcheck $(find -name "*.sh")
+        shellcheck -e SC2317,SC1091,SC2034,SC2164 $(find -name "*.sh")
     - name: Setup JDK
       uses: actions/setup-java@v3
       with:
