@@ -6,7 +6,7 @@ NATIVE_LIB_DIR=$(pwd)/../native/src/
 NATIVE_LIB_PATH="${NATIVE_LIB_DIR}${GLUTEN_NATIVE_LIB_NAME}"
 GLUTEN_HOME=incubator-gluten
 source /etc/lsb-release
-if [ "$SPARK_MAJOR" == "3.4" && "$DISTRIB_RELEASE" == "20.04" ]; then
+if [ "$SPARK_MAJOR" == "3.4" ] && [ "$DISTRIB_RELEASE" == "20.04" ]; then
   GLUTEN_EXISTS="true"
   gluten_jvm_jar=$(ls accelerators/gluten-velox-bundle-spark3.4_2.12-1.1.0.jar)
   GLUTEN_SPARK_EXTRA="--conf spark.plugins=io.glutenproject.GlutenPlugin \

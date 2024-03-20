@@ -8,7 +8,7 @@ function run_example () {
   local sql_file="$1"
   local extra="$2"
   EXTENSIONS=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
-  if [ ! -z "$EXTRA_EXTENSIONS" ]; then
+  if [ -n "$EXTRA_EXTENSIONS" ]; then
     EXTENSIONS="$EXTENSIONS,$EXTRA_EXTENSIONS"
   fi
   # shellcheck disable=SC2046,SC2086
