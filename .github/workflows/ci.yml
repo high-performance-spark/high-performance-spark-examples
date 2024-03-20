@@ -103,6 +103,11 @@ jobs:
         path: |
           data/fetched/*
         key: data-fetched
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
     - name: Run comet
       run:
         cd accelerators; ./comet_ex.sh
