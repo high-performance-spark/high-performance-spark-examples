@@ -3,6 +3,13 @@
 set -ex
 source install_rust_if_needed.sh
 
+if [ -z "${SPARK_MAJOR}" ]; then
+  echo "Need a spark major version specified."
+  exit 1
+else
+  echo "Building comet for Spark ${SPARK_MAJOR}"
+fi
+
 if [ ! -d arrow-datafusion-comet ]; then
   git clone https://github.com/apache/arrow-datafusion-comet.git
 fi
