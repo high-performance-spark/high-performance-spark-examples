@@ -1,7 +1,8 @@
 #!/bin/bash
 set -ex
 
-SPARK_MAJOR=3.4
+# If you change this update the workflow version too.
+SPARK_MAJOR=${SPARK_MAJOR:-3.4}
 SPARK_VERSION=3.4.2
 export SPARK_MAJOR
 export SPARK_VERSION
