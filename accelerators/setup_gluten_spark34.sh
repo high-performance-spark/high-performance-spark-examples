@@ -34,18 +34,21 @@ if [ "$DISTRIB_RELEASE" == "20.04" ]; then
   GLUTEN_JAR="gluten-velox-bundle-spark${SPARK_MAJOR_VERSION}_${SCALA_VERSION}-1.1.0.jar"
   GLUTEN_JAR_PATH="${SCRIPT_DIR}/gluten-velox-bundle-spark${SPARK_MAJOR_VERSION}_${SCALA_VERSION}-1.1.0.jar"
 
-  export GLUTEN_JAR
-
   if [ ! -f "${GLUTEN_JAR_PATH}" ]; then
-    wget "https://github.com/oap-project/gluten/releases/download/v1.1.0/${GLUTEN_JAR}" &
+    wget "https://github.com/oap-project/gluten/releases/download/v1.1.0/${GLUTEN_JAR}" || unset GLUTEN_JAR_PATH
   fi
 
-  wait
-else
+fi
+# Rather than if/else we fall through to build if wget fails because major version is not supported.
+if [ -z "$GLUTEN_JAR_PATH" ]; then
   if [ ! -d incubator-gluten ]; then
     git clone https://github.com/apache/incubator-gluten.git
   fi
   cd incubator-gluten
   sudo ./dev/builddeps-veloxbe.sh --enable_s3=ON
   mvn clean package -Pbackends-velox -Pspark-3.4 -DskipTests
+  GLUTEN_JAR_PATH="$(pwd)/package/target/gluten-package-*-SNAPSHOT-${SPARK_MAJOR_VERSION}.jar"
 fi
+
+export GLUTEN_JAR_PATH
+
