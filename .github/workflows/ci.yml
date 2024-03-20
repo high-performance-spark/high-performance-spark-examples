@@ -108,6 +108,9 @@ jobs:
       with:
         toolchain: stable
         override: true
+    - name: Setup comet
+      run:
+        cd accelerators; ./setup_comet.sh
     - name: Run comet
       run:
         cd accelerators; ./comet_ex.sh
