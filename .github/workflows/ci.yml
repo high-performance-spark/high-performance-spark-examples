@@ -26,7 +26,7 @@ jobs:
       with:
         distribution: temurin
         java-version: ${{ matrix.java }}
-        cache: sbt
+        cache: sbt, mvn
     - name: Scala Build and Test
       run: sbt clean package +test
   python-test:
@@ -76,6 +76,12 @@ jobs:
           spark*.tgz
           iceberg*.jar
         key: spark-artifacts
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 17
+        cache: sbt, mvn
     - name: Cache Data
       uses: actions/cache@v3
       with:
@@ -108,6 +114,12 @@ jobs:
       with:
         toolchain: stable
         override: true
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 17
+        cache: sbt, mvn
     - name: Setup comet
       run:
         cd accelerators; ./setup_comet.sh
