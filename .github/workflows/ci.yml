@@ -26,7 +26,7 @@ jobs:
       with:
         distribution: temurin
         java-version: ${{ matrix.java }}
-        cache: sbt, mvn
+        cache: sbt
     - name: Scala Build and Test
       run: sbt clean package +test
   python-test:
@@ -81,7 +81,11 @@ jobs:
       with:
         distribution: temurin
         java-version: 17
-        cache: sbt, mvn
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-gluten
     - name: Cache Data
       uses: actions/cache@v3
       with:
@@ -109,6 +113,11 @@ jobs:
         path: |
           data/fetched/*
         key: data-fetched
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-comet
     - name: Setup Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -119,7 +128,6 @@ jobs:
       with:
         distribution: temurin
         java-version: 17
-        cache: sbt, mvn
     - name: Setup comet
       run:
         cd accelerators; ./setup_comet.sh
