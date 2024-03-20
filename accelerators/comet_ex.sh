@@ -7,6 +7,9 @@ export SPARK_MAJOR
 export SPARK_VERSION
 
 source setup_comet.sh
+pushd ..
+source ./env_setup.sh 
+popd
 source comet_env_setup.sh
-cd ..
+pushd ..
 USE_COMET="true" ./run_sql_examples.sh

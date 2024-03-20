@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -ex
 
 # Download Spark and iceberg if not present
 SPARK_MAJOR=${SPARK_MAJOR:-"3.5"}
@@ -24,7 +25,8 @@ if [ ! -d "${SPARK_PATH}" ]; then
   tar -xf "${SPARK_FILE}"
 fi
 
-export SPARK_HOME="${SPARK_PATH}"
+SPARK_HOME="${SPARK_PATH}"
+export SPARK_HOME
 
 if [ ! -f "${SPARK_PATH}/jars/${ICEBERG_FILE}" ]; then
   # Delete the old JAR first.
@@ -42,3 +44,4 @@ mkdir -p ./data/fetched/
 if [ ! -f ./data/fetched/2021 ]; then
   wget "https://gender-pay-gap.service.gov.uk/viewing/download-data/2021" -O ./data/fetched/2021
 fi
+
