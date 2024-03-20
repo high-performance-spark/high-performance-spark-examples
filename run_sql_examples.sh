@@ -7,10 +7,14 @@ source env_setup.sh
 function run_example () {
   local sql_file="$1"
   local extra="$2"
+  EXTENSIONS=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+  if [ ! -z "$EXTRA_EXTENSIONS" ]; then
+    EXTENSIONS="$EXTENSIONS,$EXTRA_EXTENSIONS"
+  fi
   # shellcheck disable=SC2046,SC2086
   ${SPARK_HOME}/bin/spark-sql --master local[5] \
 	    --conf spark.eventLog.enabled=true \
-	    --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
+	    --conf spark.sql.extensions=$EXTENSIONS \
 	    --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog \
 	    --conf spark.sql.catalog.spark_catalog.type=hive \
 	    --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \

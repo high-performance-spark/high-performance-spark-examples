@@ -1,8 +1,15 @@
 #!/bin/bash
 
 SPARK_EXTRA="--jars ${COMET_JAR} \
---conf spark.sql.extensions=org.apache.comet.CometSparkSessionExtensions \
 --conf spark.comet.enabled=true \
 --conf spark.comet.exec.enabled=true \
 --conf spark.comet.exec.all.enabled=true"
+# Instead of --conf spark.sql.extensions=org.apache.comet.CometSparkSessionExtensions we set
+# EXTRA_EXTENSIONS so it can be appended to iceberg
+if [ -z "$EXTRA_EXTENSIONS" ]; then
+  EXTRA_EXTENSIONS="org.apache.comet.CometSparkSessionExtensions"
+else
+  EXTRA_EXTENSIONS="org.apache.comet.CometSparkSessionExtensions,$EXTRA_EXTENSIONS"
+fi
+export EXTRA_EXTENSIONS
 export SPARK_EXTRA
