@@ -18,7 +18,7 @@ if [ -f "${NATIVE_LIB_PATH}" ]; then
   if [ "$GLUTEN_EXISTS" == "true" ]; then
     GLUTEN_UDF_EXISTS="true"
     GLUTEN_SPARK_EXTRA="$GLUTEN_SPARK_EXTRA \
-      --conf spark.jars=${gluten_jvm_jar} \
+      --conf spark.jars=${GLUTEN_JAR_PATH} \
       --conf spark.gluten.loadLibFromJar=true \
       --files ${NATIVE_LIB_PATH} \
       --conf spark.gluten.sql.columnar.backend.velox.udfLibraryPaths=${GLUTEN_NATIVE_LIB_NAME}"

@@ -45,7 +45,7 @@ if [ -z "$GLUTEN_JAR_PATH" ]; then
     git clone https://github.com/apache/incubator-gluten.git
   fi
   cd incubator-gluten
-  sudo ./dev/builddeps-veloxbe.sh --enable_s3=ON
+  sudo ./dev/builddeps-veloxbe.sh --enable_s3=ON --enable_vcpkg=ON
   mvn clean package -Pbackends-velox -Pspark-3.4 -DskipTests
   GLUTEN_JAR_PATH="$(pwd)/package/target/gluten-package-*-SNAPSHOT-${SPARK_MAJOR_VERSION}.jar"
 fi
