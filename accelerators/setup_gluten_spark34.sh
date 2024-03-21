@@ -41,6 +41,11 @@ if [ "$DISTRIB_RELEASE" == "20.04" ]; then
 fi
 # Rather than if/else we fall through to build if wget fails because major version is not supported.
 if [ -z "$GLUTEN_JAR_PATH" ]; then
+  if [ ! -d vcpkg ]; then
+    git clone https://github.com/microsoft/vcpkg
+  fi
+  cd vcpkg
+  ./vcpkg/bootstrap-vcpkg.sh
   if [ ! -d incubator-gluten ]; then
     git clone https://github.com/apache/incubator-gluten.git
   fi
