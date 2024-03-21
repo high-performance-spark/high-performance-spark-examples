@@ -46,6 +46,7 @@ if [ -z "$GLUTEN_JAR_PATH" ]; then
   fi
   cd vcpkg
   ./vcpkg/bootstrap-vcpkg.sh
+  cd ..
   if [ ! -d incubator-gluten ]; then
     git clone https://github.com/apache/incubator-gluten.git
   fi
