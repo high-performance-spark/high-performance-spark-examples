@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Instead of using --jars ${COMET_JAR} we copy the comet JAR into the SPARK_HOME
-# See https://github.com/apache/arrow-datafusion-comet/issues/221 for details
-cp "${COMET_JAR}" "${SPARK_HOME}/jars/"
 SPARK_EXTRA="
+--jars ${COMET_JAR} \
+--driver-class-path ${COMET_JAR} \
 --conf spark.comet.enabled=true \
 --conf spark.comet.exec.enabled=true \
 --conf spark.comet.exec.all.enabled=true \
