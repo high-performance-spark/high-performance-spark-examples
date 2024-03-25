@@ -1,14 +1,17 @@
 # This script triggers a number of different PySpark errors
 
 from pyspark.sql.session import SparkSession
+from pyspark.sql.functions import pandas_udf, udf
+from collections.abc import Iterator
 import sys
+import pandas as pd
 
 global sc
 
 
 # tag::simple_udf[]
 @udf("long")
-def classic_add1(e: long) -> long:
+def classic_add1(e: int) -> int:
     return e + 1
 
 
@@ -50,8 +53,10 @@ def pandas_nested_add1(d: pd.pandas) -> pd.Series:
 def pandas_batches_of_batches(t: Iterator[pd.Series]) -> Iterator[pd.Series]:
     my_db_connection = None  # Expensive setup logic goes here
     for s in t:
-        # Vectorized operation on all of the elems in series at once
-        yield s + 1
+        # Do something with your setup logic
+        if my_db_connection is None:
+            # Vectorized operation on all of the elems in series at once
+            yield s + 1
 
 
 # end::batches_of_batches_udf[]
