@@ -41,6 +41,7 @@ if [ "$DISTRIB_RELEASE" == "20.04" ]; then
 fi
 # Rather than if/else we fall through to build if wget fails because major version is not supported.
 if [ -z "$GLUTEN_JAR_PATH" ]; then
+  #tag::build_gluten[]
   if [ ! -d incubator-gluten ]; then
     git clone https://github.com/apache/incubator-gluten.git
   fi
@@ -48,6 +49,7 @@ if [ -z "$GLUTEN_JAR_PATH" ]; then
   sudo ./dev/builddeps-veloxbe.sh --enable_s3=ON
   mvn clean package -Pbackends-velox -Pspark-3.4 -DskipTests
   GLUTEN_JAR_PATH="$(pwd)/package/target/gluten-package-*-SNAPSHOT-${SPARK_MAJOR_VERSION}.jar"
+  #end::build_gluten[]
 fi
 
 export GLUTEN_JAR_PATH
