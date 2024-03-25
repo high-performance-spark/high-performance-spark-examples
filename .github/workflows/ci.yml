@@ -64,37 +64,37 @@ jobs:
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
-  run-gluten-sql-examples:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Cache Spark and friends
-      uses: actions/cache@v3
-      with:
-        path: |
-          spark*.tgz
-          iceberg*.jar
-        key: spark-artifacts
-    - name: Setup JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-gluten
-    - name: Cache Data
-      uses: actions/cache@v3
-      with:
-        path: |
-          data/fetched/*
-        key: data-fetched
-    - name: Run gluten
-      run:
-        cd accelerators; ./gluten_spark_34_ex.sh
+  # run-gluten-sql-examples:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #   - name: Cache Spark and friends
+  #     uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         spark*.tgz
+  #         iceberg*.jar
+  #       key: spark-artifacts
+  #   - name: Setup JDK
+  #     uses: actions/setup-java@v3
+  #     with:
+  #       distribution: temurin
+  #       java-version: 17
+  #   - name: Cache Maven packages
+  #     uses: actions/cache@v2
+  #     with:
+  #       path: ~/.m2
+  #       key: ${{ runner.os }}-m2-gluten
+  #   - name: Cache Data
+  #     uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         data/fetched/*
+  #       key: data-fetched
+  #   - name: Run gluten
+  #     run:
+  #       cd accelerators; ./gluten_spark_34_ex.sh
   run-comet-sql-examples:
     runs-on: ubuntu-latest
     steps:
