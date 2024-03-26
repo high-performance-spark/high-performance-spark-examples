@@ -2,7 +2,7 @@
 
 from pyspark.sql.session import SparkSession
 from pyspark.sql.functions import pandas_udf, udf
-from collections.abc import Iterator
+from typing import Iterator
 import sys
 import pandas as pd
 
@@ -23,7 +23,7 @@ def classic_add1(e: int) -> int:
 
 # tag::agg_new_udf[]
 @pandas_udf("long")
-def pandas_sum(s: pd.Series) -> pd.Series:
+def pandas_sum(s: pd.Series) -> int:
     return s.sum()
 
 
@@ -42,7 +42,7 @@ def pandas_add1(s: pd.Series) -> pd.Series:
 
 # tag::complex_udf[]
 @pandas_udf("long")
-def pandas_nested_add1(d: pd.pandas) -> pd.Series:
+def pandas_nested_add1(d: pd.DataFrame) -> pd.Series:
     # Takes a struct and returns the age elem + 1, if we wanted
     # to update (e.g. return struct) we could update d and return it instead.
     return d["age"] + 1
@@ -52,7 +52,7 @@ def pandas_nested_add1(d: pd.pandas) -> pd.Series:
 
 
 # tag::batches_of_batches_udf[]
-@pandas_udf("col1")
+@pandas_udf("long")
 def pandas_batches_of_batches(t: Iterator[pd.Series]) -> Iterator[pd.Series]:
     my_db_connection = None  # Expensive setup logic goes here
     for s in t:
