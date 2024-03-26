@@ -8,6 +8,7 @@ import pandas as pd
 
 global sc
 
+
 # We need the session before we can use @udf
 spark = SparkSession.builder.master("local[4]").getOrCreate()
 
