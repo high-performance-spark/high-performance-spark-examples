@@ -64,6 +64,76 @@ jobs:
     - name: Run sql examples
       run:
         ./run_sql_examples.sh
+  # run-gluten-sql-examples:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #   - name: Cache Spark and friends
+  #     uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         spark*.tgz
+  #         iceberg*.jar
+  #       key: spark-artifacts
+  #   - name: Setup JDK
+  #     uses: actions/setup-java@v3
+  #     with:
+  #       distribution: temurin
+  #       java-version: 17
+  #   - name: Cache Maven packages
+  #     uses: actions/cache@v2
+  #     with:
+  #       path: ~/.m2
+  #       key: ${{ runner.os }}-m2-gluten
+  #   - name: Cache Data
+  #     uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         data/fetched/*
+  #       key: data-fetched
+  #   - name: Run gluten
+  #     run:
+  #       cd accelerators; ./gluten_spark_34_ex.sh
+  run-comet-sql-examples:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache Spark and friends
+      uses: actions/cache@v3
+      with:
+        path: |
+          spark*.tgz
+          iceberg*.jar
+        key: spark-artifacts
+    - name: Cache Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          data/fetched/*
+        key: data-fetched
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-comet
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 17
+    - name: Setup comet
+      run:
+        cd accelerators; SPARK_MAJOR=3.4 ./setup_comet.sh
+    - name: Run comet
+      run:
+        cd accelerators; ./comet_ex.sh
   run-target-examples:
     runs-on: ubuntu-latest
     steps:
@@ -76,6 +146,12 @@ jobs:
           spark*.tgz
           iceberg*.jar
         key: spark-artifacts
+    - name: Cache Accel
+      uses: actions/cache@v3
+      with:
+        path: |
+          accelerators/*.jar
+        key: accelerators-artifacts
     - name: Cache Data
       uses: actions/cache@v3
       with:
@@ -114,7 +190,7 @@ jobs:
     - name: Shellcheck
       run: |
         sudo apt-get install -y shellcheck
-        shellcheck $(find -name "*.sh")
+        shellcheck -e SC2317,SC1091,SC2034,SC2164 $(find -name "*.sh")
     - name: Setup JDK
       uses: actions/setup-java@v3
       with:

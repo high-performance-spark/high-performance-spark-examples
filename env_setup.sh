@@ -1,12 +1,13 @@
 #!/bin/bash
 
+set -ex
 
 # Download Spark and iceberg if not present
 SPARK_MAJOR=${SPARK_MAJOR:-"3.5"}
-SPARK_VERSION=${SPARK_VERSION:-"${SPARK_MAJOR}.0"}
+SPARK_VERSION=${SPARK_VERSION:-"${SPARK_MAJOR}.1"}
 SCALA_VERSION=${SCALA_VERSION:-"2.12"}
 HADOOP_VERSION="3"
-SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
+SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
 ICEBERG_VERSION=${ICEBERG_VERSION:-"1.4.0"}
 if [ ! -f "${SPARK_FILE}" ]; then
@@ -18,12 +19,14 @@ if [ ! -f "${ICEBERG_FILE}" ]; then
   wget "https://search.maven.org/remotecontent?filepath=org/apache/iceberg/iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_VERSION}/${ICEBERG_VERSION}/${ICEBERG_FILE}" -O "${ICEBERG_FILE}" &
 fi
 wait
+sleep 1
 # Setup the env
 if [ ! -d "${SPARK_PATH}" ]; then
   tar -xf "${SPARK_FILE}"
 fi
 
-export SPARK_HOME="${SPARK_PATH}"
+SPARK_HOME="${SPARK_PATH}"
+export SPARK_HOME
 
 if [ ! -f "${SPARK_PATH}/jars/${ICEBERG_FILE}" ]; then
   # Delete the old JAR first.
@@ -41,3 +44,4 @@ mkdir -p ./data/fetched/
 if [ ! -f ./data/fetched/2021 ]; then
   wget "https://gender-pay-gap.service.gov.uk/viewing/download-data/2021" -O ./data/fetched/2021
 fi
+
