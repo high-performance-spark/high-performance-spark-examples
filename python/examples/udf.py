@@ -8,6 +8,8 @@ import pandas as pd
 
 global sc
 
+# We need the session before we can use @udf
+spark = SparkSession.builder.master("local[4]").getOrCreate()
 
 # tag::simple_udf[]
 @udf("long")
@@ -63,7 +65,6 @@ def pandas_batches_of_batches(t: Iterator[pd.Series]) -> Iterator[pd.Series]:
 
 
 if __name__ == "__main__":
-    spark = SparkSession.builder.master("local[4]").getOrCreate()
     # Make sure to make
     # "https://gender-pay-gap.service.gov.uk/viewing/download-data/2021"
     # available as ./data/2021
