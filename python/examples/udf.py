@@ -12,6 +12,7 @@ global sc
 # We need the session before we can use @udf
 spark = SparkSession.builder.master("local[4]").getOrCreate()
 
+
 # tag::simple_udf[]
 @udf("long")
 def classic_add1(e: int) -> int:
