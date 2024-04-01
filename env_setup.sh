@@ -12,7 +12,7 @@ SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
 ICEBERG_VERSION=${ICEBERG_VERSION:-"1.4.0"}
 if [ ! -f "${SPARK_FILE}" ]; then
   SPARK_DIST_URL="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
-  if ! command -v axel &> /dev/null
+  if command -v axel &> /dev/null
   then
     axel "$SPARK_DIST_URL" &
   else
