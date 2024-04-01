@@ -15,4 +15,4 @@ sbt -Dspark="${SPARK_VERSION}" clean assembly
 JAR_PATH="$(pwd)/target/scala-2.12/data-validator-assembly-${SPARK_VERSION}_0.15.0.jar"
 export JAR_PATH
 cd ..
-spark-submit --master local  "$JAR_PATH" --config ex.yaml || echo "Failed as expected."
+"${SPARK_HOME}/bin/spark-submit" --master local  "$JAR_PATH" --config ex.yaml || echo "Failed as expected."
