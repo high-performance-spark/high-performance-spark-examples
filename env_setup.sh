@@ -11,7 +11,13 @@ SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
 ICEBERG_VERSION=${ICEBERG_VERSION:-"1.4.0"}
 if [ ! -f "${SPARK_FILE}" ]; then
-  wget "https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}" &
+  SPARK_DIST_URL="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
+  if ! command -v axel &> /dev/null
+  then
+    axel "$SPARK_DIST_URL" &
+  else
+    wget "$SPARK_DIST_URL" &
+  fi
 fi
 # Download Icberg if not present
 ICEBERG_FILE="iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_VERSION}-${ICEBERG_VERSION}.jar"
