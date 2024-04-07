@@ -20,6 +20,8 @@ import org.scalatest.matchers.should.Matchers._
 
 class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
 
+  override def appName: String = "happyPandasTest"
+
   val toronto = "toronto"
   val sandiego = "san diego"
   val virginia = "virginia"

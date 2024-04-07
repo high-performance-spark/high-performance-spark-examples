@@ -323,8 +323,8 @@ object HappyPandas {
   }
 
 
-  def badComplexJoin(df1: Dataset[Pandas], df2: Dataset[Pandas]): DataFrame = {
-    df1.join(df2, regexp(df1("name"), df2("name"))).alias("regexp join")
+  def badComplexJoin(df1: Dataset[Pandas], df2: Dataset[Pandas]): Dataset[(Pandas, Pandas)] = {
+    df1.joinWith(df2, regexp(df1("name"), df2("name"))).alias("regexp join")
   }
 
   /**
