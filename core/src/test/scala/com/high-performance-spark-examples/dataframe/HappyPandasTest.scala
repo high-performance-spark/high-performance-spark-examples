@@ -19,6 +19,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._
 
 class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
+
   val toronto = "toronto"
   val sandiego = "san diego"
   val virginia = "virginia"
@@ -46,6 +47,14 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
     val result = HappyPandas.selfJoin(inputDF).select($"a.name", $"b.name")
     val rez = result.collect()
     rez.foreach{x => assert(x(0) == x(1))}
+  }
+
+  test("bad regexp join") {
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
+    val df1 = sqlCtx.createDataset(pandasList)
+    val df2 = sqlCtx.createDataset(pandasList)
+    val result = HappyPandas.badComplexJoin(df1, df2).collect()
   }
 
   test("simple explode test") {
