@@ -35,6 +35,9 @@ object HappyPandas {
     session
   }
 
+  val session = sparkSession()
+  import session.implicits._
+
   /**
    * Creates SQLContext with an existing SparkContext.
    */
@@ -110,8 +113,8 @@ object HappyPandas {
     */
   def happyPandasPercentage(pandaInfo: DataFrame): DataFrame = {
     pandaInfo.select(
-      pandaInfo("place"),
-      (pandaInfo("happyPandas") / pandaInfo("totalPandas")).as("percentHappy")
+      $"place",
+      ($"happyPandas" / $"totalPandas").as("percentHappy")
     )
   }
 
@@ -123,9 +126,9 @@ object HappyPandas {
     * @return Returns a DataFrame of pandaId and integer value for pandaType.
     */
   def encodePandaType(pandaInfo: DataFrame): DataFrame = {
-    pandaInfo.select(pandaInfo("id"),
-      (when(pandaInfo("pt") === "giant", 0).
-      when(pandaInfo("pt") === "red", 1).
+    pandaInfo.select($"id",
+      (when($"pt" === "giant", 0).
+      when($"pt" === "red", 1).
       otherwise(2)).as("encodedType")
     )
   }
@@ -135,7 +138,7 @@ object HappyPandas {
     * Gets places with happy pandas more than minHappinessBound.
     */
   def minHappyPandas(pandaInfo: DataFrame, minHappyPandas: Int): DataFrame = {
-    pandaInfo.filter(pandaInfo("happyPandas") >= minHappyPandas)
+    pandaInfo.filter($"happyPandas" >= minHappyPandas)
   }
 
   /**
@@ -155,7 +158,7 @@ object HappyPandas {
             RawPanda(id, zip, pt, happy, attrs.toArray)
         }}
     pandaInfo.select(
-      (pandaInfo("attributes")(0) / pandaInfo("attributes")(1))
+      ($"attributes"(0) / $"attributes"(1))
         .as("squishyness"))
     //end::selectExplode[]
   }
@@ -164,6 +167,7 @@ object HappyPandas {
     * Find pandas that are sad
     */
   def sadPandas(pandaInfo: DataFrame): DataFrame = {
+    // This one is our intentional non $ example
     //tag::simpleFilter[]
     pandaInfo.filter(pandaInfo("happy") !== true)
     //end::simpleFilter[]
@@ -175,7 +179,7 @@ object HappyPandas {
   def happyFuzzyPandas(pandaInfo: DataFrame): DataFrame = {
     //tag::complexFilter[]
     pandaInfo.filter(
-      pandaInfo("happy").and(pandaInfo("attributes")(0) > pandaInfo("attributes")(1))
+      $"happy".and($"attributes"(0) > $"attributes"(1))
     )
     //end::complexFilter[]
   }
@@ -184,7 +188,7 @@ object HappyPandas {
     * Gets places that contains happy pandas more than unhappy pandas.
     */
   def happyPandasPlaces(pandaInfo: DataFrame): DataFrame = {
-    pandaInfo.filter(pandaInfo("happyPandas") >= pandaInfo("totalPandas") / 2)
+    pandaInfo.filter($"happyPandas" >= $"totalPandas" / 2)
   }
 
 
@@ -311,9 +315,16 @@ object HappyPandas {
     //end::rightouterJoin[]
 
     //tag::leftsemiJoin[]
-    // Left semi join explicit
+    // Left semi join explicit.
+    // Here we're explicit about which DF which col comes from given
+    // the shared name.
     df1.join(df2, df1("name") === df2("name"), "left_semi")
     //end::leftsemiJoin[]
+  }
+
+
+  def badComplexJoin(df1: Dataset[Pandas], df2: Dataset[Pandas]): Dataset[(Pandas, Pandas)] = {
+    df1.joinWith(df2, regexp(df1("name"), df2("name"))).alias("regexp join")
   }
 
   /**
