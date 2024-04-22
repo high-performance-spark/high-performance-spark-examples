@@ -1,7 +1,7 @@
 # high-performance-spark-examples
 Examples for High Performance Spark
 
-We are in the progress of updata this for Spark 3.3+ and the 2ed edition of our book!
+We are in the progress of updata this for Spark 3.5+ and the 2ed edition of our book!
 
 # Building
 
@@ -15,4 +15,20 @@ The most "accuate" way of seeing how we run the tests is to look at the .github 
 
 # History Server
 
-The history server can be a great way to figure out what's going on. You can set the SPARK_EVENTLOG=true before running the scala tests and you'll get the history server too!
+The history server can be a great way to figure out what's going on.
+
+By default the history server writes to `/tmp/spark-events` so you'll need to create that directory if not setup with
+
+`mkdir -p /tmp/spark-events`
+
+The scripts for running the examples generally run with the event log enabled.
+
+You can set the SPARK_EVENTLOG=true before running the scala tests and you'll get the history server too!
+
+e.g.
+
+`SPARK_EVENTLOG=true sbt test`
+
+If you want to run just a specific test you can run [testOnly](https://www.scala-sbt.org/1.x/docs/Testing.html)
+
+Then to view the history server you'll want to launch it using the `${SPARK_HOME}/sbin/start-history-server.sh` then you [can go to your local history server](http://localhost:18080/)
