@@ -26,7 +26,7 @@ object HappyPandas {
   def sparkSession(): SparkSession = {
     //tag::createSparkSession[]
     val session = SparkSession.builder()
-      .enableHiveSupport()
+      //.enableHiveSupport() -- try disabling this
       .getOrCreate()
     // Import the implicits, unlike in core Spark the implicits are defined
     // on the context.
