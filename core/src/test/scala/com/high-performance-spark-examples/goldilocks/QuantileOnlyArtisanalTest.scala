@@ -42,8 +42,8 @@ class QuantileOnlyArtisanalTest extends AnyFunSuite with BeforeAndAfterAll {
     val inputAsKeyValuePairs = GoldilocksGroupByKey.mapToKeyValuePairs(input)
     val groupByKeySolution = GoldilocksGroupByKey.findRankStatistics(
       inputAsKeyValuePairs, List(2L,3L)).mapValues(_.toSet)
-    assert(whileLoopSolution == expectedResult)
-    assert(groupByKeySolution == expectedResult)
+    assert(whileLoopSolution.toMap == expectedResult)
+    assert(groupByKeySolution.toMap == expectedResult)
   }
 
   override def afterAll() {
@@ -136,7 +136,7 @@ class QuantileOnlyArtisanalTestContinued extends QuantileOnlyArtisanalTest {
     val secondarySortSolution =
       GoldilocksWithHashMap.findRankStatistics(
         input, targetRanks = List(2L, 3L)).mapValues(_.toSet)
-    assert(secondarySortSolution == expectedResult)
+    assert(secondarySortSolution.toMap == expectedResult)
   }
 
   test("Secondary Sort"){

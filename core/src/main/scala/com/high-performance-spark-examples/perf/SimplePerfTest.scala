@@ -64,9 +64,9 @@ object SimplePerfTest {
     println(dataFrameTimeings.map(_._2).mkString(","))
   }
 
-  def testOnRDD(rdd: RDD[(Int, Double)]) = {
-    rdd.map{case (x, y) => (x, (y, 1))}
-      .reduceByKey{case (x, y) => (x._1 + y._1, x._2 + y._2)}.count()
+  def testOnRDD(rdd: RDD[(Int, Double)]): Long = {
+    val kvc: RDD[(Int, (Double , Int))] = rdd.map{case (x, y) => (x, (y, 1))}
+    kvc.reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2)).count()
   }
 
   def groupOnRDD(rdd: RDD[(Int, Double)]) = {

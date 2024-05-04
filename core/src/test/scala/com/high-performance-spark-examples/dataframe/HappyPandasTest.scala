@@ -245,7 +245,7 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
         .flatMap(zipPandas => {
           val pandas = zipPandas._2
           val length = pandas.size - 1
-          val result = new mutable.MutableList[Row]
+          val result = new mutable.ListBuffer[Row]
 
           for (i <- 0 to length) {
             var totalSum = 0

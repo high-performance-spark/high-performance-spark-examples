@@ -174,7 +174,7 @@ object GoldilocksWithHashMap {
     val runningTotal = Array.fill[Long](numOfColumns)(0)
 
     partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq)=>
-      val relevantIndexList = new mutable.MutableList[(Int, Long)]()
+      val relevantIndexList = new mutable.ListBuffer[(Int, Long)]()
 
       columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  =>
         val runningTotalCol = runningTotal(colIndex)
@@ -303,7 +303,7 @@ object FindTargetsSubRoutine extends Serializable {
   def withArrayBuffer(valueColumnPairsIter : Iterator[((Double, Int), Long)],
     targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
 
-      val columnsRelativeIndex: Predef.Map[Int, List[Long]] =
+      val columnsRelativeIndex: collection.MapView[Int, List[Long]] =
         targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
 
     // The column indices of the pairs that are desired rank statistics that live in
