@@ -38,7 +38,7 @@ class SimpleNaiveBayes(val uid: String)
     // Note this estimator assumes they start at 0 and go to numClasses
     val numClasses = getNumClasses(ds)
     // Get the number of features by peaking at the first row
-    val numFeatures: Integer = ds.select(col($(featuresCol))).head
+    val numFeatures: Integer = ds.select(col($(featuresCol))).head()
       .get(0).asInstanceOf[Vector].size
     // Determine the number of records for each class
     val groupedByLabel = ds.select(col($(labelCol)).as[Double]).groupByKey(x => x)

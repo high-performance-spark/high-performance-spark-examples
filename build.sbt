@@ -1,5 +1,3 @@
-scalaVersion := "2.13.8"
-
 lazy val root = (project in file("."))
   .aggregate(core, native)
 
@@ -16,6 +14,7 @@ organization := "com.highperformancespark"
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
+scalaVersion := "2.13.13"
 addCompilerPlugin(scalafixSemanticdb)
 scalacOptions ++= List(
   "-Yrangepos",
@@ -38,7 +37,8 @@ resolvers ++= Seq(
   "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/",
   "Second Typesafe repo" at "https://repo.typesafe.com/typesafe/maven-releases/",
   "Mesosphere Public Repository" at "https://downloads.mesosphere.io/maven",
-  Resolver.sonatypeRepo("public")
+  Resolver.sonatypeRepo("public"),
+  Resolver.mavenLocal
 )
 
 licenses := Seq("Apache License 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -67,17 +67,18 @@ val sparkTestingVersion = settingKey[String]("Spark testing base version without
 lazy val core = (project in file("core")) // regular scala code with @native methods
   .dependsOn(native % Runtime)
   .settings(javah / target := (native / nativeCompile / sourceDirectory).value / "include")
+  .settings(scalaVersion := "2.13.13")
   .settings(sbtJniCoreScope := Compile)
   .settings(
     scalaVersion := "2.13.8",
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    javacOptions ++= Seq("-source", "17", "-target", "17"),
     parallelExecution in Test := false,
     fork := true,
     javaOptions ++= Seq("-Xms4048M", "-Xmx4048M", "-Djna.nosys=true"),
     Test / javaOptions ++= specialOptions,
     // 2.4.5 is the highest version we have with the old spark-testing-base deps
-    sparkVersion := System.getProperty("sparkVersion", "3.5.1"),
-    sparkTestingVersion := "1.5.2",
+    sparkVersion := System.getProperty("sparkVersion", "4.0.0-preview2"),
+    sparkTestingVersion := "2.0.1",
     // additional libraries
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core"                % sparkVersion.value % Provided,
@@ -95,12 +96,13 @@ lazy val core = (project in file("core")) // regular scala code with @native met
       "net.java.dev.jna" % "jna" % "5.12.1"),
     scalacOptions ++= Seq("-deprecation", "-unchecked"),
     pomIncludeRepository := { x => false },
+    resolvers += Resolver.mavenLocal
   )
 
 // JNI Magic!
 lazy val native = (project in file("native")) // native code and build script
   .settings(nativeCompile / sourceDirectory := sourceDirectory.value)
-  .settings(scalaVersion := "2.13.8")
+  .settings(scalaVersion := "2.13.13")
   .enablePlugins(JniNative) // JniNative needs to be explicitly enabled
 
 //tag::xmlVersionConflict[]

@@ -88,6 +88,16 @@ case class LoadSave(sc: SparkContext, session: SparkSession) {
   }
   //end::saveAppend[]
 
+  def upsertPandas(input: DataFrame): Unit = {
+    //tag::upsert[]
+    input.mergeInto("pandaInfo", $"source.id" === $"target.id")
+         .whenMatched() // Note you can override the general match condition above if desired
+         .updateAll()
+         .whenNotMatched()
+         .insertAll()
+    //end::upsert[]
+  }
+
   def createJDBC() = {
     session.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
       "table", new Properties)
