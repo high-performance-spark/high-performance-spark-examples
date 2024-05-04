@@ -1,10 +1,5 @@
 package com.highperformancespark.examples.ml
 
-import scala.collection.Map
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.MutableList
-
 import org.apache.spark._
 import org.apache.spark.ml._
 import org.apache.spark.ml.classification._
