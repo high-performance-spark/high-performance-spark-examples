@@ -4,6 +4,8 @@ set -o pipefail
 
 source env_setup.sh
 
+# You might want to set SPARK_EXTRA to do things like log more info
+
 function run_example () {
   local sql_file="$1"
   local extra="$2"
@@ -23,7 +25,7 @@ function run_example () {
 	    ${extra} ${SPARK_EXTRA} \
 	    $(cat "${sql_file}.conf" || echo "") \
 	    --name "${sql_file}" \
-	    -f "${sql_file}" | tee -a "${sql_file}.out" || ls "${sql_file}.expected_to_fail"
+	    -f "${sql_file}" 2>&1 | tee -a "${sql_file}.out" || ls "${sql_file}.expected_to_fail"
 }
 
 
