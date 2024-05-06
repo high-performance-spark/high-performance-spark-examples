@@ -13,7 +13,7 @@ import org.apache.spark.sql.catalyst.expressions.{And, IsNotNull, NullIntolerant
 object NullabilityFilterOptimizer extends Rule[LogicalPlan] {
 
   def apply(plan: LogicalPlan): LogicalPlan = {
-    plan.transformUp {
+    plan.transform {
       case p @ Project(projectList, projChild) =>
         val children = projectList.flatMap(_.children)
         // If there are no null intolerant children don't worry about it
