@@ -89,10 +89,10 @@ case class LoadSave(sc: SparkContext, session: SparkSession) {
   //end::saveAppend[]
 
   def createJDBC() = {
-    //tag::createJDBC[]
     session.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
       "table", new Properties)
 
+    //tag::createJDBC[]
     session.read.format("jdbc")
       .option("url", "jdbc:dialect:serverName")
       .option("dbtable", "table").load()
@@ -100,10 +100,10 @@ case class LoadSave(sc: SparkContext, session: SparkSession) {
   }
 
   def writeJDBC(df: DataFrame) = {
-    //tag::writeJDBC[]
     df.write.jdbc("jdbc:dialect:serverName;user=user;password=pass",
       "table", new Properties)
 
+    //tag::writeJDBC[]
     df.write.format("jdbc")
       .option("url", "jdbc:dialect:serverName")
       .option("user", "user")
