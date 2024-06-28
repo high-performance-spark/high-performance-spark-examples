@@ -8,3 +8,4 @@ pandera[pyspark]
 spark-expectations>=1.0
 venv-pack
 requests
+numpy<2.0
