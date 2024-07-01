@@ -18,19 +18,31 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._
 
+case class ExtraMagic(
+  place: String,
+  pandaType: String,
+  happyPandas: Integer,
+  totalPandas: Integer,
+  extraInfo: Integer)
+
+
 class PandaPlaceFilterPushdown extends AnyFunSuite with DataFrameSuiteBase {
 
   override def appName: String = "pandaPlaceFilterPushdown"
 
   val basicList = List(
-    ("a", "b", 1, 2))
+    ExtraMagic("a", "b", 1, 2, 3),
+    ExtraMagic("toronto", "b", 1, 2, 3),
+  )
 
   test("simpleFilterTest") {
     val sqlCtx = sqlContext
     import sqlCtx.implicits._
     val inputDF = sqlCtx.createDataFrame(basicList)
+    val restrictedDF = inputDF.select($"place", $"pandaType", $"happyPandas", $"totalPandas")
     val switched = inputDF.as[PandaInfo]
-    val filtered = switched.filter(_.city === "a")
+    // Note if we write the filter with functional syntax it does not push down.
+    val filtered = switched.filter($"place" === "a")
     assert(filtered.count() === 1)
   }
 }
