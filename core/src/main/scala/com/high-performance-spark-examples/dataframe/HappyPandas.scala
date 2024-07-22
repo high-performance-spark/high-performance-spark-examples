@@ -327,6 +327,19 @@ object HappyPandas {
     df1.joinWith(df2, regexp(df1("name"), df2("name"))).alias("regexp join")
   }
 
+
+  def badJoin(df1: Dataset[Pandas], df2: Dataset[Pandas]): Dataset[(Pandas, Pandas)] = {
+    val session = df1.sparkSession
+    val sle = session.udf.register("strLenEq", (s: String, s2: String) => s.length() == s2.length())
+    df1.joinWith(df2, sle(df1("name"), df2("name"))).alias("strlenEqJoin")
+  }
+
+  def okJoin(df1: Dataset[Pandas], df2: Dataset[Pandas]): Dataset[(Pandas, Pandas)] = {
+    val session = df1.sparkSession
+    val sl = session.udf.register("strLen", (s: String) => s.length())
+    df1.joinWith(df2, sl(df1("name")) === sl(df2("name"))).alias("strlenJoin")
+  }
+
   /**
    * Cut the lineage of a DataFrame which has too long a query plan.
    */

@@ -59,6 +59,22 @@ class HappyPandasTest extends AnyFunSuite with DataFrameSuiteBase {
     val result = HappyPandas.badComplexJoin(df1, df2).collect()
   }
 
+  test("bad udf join") {
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
+    val df1 = sqlCtx.createDataset(pandasList)
+    val df2 = sqlCtx.createDataset(pandasList)
+    val result = HappyPandas.badJoin(df1, df2).collect()
+  }
+
+  test("ok udf join") {
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
+    val df1 = sqlCtx.createDataset(pandasList)
+    val df2 = sqlCtx.createDataset(pandasList)
+    val result = HappyPandas.okJoin(df1, df2).collect()
+  }
+
   test("simple explode test") {
     val inputDF = sqlContext.createDataFrame(pandaPlaces)
     val pandaInfo = sqlContext.createDataFrame(rawPandaList)
