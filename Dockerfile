@@ -17,7 +17,7 @@ RUN apt-get -qq update && \
 RUN curl -Lo coursier https://git.io/coursier-cli
 RUN chmod +x coursier
 RUN ./coursier launch almond --scala 2.12.11 -- --install
-RUN pip install jupyter-labs
+RUN pip install jupyter
 
 RUN useradd dev
 RUN mkdir ~dev
