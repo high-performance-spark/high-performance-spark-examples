@@ -95,7 +95,7 @@ object RDDJoinExamples {
  }
 
  /**
-   * Performs a broad cast hash join for two RDDs.
+   * Performs a broadcast hash join for two RDDs.
    * @param bigRDD - the first rdd, should be the larger RDD
    * @param smallRDD - the small rdd, should be small enough to fit in memory
    * @tparam K - The type of the key
@@ -103,8 +103,8 @@ object RDDJoinExamples {
    * @tparam V2 - The type of the values for the second array
    * @return
    */
- //tag::coreBroadCast[]
- def manualBroadCastHashJoin[K : Ordering : ClassTag, V1 : ClassTag,
+ //tag::coreBroadcast[]
+ def manualBroadcastHashJoin[K : Ordering : ClassTag, V1 : ClassTag,
  V2 : ClassTag](bigRDD : RDD[(K, V1)],
   smallRDD : RDD[(K, V2)])= {
   val smallRDDLocal: Map[K, V2] = smallRDD.collectAsMap()
@@ -113,11 +113,13 @@ object RDDJoinExamples {
    iter.flatMap{
     case (k,v1 ) =>
      smallRDDLocalBcast.value.get(k) match {
+      // Note: You could switch this to a left join by changing the empty seq
+      // to instead return Seq(k, Seq.empty[(V1, V2)])
       case None => Seq.empty[(K, (V1, V2))]
       case Some(v2) => Seq((k, (v1, v2)))
      }
    }
   }, preservesPartitioning = true)
  }
- //end:coreBroadCast[]
+ //end::coreBroadcast[]
 }
