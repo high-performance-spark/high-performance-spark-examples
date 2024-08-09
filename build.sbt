@@ -7,15 +7,15 @@ lazy val root = (project in file("."))
 organization := "com.highperformancespark"
 
 //tag::addSparkScalaFix[]
-ThisBuild / scalafixDependencies +=
-  "com.holdenkarau" %% "spark-scalafix-rules-2.4.8" % "0.1.5"
-ThisBuild / scalafixDependencies +=
-  "com.github.liancheng" %% "organize-imports" % "0.6.0"
+// Needs to be commented out post-upgrade because of Scala versions.
+//ThisBuild / scalafixDependencies +=
+//  "com.holdenkarau" %% "spark-scalafix-rules-2.4.8" % "0.1.5"
+//ThisBuild / scalafixDependencies +=
+//  "com.github.liancheng" %% "organize-imports" % "0.6.0"
 //end::addSparkScalaFix[]
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
-scalaVersion := V.scala212
 addCompilerPlugin(scalafixSemanticdb)
 scalacOptions ++= List(
   "-Yrangepos",
@@ -69,6 +69,7 @@ lazy val core = (project in file("core")) // regular scala code with @native met
   .settings(javah / target := (native / nativeCompile / sourceDirectory).value / "include")
   .settings(sbtJniCoreScope := Compile)
   .settings(
+    scalaVersion := "2.13.8",
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     parallelExecution in Test := false,
     fork := true,
@@ -99,6 +100,7 @@ lazy val core = (project in file("core")) // regular scala code with @native met
 // JNI Magic!
 lazy val native = (project in file("native")) // native code and build script
   .settings(nativeCompile / sourceDirectory := sourceDirectory.value)
+  .settings(scalaVersion := "2.13.8")
   .enablePlugins(JniNative) // JniNative needs to be explicitly enabled
 
 //tag::xmlVersionConflict[]
