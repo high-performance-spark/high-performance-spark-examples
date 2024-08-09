@@ -102,3 +102,5 @@ incubator-glutten/*
 # ignore nested build file.
 project/build.sbt
 coursier
+# Magic file we use for build tracking
+oldhash

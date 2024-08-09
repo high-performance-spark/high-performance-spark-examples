@@ -11,6 +11,7 @@ SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
 if [ "$SCALA_VERSION" = "2.13" ]; then
   SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3-scala2.13.tgz"
+  SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}-scala2.13"
 fi
 ICEBERG_VERSION=${ICEBERG_VERSION:-"1.6.0"}
 if [ ! -f "${SPARK_FILE}" ]; then
