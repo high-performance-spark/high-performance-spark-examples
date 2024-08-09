@@ -1,4 +1,4 @@
-scalaVersion := "2.13.14"
+scalaVersion := "2.13.8"
 
 lazy val root = (project in file("."))
   .aggregate(core, native)
