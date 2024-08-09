@@ -64,6 +64,7 @@ RUN chown -R dev /high-performance-spark-examples
 ADD --chown=dev:dev myapp.tar /high-performance-spark-examples/
 RUN chown -R dev /high-performance-spark-examples
 USER dev
+RUN echo "jupyter-lab --ip 0.0.0.0 --port 8877" >> ~/.bash_history
 RUN sbt clean compile
 CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8877"]
 
