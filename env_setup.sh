@@ -19,7 +19,7 @@ if [ ! -f "${SPARK_FILE}" ]; then
   SPARK_ARCHIVE_DIST_URL="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
   if command -v axel &> /dev/null
   then
-    (axel "$SPARK_DIST_URL" || axel "$SPARK_ARCHIVE_DIST_URL") &
+    (axel --quiet "$SPARK_DIST_URL" || axel --quiet "$SPARK_ARCHIVE_DIST_URL") &
   else
     (wget "$SPARK_DIST_URL" || wget "$SPARK_ARCHIVE_DIST_URL") &
   fi

@@ -30,7 +30,7 @@ RUN chmod a+xr almond coursier
 RUN ./coursier launch almond --scala 2.13.8 -- --install
 # Fun story: this does not work (Aug 8 2024) because it tries to download Scala 2 from Scala 3
 #RUN ./coursier install scala:2.13.8 && ./coursier install scalac:2.13.8
-RUN (axel https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb || wget https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb) && dpkg --install scala-2.13.8.deb && rm scala-2.13.8.deb
+RUN (axel --quiet https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb || wget https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb) && dpkg --install scala-2.13.8.deb && rm scala-2.13.8.deb
 
 RUN adduser dev
 RUN adduser dev sudo
