@@ -3,7 +3,7 @@ FROM azul/zulu-openjdk:11-latest
 
 RUN apt-get -qq update && \
     apt-get -qq -y upgrade && \
-    apt-get -qq -y --no-install-recommends install gnupg software-properties-common locales curl tzdata apt-transport-https curl gnupg sudo && \
+    apt-get -qq -y install gnupg software-properties-common locales curl tzdata apt-transport-https curl gnupg sudo net-tools psmisc htop && \
     locale-gen en_US.UTF-8 && \
     apt-get -qq -y install gnupg software-properties-common curl git-core wget axel python3 python3-pip nano emacs vim && \
     echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
@@ -21,12 +21,13 @@ RUN ./coursier --help
 RUN pip install jupyter
 RUN ./coursier bootstrap \
       -r jitpack \
-      -i user -I user:sh.almond:scala-kernel-api_2.12.19:0.14.0-RC15 \
-      sh.almond:scala-kernel_2.12.19:0.14.0-RC15 \
+      -i user -I user:sh.almond:scala-kernel-api_2.13.14:0.14.0-RC15 \
+      sh.almond:scala-kernel_2.13.14:0.14.0-RC15 \
       --default=true --sources \
       -o almond && \
-  ./almond --install --log info --metabrowse --id scala2.12 --display-name "Scala 2.12"
-RUN ./coursier launch almond --scala 2.12.19 -- --install
+    ./almond --install --log info --metabrowse --id scala2.13 --display-name "Scala 2.13"
+RUN chmod a+xr almond coursier
+RUN ./coursier launch almond --scala 2.13.14 -- --install
 
 RUN adduser dev
 RUN adduser dev sudo
@@ -39,7 +40,9 @@ RUN echo "export SPARK_HOME=/high-performance-spark-examples/spark-3.5.1-bin-had
 RUN chown -R dev ~dev
 USER dev
 # Kernels are installed in user so we need to run as the user
-RUN ~/coursier launch almond --scala 2.12.19 -- --install
+RUN ./almond --install --log info --metabrowse --id scala2.13 --display-name "Scala 2.13"
+RUN ./coursier launch almond --scala 2.13.14 -- --install
+
 USER root
 
 RUN mkdir /high-performance-spark-examples
@@ -49,8 +52,11 @@ WORKDIR /high-performance-spark-examples
 COPY --chown=dev:dev env_setup.sh ./
 # Downloads and installs Spark ~3.5 & Iceberg 1.4 and slipstreams the JAR in-place
 # Also downloads some test data
-RUN ./env_setup.sh
-COPY misc/kernel.json ~dev/.local/share/jupyter/kernels/scala/kernel.json
+RUN SCALA_VERSION=2.13 ./env_setup.sh
+RUN mv ~dev/.local/share/jupyter/kernels/scala/kernel.json ~dev/.local/share/jupyter/kernels/scala/kernel.json_back
+# Note: We need to use /home in the COPY otherwise no happy pandas
+COPY --chown=dev:dev misc/kernel.json /home/dev/kernel.json_new
+RUN cp ~dev/kernel.json_new ~dev/.local/share/jupyter/kernels/scala/kernel.json
 RUN git clone https://github.com/holdenk/spark-upgrade.git
 RUN chown -R dev /high-performance-spark-examples
 ADD --chown=dev:dev myapp.tar /high-performance-spark-examples/
