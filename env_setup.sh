@@ -21,7 +21,7 @@ if [ ! -f "${SPARK_FILE}" ]; then
   then
     (axel --quiet "$SPARK_DIST_URL" || axel --quiet "$SPARK_ARCHIVE_DIST_URL") &
   else
-    (wget "$SPARK_DIST_URL" || wget "$SPARK_ARCHIVE_DIST_URL") &
+    (wget --quiet "$SPARK_DIST_URL" || wget --quiet "$SPARK_ARCHIVE_DIST_URL") &
   fi
 fi
 # Download Icberg if not present
