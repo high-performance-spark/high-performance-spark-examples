@@ -7,8 +7,8 @@ export GIT_INDEX_FILE=/tmp/git_index
 git add -u
 hash=$(git write-tree)
 unset GIT_INDEX_FILE
-oldhash=$(cat oldhash || "")
-if [ "$hash" = "$oldhash" -a -f myapp.tar ]; then
+oldhash=$(cat oldhash || true)
+if [ "$hash" = "$oldhash" ] && [ -f myapp.tar ]; then
   echo "Skipping making tar since we match."
 else
   echo "Making tar since no match"
