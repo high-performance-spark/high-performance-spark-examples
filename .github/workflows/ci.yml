@@ -130,7 +130,7 @@ jobs:
         java-version: 17
     - name: Setup comet
       run:
-        cd accelerators; SPARK_MAJOR=3.4 ./setup_comet.sh
+        cd accelerators; SPARK_MAJOR=3.5 ./setup_comet.sh
     - name: Run comet
       run:
         cd accelerators; ./comet_ex.sh
