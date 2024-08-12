@@ -95,3 +95,12 @@ gluten*.jar
 spark-3*hadoop*/
 spark-3*hadoop*.tgz
 accelerators/incubator-gluten
+# ignore the temporary myapp from the dockerbuild
+myapp.tar
+# ignore glutten
+incubator-glutten/*
+# ignore nested build file.
+project/build.sbt
+coursier
+# Magic file we use for build tracking
+oldhash

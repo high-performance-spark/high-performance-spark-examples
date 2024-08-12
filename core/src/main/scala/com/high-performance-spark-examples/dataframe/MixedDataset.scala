@@ -67,9 +67,10 @@ class MixedDataset(sqlCtx: SQLContext) {
 
   //tag::maxPandaSizePerZipScala[]
   def maxPandaSizePerZipScala(ds: Dataset[RawPanda]): Dataset[(String, Double)] = {
-    ds.groupByKey(rp => rp.zip).mapGroups{ case (g, iter) =>
+    def groupMapFun(g: String, iter: Iterator[RawPanda]): (String, Double)  = {
       (g, iter.map(_.attributes(2)).reduceLeft(Math.max(_, _)))
     }
+    ds.groupByKey(rp => rp.zip).mapGroups(groupMapFun)
   }
   //end::maxPandaSizePerZipScala[]
 

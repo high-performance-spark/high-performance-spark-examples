@@ -19,7 +19,7 @@ fi
 # Build JAR if not present
 if [ -z "$(ls arrow-datafusion-comet/spark/target/comet-spark-spark*.jar)" ]; then
   cd arrow-datafusion-comet
-  make clean release PROFILES="-Pspark-${SPARK_MAJOR}"
+  make clean release PROFILES="-Pspark-${SPARK_MAJOR} -Pscala-2.13"
   cd ..
 fi
 COMET_JAR="$(pwd)/$(ls arrow-datafusion-comet/spark/target/comet-spark-spark*SNAPSHOT.jar)"

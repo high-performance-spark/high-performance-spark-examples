@@ -2,7 +2,6 @@ package com.highperformancespark.examples.goldilocks
 
 import scala.collection.Map
 import scala.collection.mutable
-import scala.collection.mutable.MutableList
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
@@ -254,7 +253,7 @@ object GoldilocksFirstTry {
     // to sort the partitionsColumnsFreq array by the partition index (the
     // first value in the tuple).
     partitionColumnsFreq.sortBy(_._1).map { case (partitionIndex, columnsFreq) =>
-      val relevantIndexList = new MutableList[(Int, Long)]()
+      val relevantIndexList = new mutable.ListBuffer[(Int, Long)]()
 
       columnsFreq.zipWithIndex.foreach{ case (colCount, colIndex)  =>
         val runningTotalCol = runningTotal(colIndex)
@@ -293,8 +292,8 @@ object GoldilocksFirstTry {
       (partitionIndex : Int, valueColumnPairs : Iterator[(Double, Int)]) => {
         val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
         if (targetsInThisPart.nonEmpty) {
-          val columnsRelativeIndex: Map[Int, List[Long]] =
-          targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+          val columnsRelativeIndex: collection.MapView[Int, List[Long]] =
+            targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
           val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 
           val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()

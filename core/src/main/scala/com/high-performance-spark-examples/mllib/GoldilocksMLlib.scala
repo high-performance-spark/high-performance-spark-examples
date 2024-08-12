@@ -1,9 +1,6 @@
 package com.highperformancespark.examples.mllib
 
 import scala.collection.Map
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.MutableList
 
 import org.apache.spark._
 import org.apache.spark.mllib.classification.LogisticRegressionModel

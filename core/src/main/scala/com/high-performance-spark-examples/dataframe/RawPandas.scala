@@ -14,7 +14,7 @@ case class RawPanda(id: Long, zip: String, pt: String,
   happy: Boolean, attributes: Array[Double]) {
   override def equals(o: Any) = o match {
     case other: RawPanda => (id == other.id && pt == other.pt &&
-        happy == other.happy && attributes.deep == other.attributes.deep)
+        happy == other.happy && attributes.sameElements(other.attributes))
     case _ => false
   }
   override def hashCode(): Int = {

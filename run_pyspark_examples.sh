@@ -40,10 +40,15 @@ function check_fail () {
   fi
 }
 
-EXAMPLE_JAR="./core/target/scala-2.12/core-assembly-0.1.0-SNAPSHOT.jar"
+EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
 
 if [ ! -f "${EXAMPLE_JAR}" ]; then
   sbt core/assembly
+fi
+
+if [ ! -f "${EXAMPLE_JAR}" ]; then
+  echo "Can't find sample jar?!?"
+  exit 1
 fi
 
 function run_example () {
