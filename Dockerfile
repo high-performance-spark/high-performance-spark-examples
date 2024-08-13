@@ -3,7 +3,7 @@ FROM azul/zulu-openjdk:11-latest
 
 RUN apt-get -qq update && \
     apt-get -qq -y upgrade && \
-    apt-get -qq -y install gnupg software-properties-common locales curl tzdata apt-transport-https curl gnupg sudo net-tools psmisc htop && \
+    apt-get -qq -y install gnupg software-properties-common locales curl tzdata apt-transport-https curl gnupg sudo net-tools psmisc htop python-is-python3 && \
     locale-gen en_US.UTF-8 && \
     apt-get -qq -y install gnupg software-properties-common curl git-core wget axel python3 python3-pip nano emacs vim && \
     echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
@@ -47,7 +47,8 @@ RUN ./almond --install --log info --metabrowse --id scala2.13 --display-name "Sc
 RUN ./coursier launch almond --scala 2.13.8 -- --install
 USER root
 
-RUN mkdir /high-performance-spark-examples
+RUN mkdir -p /high-performance-spark-examples
+RUN mkdir -p /high-performance-spark-examples/warehouse
 RUN chown -R dev /high-performance-spark-examples
 WORKDIR /high-performance-spark-examples
 # Increase the chance of caching by copying just the env setup file first.

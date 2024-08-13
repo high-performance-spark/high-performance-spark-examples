@@ -104,3 +104,5 @@ project/build.sbt
 coursier
 # Magic file we use for build tracking
 oldhash
+# ignore ipynb checkpoints
+.ipynb_checkpoints/

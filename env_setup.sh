@@ -4,7 +4,7 @@ set -ex
 
 # Download Spark and iceberg if not present
 SPARK_MAJOR=${SPARK_MAJOR:-"3.5"}
-SPARK_VERSION=${SPARK_VERSION:-"${SPARK_MAJOR}.1"}
+SPARK_VERSION=${SPARK_VERSION:-"${SPARK_MAJOR}.2"}
 SCALA_VERSION=${SCALA_VERSION:-"2.13"}
 HADOOP_VERSION="3"
 SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
@@ -54,5 +54,11 @@ mkdir -p /tmp/spark-events
 mkdir -p ./data/fetched/
 if [ ! -f ./data/fetched/2021 ]; then
   wget "https://gender-pay-gap.service.gov.uk/viewing/download-data/2021" -O ./data/fetched/2021
+fi
+if [ ! -f ./data/fetched/2022 ]; then
+  wget "https://gender-pay-gap.service.gov.uk/viewing/download-data/2022" -O ./data/fetched/2022
+fi
+if [ ! -f ./data/fetched/2023 ]; then
+  wget "https://gender-pay-gap.service.gov.uk/viewing/download-data/2023" -O ./data/fetched/2023
 fi
 

@@ -15,6 +15,6 @@ else
   git archive -o myapp.tar --format=tar HEAD
   echo "$hash" > oldhash
 fi
-IMAGE=holdenk/hps:0.1
-docker buildx build --platform=linux/amd64,linux/arm64 -t "${IMAGE}" .  --push
-#docker buildx build --platform=linux/amd64 -t "${IMAGE}" .  --push
+IMAGE=${IMAGE:-holdenk/hps:0.2}
+#docker buildx build --platform=linux/amd64,linux/arm64 -t "${IMAGE}" .  --push
+docker buildx build --platform=linux/amd64 -t "${IMAGE}" .  --push
