@@ -60,9 +60,9 @@ RUN mv ~dev/.local/share/jupyter/kernels/scala2.13/kernel.json ~dev/.local/share
 # Note: We need to use /home in the COPY otherwise no happy pandas
 COPY --chown=dev:dev misc/kernel.json /home/dev/kernel.json_new
 RUN mv ~dev/kernel.json_new ~dev/.local/share/jupyter/kernels/scala2.13/kernel.json
-RUN git clone https://github.com/holdenk/spark-upgrade.git
 RUN chown -R dev /high-performance-spark-examples
 ADD --chown=dev:dev myapp.tar /high-performance-spark-examples/
+RUN git clone https://github.com/holdenk/spark-upgrade.git
 RUN chown -R dev /high-performance-spark-examples
 USER dev
 RUN echo "jupyter-lab --ip 0.0.0.0 --port 8877" >> ~/.bash_history
