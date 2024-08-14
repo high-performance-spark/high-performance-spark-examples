@@ -106,3 +106,6 @@ coursier
 oldhash
 # ignore ipynb checkpoints
 .ipynb_checkpoints/
+
+# ignore accel
+incubator-gluten/
