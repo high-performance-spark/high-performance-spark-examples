@@ -18,7 +18,7 @@ RUN curl -Lo coursier https://git.io/coursier-cli
 RUN chmod +x coursier
 # ensure the JAR of the CLI is in the coursier cache, in the image
 RUN ./coursier --help
-RUN pip install pyarrow pyiceberg[pandas,snappy,daft,s3fs]
+RUN pip install pyarrow pyiceberg[pandas,snappy,daft,s3fs] avro
 RUN pip install jupyter
 RUN ./coursier bootstrap \
       -r jitpack \
