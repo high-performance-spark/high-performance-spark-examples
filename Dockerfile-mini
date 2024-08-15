@@ -54,7 +54,7 @@ WORKDIR /high-performance-spark-examples
 COPY --chown=dev:dev env_setup.sh ./
 # Downloads and installs Spark ~3.5 & Iceberg 1.4 and slipstreams the JAR in-place
 # Also downloads some test data
-RUN SCALA_VERSION=2.13 ./env_setup.sh
+RUN SCALA_VERSION=2.13 ./env_setup.sh && rm *.tgz
 RUN mv ~dev/.local/share/jupyter/kernels/scala2.13/kernel.json ~dev/.local/share/jupyter/kernels/scala2.13/kernel.json_back
 # Note: We need to use /home in the COPY otherwise no happy pandas
 COPY --chown=dev:dev misc/kernel.json /home/dev/kernel.json_new
