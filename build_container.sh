@@ -19,5 +19,5 @@ VERSION=${VERSION:-0.3}
 IMAGE=${IMAGE:-holdenk/hps:$VERSION}
 MINI_IMAGE=${MINI_IMAGE:-holdenk/hps-mini:$VERSION}
 docker buildx build --platform=linux/amd64,linux/arm64 -t "${IMAGE}" .  --push
-docker buildx build --platform=linux/amd64,linux/arm64 -t "${IMAGE}" -f Dockerfile-mini .  --push
+docker buildx build --platform=linux/amd64,linux/arm64 -t "${MINI_IMAGE}" -f Dockerfile-mini .  --push
 #docker buildx build --platform=linux/amd64 -t "${IMAGE}" .  --push

@@ -44,7 +44,6 @@ RUN echo "export SPARK_HOME=/high-performance-spark-examples/spark-3.5.2-bin-had
 RUN chown -R dev ~dev
 USER dev
 # Kernels are installed in user so we need to run as the user
-RUN ./coursier launch almond --scala 2.13.8 -- --install
 RUN ./almond --install --log info --metabrowse --id scala2.13 --display-name "Scala 2.13"
 USER root
 
