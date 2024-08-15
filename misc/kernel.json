@@ -2,7 +2,7 @@
   "argv": [
     "java",
     "-cp",
-      "/home/dev/.local/share/jupyter/kernels/scala2.13/launcher.jar:.:/high-performance-spark-examples/:/high-performance-spark-examples/target/scala-2.13/home/dev/.local/share/jupyter/kernels/scala/launcher.jar:/high-performance-spark-examples/spark-3.5.1-bin-hadoop3-scala2.13/jars/*",  
+      "/home/dev/.local/share/jupyter/kernels/scala2.13/launcher.jar:.:/high-performance-spark-examples/:/high-performance-spark-examples/target/scala-2.13/home/dev/.local/share/jupyter/kernels/scala/launcher.jar:/high-performance-spark-examples/spark-3.5.2-bin-hadoop3-scala2.13/jars/*",  
     "coursier.bootstrap.launcher.Launcher",
     "--log",
     "info",

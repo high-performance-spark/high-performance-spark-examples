@@ -1,7 +1,10 @@
 #!/bin/bash
 set -ex
-./build_container.sh
-docker image pull holdenk/hps:0.1
+VERSION=${VERSION:-0.4}
+IMAGE=${IMAGE:-holdenk/hps:$VERSION}
+export VERSION
+export IMAGE
+docker image pull "$IMAGE"
 mkdir -p warehouse
 mkdir -p iceberg-workshop
-docker container  run --mount type=bind,source="$(pwd)"/warehouse,target=/warehouse --mount type=bind,source="$(pwd)/iceberg-workshop",target=/high-performance-spark-examples/iceberg-workshop -p 8877:8877 -it holdenk/hps:0.1 /bin/bash
+docker container  run --mount type=bind,source="$(pwd)"/warehouse,target=/high-performance-spark-examples/warehouse --mount type=bind,source="$(pwd)/iceberg-workshop",target=/high-performance-spark-examples/iceberg-workshop -p 8877:8877 -p 4040:4040 -it "${IMAGE}" # /bin/bash
