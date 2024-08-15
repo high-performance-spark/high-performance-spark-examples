@@ -68,5 +68,5 @@ RUN chown -R dev /high-performance-spark-examples
 USER dev
 RUN echo "jupyter-lab --ip 0.0.0.0 --port 8877" >> ~/.bash_history
 RUN sbt clean compile
-CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8877"]
+CMD ["/high-performance-spark-examples/misc/container_launch.sh"]
 
