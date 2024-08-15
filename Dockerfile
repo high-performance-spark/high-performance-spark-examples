@@ -20,6 +20,10 @@ RUN chmod +x coursier
 RUN ./coursier --help
 RUN pip install pyarrow pyiceberg[pandas,snappy,daft,s3fs] avro
 RUN pip install jupyter
+# Fun story: this does not work (Aug 8 2024) because it tries to download Scala 2 from Scala 3
+#RUN ./coursier install scala:2.13.8 && ./coursier install scalac:2.13.8
+RUN (axel --quiet https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb || wget https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb) && dpkg --install scala-2.13.8.deb && rm scala-2.13.8.deb
+
 RUN ./coursier bootstrap \
       -r jitpack \
       -i user -I user:sh.almond:scala-kernel-api_2.13.8:0.14.0-RC4 \
@@ -27,11 +31,7 @@ RUN ./coursier bootstrap \
       --default=true --sources \
       -o almond && \
     ./almond --install --log info --metabrowse --id scala2.13 --display-name "Scala 2.13"
-RUN chmod a+xr almond coursier
-RUN ./coursier launch almond --scala 2.13.8 -- --install
-# Fun story: this does not work (Aug 8 2024) because it tries to download Scala 2 from Scala 3
-#RUN ./coursier install scala:2.13.8 && ./coursier install scalac:2.13.8
-RUN (axel --quiet https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb || wget https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.deb) && dpkg --install scala-2.13.8.deb && rm scala-2.13.8.deb
+
 
 RUN adduser dev
 RUN adduser dev sudo
@@ -40,12 +40,12 @@ RUN mkdir -p ~dev
 RUN cp ./coursier ~dev/
 RUN echo "color_prompt=yes" >> ~dev/.bashrc
 RUN echo "export force_color_prompt=yes" >> ~dev/.bashrc
-RUN echo "export SPARK_HOME=/high-performance-spark-examples/spark-3.5.1-bin-hadoop3" >> ~dev/.bashrc
+RUN echo "export SPARK_HOME=/high-performance-spark-examples/spark-3.5.2-bin-hadoop3" >> ~dev/.bashrc
 RUN chown -R dev ~dev
 USER dev
 # Kernels are installed in user so we need to run as the user
-RUN ./almond --install --log info --metabrowse --id scala2.13 --display-name "Scala 2.13"
 RUN ./coursier launch almond --scala 2.13.8 -- --install
+RUN ./almond --install --log info --metabrowse --id scala2.13 --display-name "Scala 2.13"
 USER root
 
 RUN mkdir -p /high-performance-spark-examples

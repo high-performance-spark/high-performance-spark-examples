@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ex
-IMAGE=${IMAGE:-holdenk/hps:0.2}
+IMAGE=${IMAGE:-holdenk/hps:0.3}
 export IMAGE
 ./build_container.sh
 docker image pull $IMAGE
