@@ -1,8 +1,9 @@
 #!/bin/bash
 set -ex
-IMAGE=${IMAGE:-holdenk/hps:0.3}
+VERSION=${VERSION:-0.4}
+IMAGE=${IMAGE:-holdenk/hps:$VERSION}
+export VERSION
 export IMAGE
-./build_container.sh
 docker image pull $IMAGE
 mkdir -p warehouse
 mkdir -p iceberg-workshop
