@@ -15,6 +15,9 @@ else
   git archive -o myapp.tar --format=tar HEAD
   echo "$hash" > oldhash
 fi
-IMAGE=${IMAGE:-holdenk/hps:0.2}
+VERSION=${VERSION:-0.3}
+IMAGE=${IMAGE:-holdenk/hps:$VERSION}
+MINI_IMAGE=${MINI_IMAGE:-holdenk/hps-mini:$VERSION}
 docker buildx build --platform=linux/amd64,linux/arm64 -t "${IMAGE}" .  --push
+docker buildx build --platform=linux/amd64,linux/arm64 -t "${IMAGE}" -f Dockerfile-mini .  --push
 #docker buildx build --platform=linux/amd64 -t "${IMAGE}" .  --push
