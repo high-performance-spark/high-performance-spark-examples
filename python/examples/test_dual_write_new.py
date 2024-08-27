@@ -3,6 +3,8 @@ import tempfile
 
 #tag::test[]
 import unittest
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import current_timestamp
 from pyspark.sql.types import Row
 from pyspark.testing.utils import assertDataFrameEqual
 from .dual_write import DualWriteExample
