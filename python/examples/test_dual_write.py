@@ -1,7 +1,7 @@
 import os
 import tempfile
 
-#tag::test[]
+# tag::test[]
 from sparktestingbase.sqltestcase import SQLTestCase
 from pyspark.sql.functions import current_timestamp
 from pyspark.sql.types import Row
@@ -22,4 +22,6 @@ class DualWriteTest(SQLTestCase):
         df1 = self.sqlCtx.read.format("parquet").load(p1)
         df2 = self.sqlCtx.read.format("parquet").load(p2)
         self.assertDataFrameEqual(df2.select("times"), df1, 0.1)
-#end::test[]
+
+
+# end::test[]
