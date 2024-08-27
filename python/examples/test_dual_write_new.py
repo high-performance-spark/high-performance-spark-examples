@@ -15,7 +15,6 @@ class DualWriteTest(unittest.TestCase):
     def setUpClass(cls):
         cls.spark = SparkSession.builder.appName("Testing PySpark Example").getOrCreate()
 
-
     @classmethod
     def tearDownClass(cls):
         cls.spark.stop()
