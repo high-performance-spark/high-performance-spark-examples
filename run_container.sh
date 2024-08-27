@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ex
-VERSION=${VERSION:-0.4}
+VERSION=${VERSION:-0.5}
 IMAGE=${IMAGE:-holdenk/hps:$VERSION}
 export VERSION
 export IMAGE
