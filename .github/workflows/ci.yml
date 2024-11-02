@@ -9,7 +9,6 @@ jobs:
       matrix:
         include:
           - java: 17
-          - java: 11
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
