@@ -5,16 +5,16 @@ resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositori
 resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.2")
 
 addDependencyTreePlugin
 
 //tag::scalaFix[]
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
 //end::scalaFix[]
 
 //tag::sbtJNIPlugin[]
-addSbtPlugin("com.github.sbt" %% "sbt-jni" % "1.5.4")
+addSbtPlugin("com.github.sbt" %% "sbt-jni" % "1.7.0")
 //end::sbtJNIPlugin[]
 
 //tag::xmlVersionConflict[]
@@ -24,4 +24,4 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 )
 //end::xmlVersionConflict[]
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.3")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.2.0")

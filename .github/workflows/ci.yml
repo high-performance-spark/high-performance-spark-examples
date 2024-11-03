@@ -9,7 +9,6 @@ jobs:
       matrix:
         include:
           - java: 17
-          - java: 11
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -179,6 +178,12 @@ jobs:
         path: |
           data/fetched/*
         key: data-fetched
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 17
+        cache: sbt
     - name: Run PySpark examples
       run:
         ./run_pyspark_examples.sh
