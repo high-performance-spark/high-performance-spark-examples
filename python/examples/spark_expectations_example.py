@@ -20,7 +20,7 @@ se_conf = {
     "se_notifications_on_error_drop_exceeds_threshold_breach": True,
     "se_notifications_on_error_drop_threshold": 15,
 }
-# end::gloabl_setup[]
+# end::global_setup[]
 
 
 # tag::setup_and_load[]

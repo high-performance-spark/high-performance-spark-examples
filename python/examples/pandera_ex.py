@@ -1,6 +1,6 @@
 from pyspark.sql.session import SparkSession
 
-# tags::pandera_imports[]
+# tag::pandera_imports[]
 import pandera.pyspark as pa
 import pyspark.sql.types as T
 
