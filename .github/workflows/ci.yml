@@ -30,6 +30,9 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: sbt
 
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Scala Build and Test
         run: sbt clean package +test
 
@@ -67,6 +70,15 @@ jobs:
             iceberg*.jar
           key: spark-artifacts
 
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Cache Data
         uses: actions/cache@v4
         with:
@@ -94,6 +106,8 @@ jobs:
   #       with:
   #         distribution: temurin
   #         java-version: 17
+  #    - name: Add sbt
+  #      uses: sbt/setup-sbt@v1
   #     - name: Cache Maven packages
   #       uses: actions/cache@v4
   #       with:
@@ -148,6 +162,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Setup comet
         run: |
           cd accelerators; SPARK_MAJOR=3.5 ./setup_comet.sh
@@ -169,6 +186,11 @@ jobs:
             spark*.tgz
             iceberg*.jar
           key: spark-artifacts
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
       - name: Cache Accel
         uses: actions/cache@v4
@@ -216,6 +238,9 @@ jobs:
           java-version: 17
           cache: sbt
 
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Run PySpark examples
         run: ./run_pyspark_examples.sh
 
@@ -237,6 +262,8 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: sbt
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
       - name: scala style
         run:
           sbt scalastyle
