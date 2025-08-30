@@ -232,6 +232,7 @@ jobs:
           shellcheck -e SC2317,SC1091,SC2034,SC2164 $(find -name "*.sh")
 
       - name: Setup JDK
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
