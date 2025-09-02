@@ -3,6 +3,12 @@
 set -ex
 source install_rust_if_needed.sh
 
+if command -v protoc >/dev/null 2>&1; then
+  echo "protoc already installed"
+else
+  sudo apt-get install -y protobuf-compiler
+fi
+
 if [ -z "${SPARK_MAJOR}" ]; then
   echo "Need a spark major version specified."
   exit 1
