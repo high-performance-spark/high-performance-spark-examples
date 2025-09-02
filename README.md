@@ -1,7 +1,7 @@
 # high-performance-spark-examples
 Examples for High Performance Spark
 
-We are in the progress of updata this for Spark 3.5+ and the 2ed edition of our book!
+We are in the progress of updata this for Spark 4 (some parts depending on external libraries like Iceberg, Comet, etc. are still 3.X) and the 2ed edition of our book!
 
 # Building
 
