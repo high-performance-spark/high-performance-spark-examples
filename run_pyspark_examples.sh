@@ -42,8 +42,9 @@ function check_fail () {
 
 EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
 
+# Iceberg JAR not yet available for SPark 4.
 if [ ! -f "${EXAMPLE_JAR}" ]; then
-  sbt core/assembly
+  sbt core/assembly -DsparkVersion="${SPARK_VERSION}"
 fi
 
 if [ ! -f "${EXAMPLE_JAR}" ]; then

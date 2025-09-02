@@ -348,18 +348,19 @@ object HappyPandas {
    * Cut the lineage of a DataFrame which has too long a query plan.
    */
   def cutLineage(df: DataFrame): DataFrame = {
-    val sqlCtx = df.sqlContext
+    val session = SparkSession.builder.getOrCreate()
+    import session.implicits._
     //tag::cutLineage[]
     val rdd = df.rdd
     rdd.cache()
-    sqlCtx.createDataFrame(rdd, df.schema)
+    session.createDataFrame(rdd, df.schema)
     //end::cutLineage[]
   }
 
   // Self join
   def selfJoin(df: DataFrame): DataFrame = {
-    val sqlCtx = df.sqlContext
-    import sqlCtx.implicits._
+    val session = SparkSession.builder.getOrCreate()
+    import session.implicits._
     //tag::selfJoin[]
     val joined = df.as("a").join(df.as("b")).where($"a.name" === $"b.name")
     //end::selfJoin[]

@@ -4,10 +4,9 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.*;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.expressions.Window;
 import org.apache.spark.sql.expressions.WindowSpec;
-import org.apache.spark.sql.hive.HiveContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,38 +16,22 @@ import static org.apache.spark.sql.functions.*;
 public class JavaHappyPandas {
 
   /**
-   * Creates SQLContext with an existing SparkContext.
-   */
-  public static SQLContext sqlContext(JavaSparkContext jsc) {
-    SQLContext sqlContext = new SQLContext(jsc);
-    return sqlContext;
-  }
-
-  /**
-   * Creates HiveContext with an existing SparkContext.
-   */
-  public static HiveContext hiveContext(JavaSparkContext jsc) {
-    HiveContext hiveContext = new HiveContext(jsc);
-    return hiveContext;
-  }
-
-  /**
    * Illustrate loading some JSON data.
    */
-  public static Dataset<Row> loadDataSimple(JavaSparkContext jsc, SQLContext sqlContext, String path) {
-    Dataset<Row> df1 = sqlContext.read().json(path);
+  public static Dataset<Row> loadDataSimple(JavaSparkContext jsc, SparkSession session, String path) {
+    Dataset<Row> df1 = session.read().json(path);
 
-    Dataset<Row> df2 = sqlContext.read().format("json").option("samplingRatio", "1.0").load(path);
+    Dataset<Row> df2 = session.read().format("json").option("samplingRatio", "1.0").load(path);
 
     JavaRDD<String> jsonRDD = jsc.textFile(path);
-    Dataset<Row> df3 = sqlContext.read().json(jsonRDD);
+    Dataset<Row> df3 = session.read().json(jsonRDD);
 
     return df1;
   }
 
-  public static Dataset<Row> jsonLoadFromRDD(SQLContext sqlContext, JavaRDD<String> input) {
+  public static Dataset<Row> jsonLoadFromRDD(SparkSession session, JavaRDD<String> input) {
     JavaRDD<String> rdd = input.filter(e -> e.contains("panda"));
-    Dataset<Row> df = sqlContext.read().json(rdd);
+    Dataset<Row> df = session.read().json(rdd);
     return df;
   }
 
@@ -147,10 +130,10 @@ public class JavaHappyPandas {
   }
 
   public static Dataset<Row> simpleSqlExample(Dataset<Row> pandas) {
-    SQLContext sqlContext = pandas.sqlContext();
+    SparkSession session = SparkSession.builder().getOrCreate();
     pandas.registerTempTable("pandas");
 
-    Dataset<Row> miniPandas = sqlContext.sql("SELECT * FROM pandas WHERE pandaSize < 12");
+    Dataset<Row> miniPandas = session.sql("SELECT * FROM pandas WHERE pandaSize < 12");
     return miniPandas;
   }
 
