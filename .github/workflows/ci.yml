@@ -2,6 +2,7 @@ name: CI
 on:
   pull_request:
   push:
+
 jobs:
   test:
     strategy:
@@ -11,197 +12,258 @@ jobs:
           - java: 17
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Sync the current branch with the latest
-      if: github.repository != 'high-performance-spark/high-performance-spark-examples'
-      id: sync-branch
-      run: |
-        git fetch https://github.com/$GITHUB_REPOSITORY.git ${GITHUB_REF##*/}
-        git -c user.name='Spark Test Account' -c user.email='sparktestacc@gmail.com' merge --no-commit --progress --squash FETCH_HEAD || echo "no merge needed."
-        git -c user.name='Spark Test Account' -c user.email='sparktestacc@gmail.com' commit -m "Merged commit" || echo "no merge needed."
-    - name: Setup JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: ${{ matrix.java }}
-        cache: sbt
-    - name: Scala Build and Test
-      run: sbt clean package +test
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync the current branch with the latest
+        if: github.repository != 'high-performance-spark/high-performance-spark-examples'
+        id: sync-branch
+        run: |
+          git fetch https://github.com/$GITHUB_REPOSITORY.git ${GITHUB_REF##*/}
+          git -c user.name='Spark Test Account' -c user.email='sparktestacc@gmail.com' merge --no-commit --progress --squash FETCH_HEAD || echo "no merge needed."
+          git -c user.name='Spark Test Account' -c user.email='sparktestacc@gmail.com' commit -m "Merged commit" || echo "no merge needed."
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: sbt
+
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Scala Build and Test
+        run: sbt clean package +test
+
   python-test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install tox tox-gh-actions
-    - name: Run tox
-      run: |
-        cd python; tox
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox tox-gh-actions
+
+      - name: Run tox
+        run: |
+          cd python; tox
+
   run-sql-examples:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Cache Spark and friends
-      uses: actions/cache@v3
-      with:
-        path: |
-          spark*.tgz
-          iceberg*.jar
-        key: spark-artifacts
-    - name: Cache Data
-      uses: actions/cache@v3
-      with:
-        path: |
-          data/fetched/*
-        key: data-fetched
-    - name: Run sql examples
-      run:
-        ./run_sql_examples.sh
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Spark and friends
+        uses: actions/cache@v4
+        with:
+          path: |
+            spark*.tgz
+            iceberg*.jar
+          key: spark-artifacts
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Cache Data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/fetched/*
+          key: data-fetched
+
+      - name: Run sql examples
+        run: ./run_sql_examples.sh
+
   # run-gluten-sql-examples:
   #   runs-on: ubuntu-latest
   #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #   - name: Cache Spark and friends
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: |
-  #         spark*.tgz
-  #         iceberg*.jar
-  #       key: spark-artifacts
-  #   - name: Setup JDK
-  #     uses: actions/setup-java@v3
-  #     with:
-  #       distribution: temurin
-  #       java-version: 17
-  #   - name: Cache Maven packages
-  #     uses: actions/cache@v2
-  #     with:
-  #       path: ~/.m2
-  #       key: ${{ runner.os }}-m2-gluten
-  #   - name: Cache Data
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: |
-  #         data/fetched/*
-  #       key: data-fetched
-  #   - name: Run gluten
-  #     run:
-  #       cd accelerators; ./gluten_spark_34_ex.sh
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Cache Spark and friends
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           spark*.tgz
+  #           iceberg*.jar
+  #         key: spark-artifacts
+  #     - name: Setup JDK
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         distribution: temurin
+  #         java-version: 17
+  #    - name: Add sbt
+  #      uses: sbt/setup-sbt@v1
+  #     - name: Cache Maven packages
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.m2
+  #         key: ${{ runner.os }}-m2-gluten
+  #     - name: Cache Data
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           data/fetched/*
+  #         key: data-fetched
+  #     - name: Run gluten
+  #       run: |
+  #         cd accelerators; ./gluten_spark_34_ex.sh
+
   run-comet-sql-examples:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Cache Spark and friends
-      uses: actions/cache@v3
-      with:
-        path: |
-          spark*.tgz
-          iceberg*.jar
-        key: spark-artifacts
-    - name: Cache Data
-      uses: actions/cache@v3
-      with:
-        path: |
-          data/fetched/*
-        key: data-fetched
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-comet
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
-    - name: Setup JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
-    - name: Setup comet
-      run:
-        cd accelerators; SPARK_MAJOR=3.5 ./setup_comet.sh
-    - name: Run comet
-      run:
-        cd accelerators; ./comet_ex.sh
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Spark and friends
+        uses: actions/cache@v4
+        with:
+          path: |
+            spark*.tgz
+            iceberg*.jar
+          key: spark-artifacts
+
+      - name: Cache Data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/fetched/*
+          key: data-fetched
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-comet
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Setup comet
+        run: |
+          cd accelerators; SPARK_MAJOR=3.5 ./setup_comet.sh
+
+      - name: Run comet
+        run: |
+          cd accelerators; ./comet_ex.sh
+
   run-target-examples:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Cache Spark and friends
-      uses: actions/cache@v3
-      with:
-        path: |
-          spark*.tgz
-          iceberg*.jar
-        key: spark-artifacts
-    - name: Cache Accel
-      uses: actions/cache@v3
-      with:
-        path: |
-          accelerators/*.jar
-        key: accelerators-artifacts
-    - name: Cache Data
-      uses: actions/cache@v3
-      with:
-        path: |
-          data/fetched/*
-        key: data-fetched
-    - name: Run the target validator example
-      run:
-        cd target-validator; ./runme.sh
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Spark and friends
+        uses: actions/cache@v4
+        with:
+          path: |
+            spark*.tgz
+            iceberg*.jar
+          key: spark-artifacts
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Accel
+        uses: actions/cache@v4
+        with:
+          path: |
+            accelerators/*.jar
+          key: accelerators-artifacts
+
+      - name: Cache Data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/fetched/*
+          key: data-fetched
+
+      - name: Run the target validator example
+        run: |
+          cd target-validator; ./runme.sh
+
   run-pyspark-examples:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Cache Spark and friends
-      uses: actions/cache@v3
-      with:
-        path: |
-          spark*.tgz
-          iceberg*.jar
-        key: spark-artifacts
-    - name: Cache Data
-      uses: actions/cache@v3
-      with:
-        path: |
-          data/fetched/*
-        key: data-fetched
-    - name: Setup JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
-        cache: sbt
-    - name: Run PySpark examples
-      run:
-        ./run_pyspark_examples.sh
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Spark and friends
+        uses: actions/cache@v4
+        with:
+          path: |
+            spark*.tgz
+            iceberg*.jar
+          key: spark-artifacts
+
+      - name: Cache Data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/fetched/*
+          key: data-fetched
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: sbt
+
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Run PySpark examples
+        run: ./run_pyspark_examples.sh
+
   style:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Shellcheck
-      run: |
-        sudo apt-get install -y shellcheck
-        shellcheck -e SC2317,SC1091,SC2034,SC2164 $(find -name "*.sh")
-    - name: Setup JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
-        cache: sbt
-    - name: scala
-      run:
-        sbt scalastyle
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          shellcheck -e SC2317,SC1091,SC2034,SC2164 $(find -name "*.sh")
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: sbt
+      - name: Add sbt
+        uses: sbt/setup-sbt@v1
+      - name: scala style
+        run:
+          sbt scalastyle

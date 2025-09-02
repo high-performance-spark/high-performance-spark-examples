@@ -8,7 +8,7 @@ import org.apache.spark.sql.catalyst.optimizer._
 import org.apache.spark.sql.catalyst.plans.logical._
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.trees.TreePattern._
-import org.apache.spark.sql.catalyst.expressions.{And, IsNotNull, NullIntolerant}
+import org.apache.spark.sql.catalyst.expressions.{And, IsNotNull}
 
 object NullabilityFilterOptimizer extends Rule[LogicalPlan] {
 

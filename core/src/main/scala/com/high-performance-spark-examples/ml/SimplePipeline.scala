@@ -17,7 +17,6 @@ import com.highperformancespark.examples.dataframe._
 
 object SimplePipeline {
   def constructAndSetParams(df: DataFrame) = {
-    val sqlCtx = df.sqlContext
     //tag::constructSetParams[]
     val hashingTF = new HashingTF()
     hashingTF.setInputCol("input")
@@ -26,7 +25,6 @@ object SimplePipeline {
   }
 
   def constructSimpleTransformer(df: DataFrame) = {
-    val sqlCtx = df.sqlContext
     //tag::simpleTransformer[]
     val hashingTF = new HashingTF()
     // We don't set the output column here so the default output column of
@@ -62,7 +60,6 @@ object SimplePipeline {
   }
 
   def constructSimpleEstimator(df: DataFrame) = {
-    val sqlCtx = df.sqlContext
     //tag::simpleNaiveBayes[]
     val nb = new NaiveBayes()
     nb.setLabelCol("happy")
