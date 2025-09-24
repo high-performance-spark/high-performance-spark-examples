@@ -1,0 +1,39 @@
+package com.highperformancespark.examples.structuredstreaming
+
+// tag::streaming_ex_basic_test[]
+// Test for BasicSocketWordCount using memory source and sink
+// Hermetic: does not require real socket
+
+import org.scalatest.funsuite.AnyFunSuite
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.functions._
+
+class BasicSocketWordCountSuite extends AnyFunSuite {
+  test("wordcount works with memory source") {
+    val spark = SparkSession.builder
+      .master("local[2]")
+      .appName("BasicSocketWordCountSuite")
+      .getOrCreate()
+    import spark.implicits._
+
+    // Simulate input
+    val df = spark.createDataset(Seq("hello world hello")).toDF("value")
+    val words = df.select(explode(split(col("value"), " ")).alias("word"))
+    val counts = words.groupBy("word").count()
+
+    // Write to memory sink
+    val query = counts.writeStream
+      .outputMode("complete")
+      .format("memory")
+      .queryName("wordcount")
+      .trigger(Trigger.Once())
+      .start()
+    query.awaitTermination()
+
+    val result = spark.sql("select * from wordcount").collect().map(_.getString(0)).toSet
+    assert(result == Set("hello", "world"))
+    spark.stop()
+  }
+}
+// end::streaming_ex_basic_test[]
