@@ -14,7 +14,7 @@ organization := "com.highperformancespark"
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
-scalaVersion := "2.13.16"
+ThisBuild / scalaVersion := "2.13.16"
 addCompilerPlugin(scalafixSemanticdb)
 scalacOptions ++= List(
   "-Yrangepos",
