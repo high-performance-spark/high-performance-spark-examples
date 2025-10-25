@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions._
 
 class RateSourceStressExampleSuite extends AnyFunSuite {
   test("rate source produces at least one row") {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("RateSourceStressExampleSuite")
       .getOrCreate()

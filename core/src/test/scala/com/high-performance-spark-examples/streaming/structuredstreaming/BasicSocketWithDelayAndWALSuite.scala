@@ -12,7 +12,7 @@ import org.apache.spark.sql.functions._
 class BasicSocketWithDelayAndWALSuite extends AnyFunSuite {
   test("WAL/progress logs do not break pipeline and recovery works") {
     val checkpointDir = "./tmp/checkpoints/test_socket_with_delay_and_wal"
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("BasicSocketWithDelayAndWALSuite")
       .config("spark.sql.streaming.checkpointLocation", checkpointDir)
@@ -28,7 +28,7 @@ class BasicSocketWithDelayAndWALSuite extends AnyFunSuite {
       .format("memory")
       .queryName("socket_with_delay_and_wal")
       .option("checkpointLocation", checkpointDir)
-      .foreachBatch { (batchDF, batchId) =>
+      .foreachBatch { (batchDF: org.apache.spark.sql.DataFrame, batchId: Long) =>
         Thread.sleep(100)
       }
       .trigger(Trigger.Once())

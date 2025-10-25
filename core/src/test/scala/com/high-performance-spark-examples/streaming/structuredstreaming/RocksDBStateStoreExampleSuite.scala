@@ -11,7 +11,7 @@ import org.apache.spark.sql.functions._
 
 class RocksDBStateStoreExampleSuite extends AnyFunSuite {
   test("rocksdb state store query runs if provider available") {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("RocksDBStateStoreExampleSuite")
       .config("spark.sql.streaming.stateStore.providerClass", "org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider")

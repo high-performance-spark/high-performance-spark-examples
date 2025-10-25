@@ -13,15 +13,16 @@ import java.nio.file.{Files, Paths}
 class BasicSocketWordCountWithCheckpointSuite extends AnyFunSuite {
   test("wordcount with checkpointing creates checkpoint dir and can restart") {
     val checkpointDir = "./tmp/checkpoints/test_basic_socket_wordcount"
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("BasicSocketWordCountWithCheckpointSuite")
       .getOrCreate()
     import spark.implicits._
 
-    // Simulate input
-    val df = spark.createDataset(Seq("hello world hello")).toDF("value")
-    val words = df.select(explode(split(col("value"), " ")).alias("word"))
+    // Use MemoryStream for streaming input
+    import org.apache.spark.sql.execution.streaming.MemoryStream
+    val inputStream = MemoryStream[String](1, spark.sqlContext)
+    val words = inputStream.toDF().select(explode(split(col("value"), " ")).alias("word"))
     val counts = words.groupBy("word").count()
 
     // Write to memory sink with checkpointing
@@ -32,6 +33,8 @@ class BasicSocketWordCountWithCheckpointSuite extends AnyFunSuite {
       .option("checkpointLocation", checkpointDir)
       .trigger(Trigger.Once())
       .start()
+    inputStream.addData("hello world hello")
+    query.processAllAvailable()
     query.awaitTermination()
 
     assert(Files.exists(Paths.get(checkpointDir)), "Checkpoint directory should exist")
@@ -44,6 +47,8 @@ class BasicSocketWordCountWithCheckpointSuite extends AnyFunSuite {
       .option("checkpointLocation", checkpointDir)
       .trigger(Trigger.Once())
       .start()
+    inputStream.addData("hello world hello")
+    query2.processAllAvailable()
     query2.awaitTermination()
 
     val result = spark.sql("select * from wordcount_checkpoint2").collect().map(_.getString(0)).toSet

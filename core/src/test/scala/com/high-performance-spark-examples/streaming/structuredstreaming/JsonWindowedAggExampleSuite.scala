@@ -11,19 +11,22 @@ import java.sql.Timestamp
 
 class JsonWindowedAggExampleSuite extends AnyFunSuite {
   test("windowed agg drops late rows beyond watermark") {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("JsonWindowedAggExampleSuite")
       .getOrCreate()
     import spark.implicits._
 
+    import org.apache.spark.sql.execution.streaming.MemoryStream
+    val inputStream = MemoryStream[(Timestamp, String)](1, spark.sqlContext)
     val now = System.currentTimeMillis()
     val rows = Seq(
       (new Timestamp(now - 1000 * 60 * 5), "foo"), // within window
       (new Timestamp(now - 1000 * 60 * 50), "bar"), // late, beyond watermark
       (new Timestamp(now - 1000 * 60 * 2), "foo")  // within window
     )
-    val df = spark.createDataFrame(rows).toDF("timestamp", "word")
+    inputStream.addData(rows: _*)
+    val df = inputStream.toDF().toDF("timestamp", "word")
     val withWatermark = df.withWatermark("timestamp", "42 minutes")
     val windowed = withWatermark
       .groupBy(window(col("timestamp"), "10 minutes"), col("word"))
@@ -36,6 +39,7 @@ class JsonWindowedAggExampleSuite extends AnyFunSuite {
       .trigger(Trigger.Once())
       .option("checkpointLocation", "./tmp/checkpoints/json_windowed_agg_test")
       .start()
+    query.processAllAvailable()
     query.awaitTermination()
 
     val result = spark.sql("select word, count from json_windowed_agg").collect().map(_.getString(0)).toSet

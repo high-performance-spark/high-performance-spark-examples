@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions._
 
 object BasicSocketWordCountWithCheckpoint {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .appName("BasicSocketWordCountWithCheckpoint")
       .master("local[2]")
       .getOrCreate()

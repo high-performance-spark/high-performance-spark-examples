@@ -10,7 +10,7 @@ import org.apache.spark.sql.streaming.Trigger
 
 object AsyncProgressExample {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .appName("AsyncProgressExample")
       .master("local[2]")
       .config("spark.sql.streaming.asyncProgressTrackingEnabled", "true")

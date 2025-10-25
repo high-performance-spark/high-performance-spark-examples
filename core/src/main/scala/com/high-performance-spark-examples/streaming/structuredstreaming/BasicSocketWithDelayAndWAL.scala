@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 
 object BasicSocketWithDelayAndWAL {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .appName("BasicSocketWithDelayAndWAL")
       .master("local[2]")
       .config("spark.sql.streaming.checkpointLocation", "./tmp/checkpoints/socket_with_delay_and_wal")
@@ -31,7 +31,7 @@ object BasicSocketWithDelayAndWAL {
       .outputMode("complete")
       .format("console")
       .option("checkpointLocation", "./tmp/checkpoints/socket_with_delay_and_wal")
-      .foreachBatch { (batchDF, batchId) =>
+      .foreachBatch { (batchDF: org.apache.spark.sql.DataFrame, batchId: Long) =>
         Thread.sleep(500) // artificial delay
         batchDF.show()
       }

@@ -10,7 +10,7 @@ import org.apache.spark.sql.streaming.Trigger
 
 object RocksDBStateStoreExample {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .appName("RocksDBStateStoreExample")
       .master("local[2]")
       .config("spark.sql.streaming.stateStore.providerClass", "org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider")

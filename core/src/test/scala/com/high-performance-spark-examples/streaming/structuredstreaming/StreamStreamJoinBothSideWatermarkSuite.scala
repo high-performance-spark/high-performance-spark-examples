@@ -12,13 +12,16 @@ import java.sql.Timestamp
 
 class StreamStreamJoinBothSideWatermarkSuite extends AnyFunSuite {
   test("join with both-side watermark yields bounded state and correct results") {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("StreamStreamJoinBothSideWatermarkSuite")
       .getOrCreate()
     import spark.implicits._
 
+    import org.apache.spark.sql.execution.streaming.MemoryStream
     val now = System.currentTimeMillis()
+    val leftStream = MemoryStream[(Timestamp, String)](1, spark.sqlContext)
+    val rightStream = MemoryStream[(Timestamp, String)](2, spark.sqlContext)
     val leftRows = Seq(
       (new Timestamp(now - 1000 * 60 * 5), "k1"), // within window
       (new Timestamp(now - 1000 * 60 * 20), "k2") // late, beyond watermark
@@ -27,12 +30,16 @@ class StreamStreamJoinBothSideWatermarkSuite extends AnyFunSuite {
       (new Timestamp(now - 1000 * 60 * 5), "k1"), // within window
       (new Timestamp(now - 1000 * 60 * 20), "k2") // late, beyond watermark
     )
-    val leftDF = spark.createDataFrame(leftRows).toDF("timestamp", "key").withWatermark("timestamp", "10 minutes")
-    val rightDF = spark.createDataFrame(rightRows).toDF("timestamp", "key").withWatermark("timestamp", "10 minutes")
+    leftStream.addData(leftRows: _*)
+    rightStream.addData(rightRows: _*)
+    val leftDF = leftStream.toDF().toDF("timestamp", "key").withWatermark("timestamp", "10 minutes")
+    val rightDF = rightStream.toDF().toDF("timestamp", "key").withWatermark("timestamp", "10 minutes")
 
     val joined = leftDF.join(
       rightDF,
-      expr("leftDF.timestamp >= rightDF.timestamp - interval 5 minutes AND leftDF.timestamp <= rightDF.timestamp + interval 5 minutes AND leftDF.key = rightDF.key")
+      leftDF("key") === rightDF("key") &&
+        leftDF("timestamp") >= rightDF("timestamp") - expr("interval 5 minutes") &&
+        leftDF("timestamp") <= rightDF("timestamp") + expr("interval 5 minutes")
     )
 
     val query = joined.writeStream
@@ -42,6 +49,7 @@ class StreamStreamJoinBothSideWatermarkSuite extends AnyFunSuite {
       .trigger(Trigger.Once())
       .option("checkpointLocation", "./tmp/checkpoints/stream_stream_join_both_side_watermark_test")
       .start()
+    query.processAllAvailable()
     query.awaitTermination()
 
     val result = spark.sql("select key from stream_stream_join_both_side_watermark").collect().map(_.getString(0)).toSet

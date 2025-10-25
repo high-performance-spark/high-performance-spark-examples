@@ -12,7 +12,7 @@ import org.apache.spark.sql.functions._
 class IdempotentDeltaSinkExampleSuite extends AnyFunSuite {
   test("idempotent delta sink does not duplicate logical rows if Delta present") {
     try {
-      val spark = SparkSession.builder
+  val spark = SparkSession.builder()
         .master("local[2]")
         .appName("IdempotentDeltaSinkExampleSuite")
         .getOrCreate()

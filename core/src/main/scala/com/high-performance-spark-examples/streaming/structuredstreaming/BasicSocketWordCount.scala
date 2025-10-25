@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions._
 
 object BasicSocketWordCount {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .appName("BasicSocketWordCount")
       .master("local[2]")
       .getOrCreate()

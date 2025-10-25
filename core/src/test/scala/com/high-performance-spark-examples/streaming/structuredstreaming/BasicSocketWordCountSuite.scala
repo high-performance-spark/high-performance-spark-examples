@@ -10,28 +10,31 @@ import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.functions._
 
 class BasicSocketWordCountSuite extends AnyFunSuite {
-  test("wordcount works with memory source") {
-    val spark = SparkSession.builder
+  test("wordcount works with memory stream source") {
+    val spark = SparkSession.builder()
       .master("local[2]")
       .appName("BasicSocketWordCountSuite")
       .getOrCreate()
     import spark.implicits._
 
-    // Simulate input
-    val df = spark.createDataset(Seq("hello world hello")).toDF("value")
+    // Use MemoryStream for hermetic streaming input
+    import org.apache.spark.sql.execution.streaming.MemoryStream
+    val inputStream = MemoryStream[String](1, spark.sqlContext)
+    inputStream.addData("hello world hello")
+    val df = inputStream.toDF().toDF("value")
     val words = df.select(explode(split(col("value"), " ")).alias("word"))
     val counts = words.groupBy("word").count()
 
-    // Write to memory sink
     val query = counts.writeStream
       .outputMode("complete")
       .format("memory")
       .queryName("wordcount")
       .trigger(Trigger.Once())
       .start()
-    query.awaitTermination()
+    query.processAllAvailable() // Ensures all data is processed for MemoryStream
+    query.stop()
 
-    val result = spark.sql("select * from wordcount").collect().map(_.getString(0)).toSet
+    val result = spark.sql("select word from wordcount").collect().map(_.getString(0)).toSet
     assert(result == Set("hello", "world"))
     spark.stop()
   }

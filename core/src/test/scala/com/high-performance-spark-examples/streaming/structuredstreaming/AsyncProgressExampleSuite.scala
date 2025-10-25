@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions._
 
 class AsyncProgressExampleSuite extends AnyFunSuite {
   test("async progress query produces rows quickly") {
-    val spark = SparkSession.builder
+  val spark = SparkSession.builder()
       .master("local[2]")
       .appName("AsyncProgressExampleSuite")
       .config("spark.sql.streaming.asyncProgressTrackingEnabled", "true")
@@ -18,10 +18,10 @@ class AsyncProgressExampleSuite extends AnyFunSuite {
       .getOrCreate()
     import spark.implicits._
 
-    val df = spark.readStream
-      .format("rate")
-      .option("rowsPerSecond", 5)
-      .load()
+    // Use MemoryStream for hermetic streaming test
+    import org.apache.spark.sql.execution.streaming.MemoryStream
+    val inputStream = MemoryStream[Long](1, spark.sqlContext)
+    val df = inputStream.toDF().select(col("value").alias("timestamp"))
 
     val query = df.writeStream
       .outputMode("append")
@@ -30,6 +30,7 @@ class AsyncProgressExampleSuite extends AnyFunSuite {
       .trigger(Trigger.ProcessingTime("1 second"))
       .option("checkpointLocation", "./tmp/checkpoints/async_progress_test")
       .start()
+    inputStream.addData(1L, 2L, 3L, 4L, 5L)
     query.processAllAvailable()
 
     val result = spark.sql("select * from async_progress").collect()
