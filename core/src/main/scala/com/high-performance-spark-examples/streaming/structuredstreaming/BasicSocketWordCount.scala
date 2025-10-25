@@ -1,6 +1,5 @@
 package com.highperformancespark.examples.structuredstreaming
 
-// tag::streaming_ex_basic[]
 // Basic socket wordcount example for Structured Streaming
 // Non-replayable source: socket is not fault tolerant, may lose data if restarted
 // See book for more details
@@ -16,6 +15,7 @@ object BasicSocketWordCount {
       .getOrCreate()
 
     // Socket source: not replayable, not fault tolerant
+    //tag::streaming_ex_basic[]
     val lines = spark.readStream
       .format("socket")
       .option("host", "localhost")
@@ -31,6 +31,6 @@ object BasicSocketWordCount {
       .start()
 
     query.awaitTermination()
+    //end::streaming_ex_basic[]
   }
 }
-// end::streaming_ex_basic[]
