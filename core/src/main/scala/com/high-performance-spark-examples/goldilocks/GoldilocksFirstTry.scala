@@ -293,7 +293,7 @@ object GoldilocksFirstTry {
         val targetsInThisPart: List[(Int, Long)] = ranksLocations(partitionIndex)._2
         if (targetsInThisPart.nonEmpty) {
           val columnsRelativeIndex: collection.MapView[Int, List[Long]] =
-            targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+            targetsInThisPart.groupBy(_._1).view.mapValues(_.map(_._2))
           val columnsInThisPart = targetsInThisPart.map(_._1).distinct
 
           val runningTotals : mutable.HashMap[Int, Long]=  new mutable.HashMap()

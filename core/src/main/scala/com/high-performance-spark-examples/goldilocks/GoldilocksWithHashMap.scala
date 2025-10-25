@@ -304,7 +304,7 @@ object FindTargetsSubRoutine extends Serializable {
     targetsInThisPart: List[(Int, Long)] ): Iterator[(Int, Double)] = {
 
       val columnsRelativeIndex: collection.MapView[Int, List[Long]] =
-        targetsInThisPart.groupBy(_._1).mapValues(_.map(_._2))
+        targetsInThisPart.groupBy(_._1).view.mapValues(_.map(_._2))
 
     // The column indices of the pairs that are desired rank statistics that live in
     // this partition.
