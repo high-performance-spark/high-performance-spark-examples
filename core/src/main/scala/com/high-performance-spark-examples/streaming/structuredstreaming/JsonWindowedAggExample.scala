@@ -27,8 +27,7 @@ object JsonWindowedAggExample {
       checkpointDir = "/tmp/checkpoints/json_windowed_agg",
       outputFormat = "console",
       queryName = None,
-      trigger = Trigger.ProcessingTime("5 seconds"),
-      addWatermark = false
+      trigger = Trigger.ProcessingTime("5 seconds")
     )
   }
 
@@ -39,23 +38,23 @@ object JsonWindowedAggExample {
       checkpointDir: String,
       outputFormat: String,
       queryName: Option[String],
-      trigger: Trigger,
-      addWatermark: Boolean
+      trigger: Trigger
   ): StreamingQuery = {
     import spark.implicits._
 
+    // tag::streaming_ex_json_window[]
     val df = spark.readStream
       .format("json")
       .schema("timestamp TIMESTAMP, word STRING")
       .load(inputPath)
 
-    val base = if (addWatermark) df.withWatermark("timestamp", "5 minutes") else df
-    val windowed = base
+    val windowed = df
       .groupBy(window(col("timestamp"), "10 minutes"), col("word"))
       .count()
+    // end::streaming_ex_json_window[]
 
     val writer = windowed.writeStream
-      .outputMode("append")
+      .outputMode("complete") // Append would need a watermark
       .format(outputFormat)
       .option("checkpointLocation", checkpointDir)
       .trigger(trigger)
