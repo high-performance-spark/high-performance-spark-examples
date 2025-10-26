@@ -1,11 +1,8 @@
 package com.highperformancespark.examples.structuredstreaming
 
-// Windowed aggregation with watermark on JSON input
-// Watermarking is needed to bound state and drop late data
-
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.streaming._
 
 object JsonWindowedAggExample {
   def main(args: Array[String]): Unit = {
@@ -14,25 +11,56 @@ object JsonWindowedAggExample {
       .appName("JsonWindowedAggExample")
       .master("local[2]")
       .getOrCreate()
+    run(spark)
+  }
 
+  def run(spark: SparkSession): Unit = {
+    val query = makeQuery(spark)
+    query.awaitTermination()
+  }
+
+  /** Your original behavior (console sink, no watermark, continuous). */
+  def makeQuery(spark: SparkSession): StreamingQuery = {
+    makeQueryWith(
+      spark,
+      inputPath = "/tmp/json_input",
+      checkpointDir = "/tmp/checkpoints/json_windowed_agg",
+      outputFormat = "console",
+      queryName = None,
+      trigger = Trigger.ProcessingTime("5 seconds"),
+      addWatermark = false
+    )
+  }
+
+  /** Parametric builder used by tests (and optional batch-like runs). */
+  def makeQueryWith(
+      spark: SparkSession,
+      inputPath: String,
+      checkpointDir: String,
+      outputFormat: String,
+      queryName: Option[String],
+      trigger: Trigger,
+      addWatermark: Boolean
+  ): StreamingQuery = {
     import spark.implicits._
-    // tag::streaming_ex_json_window[]
+
     val df = spark.readStream
       .format("json")
       .schema("timestamp TIMESTAMP, word STRING")
-      .load("/tmp/json_input")
+      .load(inputPath)
 
-    val windowed = df
+    val base = if (addWatermark) df.withWatermark("timestamp", "5 minutes") else df
+    val windowed = base
       .groupBy(window(col("timestamp"), "10 minutes"), col("word"))
       .count()
-    // end::streaming_ex_json_window[]
 
-    val query = windowed.writeStream
+    val writer = windowed.writeStream
       .outputMode("append")
-      .format("console")
-      .option("checkpointLocation", "./tmp/checkpoints/json_windowed_agg")
-      .start()
+      .format(outputFormat)
+      .option("checkpointLocation", checkpointDir)
+      .trigger(trigger)
 
-    query.awaitTermination()
+    val named = queryName.fold(writer)(n => writer.queryName(n))
+    named.start()
   }
 }
