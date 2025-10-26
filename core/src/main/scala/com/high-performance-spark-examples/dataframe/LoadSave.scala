@@ -1,6 +1,5 @@
-/**
- * Load and save data to/from DataFrames
- */
+/** Load and save data to/from DataFrames
+  */
 package com.highperformancespark.examples.dataframe
 
 import java.util.Properties
@@ -12,7 +11,7 @@ import org.apache.spark.sql.types._
 
 case class LoadSave(sc: SparkContext, session: SparkSession) {
   import session.implicits._
-  //tag::createFromRDD[]
+  // tag::createFromRDD[]
   def createFromCaseClassRDD(input: RDD[PandaPlace]) = {
     // Create DataFrame explicitly using session and schema inference
     val df1 = session.createDataFrame(input)
@@ -21,108 +20,139 @@ case class LoadSave(sc: SparkContext, session: SparkSession) {
     val df2 = input.toDF()
 
     // Create a Row RDD from our RDD of case classes
-    val rowRDD = input.map(pm => Row(pm.name,
-      pm.pandas.map(pi => Row(pi.id, pi.zip, pi.happy, pi.attributes))))
+    val rowRDD = input.map(pm =>
+      Row(
+        pm.name,
+        pm.pandas.map(pi => Row(pi.id, pi.zip, pi.happy, pi.attributes))
+      )
+    )
 
-    val pandasType = ArrayType(StructType(List(
-      StructField("id", LongType, true),
-      StructField("zip", StringType, true),
-      StructField("happy", BooleanType, true),
-      StructField("attributes", ArrayType(FloatType), true))))
+    val pandasType = ArrayType(
+      StructType(
+        List(
+          StructField("id", LongType, true),
+          StructField("zip", StringType, true),
+          StructField("happy", BooleanType, true),
+          StructField("attributes", ArrayType(FloatType), true)
+        )
+      )
+    )
 
     // Create DataFrame explicitly with specified schema
-    val schema = StructType(List(StructField("name", StringType, true),
-      StructField("pandas", pandasType)))
+    val schema = StructType(
+      List(
+        StructField("name", StringType, true),
+        StructField("pandas", pandasType)
+      )
+    )
 
     val df3 = session.createDataFrame(rowRDD, schema)
   }
-  //end::createFromRDD[]
+  // end::createFromRDD[]
 
-  //tag::createFromRDDBasic[]
+  // tag::createFromRDDBasic[]
   def createFromCaseClassRDD(input: Seq[PandaPlace]) = {
     val rdd = sc.parallelize(input)
     // Create DataFrame explicitly using session and schema inference
     val df1 = session.createDataFrame(input)
   }
-  //end::createFromRDDBasic[]
+  // end::createFromRDDBasic[]
 
-  //tag::createGetSchema[]
+  // tag::createGetSchema[]
   def createAndPrintSchema() = {
     val damao = RawPanda(1, "M1B 5K7", "giant", true, Array(0.1, 0.1))
     val pandaPlace = PandaPlace("toronto", Array(damao))
     val df = session.createDataFrame(Seq(pandaPlace))
     df.printSchema()
   }
-  //end::createGetSchema[]
+  // end::createGetSchema[]
 
-  //tag::createFromLocal[]
+  // tag::createFromLocal[]
   def createFromLocal(input: Seq[PandaPlace]) = {
     session.createDataFrame(input)
   }
-  //end::createFromLocal[]
+  // end::createFromLocal[]
 
-  //tag::collectResults[]
+  // tag::collectResults[]
   def collectDF(df: DataFrame) = {
     val result: Array[Row] = df.collect()
     result
   }
-  //end::collectResults[]
+  // end::collectResults[]
 
-  //tag::toRDD[]
+  // tag::toRDD[]
   def toRDD(input: DataFrame): RDD[RawPanda] = {
     val rdd: RDD[Row] = input.rdd
-    rdd.map(row => RawPanda(row.getAs[Long](0), row.getAs[String](1),
-      row.getAs[String](2), row.getAs[Boolean](3), row.getAs[Array[Double]](4)))
+    rdd.map(row =>
+      RawPanda(
+        row.getAs[Long](0),
+        row.getAs[String](1),
+        row.getAs[String](2),
+        row.getAs[Boolean](3),
+        row.getAs[Array[Double]](4)
+      )
+    )
   }
-  //end::toRDD[]
+  // end::toRDD[]
 
-  //tag::partitionedOutput[]
+  // tag::partitionedOutput[]
   def writeOutByZip(input: DataFrame): Unit = {
     input.write.partitionBy("zipcode").format("json").save("output/")
   }
-  //end::partitionedOutput[]
+  // end::partitionedOutput[]
 
-  //tag::saveAppend[]
+  // tag::saveAppend[]
   def writeAppend(input: DataFrame): Unit = {
     input.write.mode(SaveMode.Append).save("output/")
   }
-  //end::saveAppend[]
+  // end::saveAppend[]
 
   def upsertPandas(input: DataFrame): Unit = {
-    //tag::upsert[]
-    input.mergeInto("pandaInfo", $"source.id" === $"target.id")
-         .whenMatched() // Note you can override the general match condition above if desired
-         .updateAll()
-         .whenNotMatched()
-         .insertAll()
-    //end::upsert[]
+    // tag::upsert[]
+    input
+      .mergeInto("pandaInfo", $"source.id" === $"target.id")
+      .whenMatched() // Note you can override the general match condition above if desired
+      .updateAll()
+      .whenNotMatched()
+      .insertAll()
+    // end::upsert[]
   }
 
   def createJDBC() = {
-    session.read.jdbc("jdbc:dialect:serverName;user=user;password=pass",
-      "table", new Properties)
+    session.read.jdbc(
+      "jdbc:dialect:serverName;user=user;password=pass",
+      "table",
+      new Properties
+    )
 
-    //tag::createJDBC[]
-    session.read.format("jdbc")
+    // tag::createJDBC[]
+    session.read
+      .format("jdbc")
       .option("url", "jdbc:dialect:serverName")
-      .option("dbtable", "table").load()
-    //end::createJDBC[]
+      .option("dbtable", "table")
+      .load()
+    // end::createJDBC[]
   }
 
   def writeJDBC(df: DataFrame) = {
-    df.write.jdbc("jdbc:dialect:serverName;user=user;password=pass",
-      "table", new Properties)
+    df.write.jdbc(
+      "jdbc:dialect:serverName;user=user;password=pass",
+      "table",
+      new Properties
+    )
 
-    //tag::writeJDBC[]
-    df.write.format("jdbc")
+    // tag::writeJDBC[]
+    df.write
+      .format("jdbc")
       .option("url", "jdbc:dialect:serverName")
       .option("user", "user")
       .option("password", "pass")
-      .option("dbtable", "table").save()
-    //end::writeJDBC[]
+      .option("dbtable", "table")
+      .save()
+    // end::writeJDBC[]
   }
 
-  //tag::loadParquet[]
+  // tag::loadParquet[]
   def loadParquet(path: String): DataFrame = {
     // Configure Spark to read binary data as string,
     // note: must be configured on session.
@@ -134,23 +164,23 @@ case class LoadSave(sc: SparkContext, session: SparkSession) {
       .format("parquet")
       .load(path)
   }
-  //end::loadParquet[]
+  // end::loadParquet[]
 
-  //tag::writeParquet[]
+  // tag::writeParquet[]
   def writeParquet(df: DataFrame, path: String) = {
     df.write.format("parquet").save(path)
   }
-  //end::writeParquet[]
+  // end::writeParquet[]
 
-  //tag::loadHiveTable[]
+  // tag::loadHiveTable[]
   def loadHiveTable(): DataFrame = {
     session.read.table("pandas")
   }
-  //end::loadHiveTable[]
+  // end::loadHiveTable[]
 
-  //tag::saveManagedTable[]
+  // tag::saveManagedTable[]
   def saveManagedTable(df: DataFrame): Unit = {
     df.write.saveAsTable("pandas")
   }
-  //end::saveManagedTable[]
+  // end::saveManagedTable[]
 }

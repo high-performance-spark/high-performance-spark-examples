@@ -11,10 +11,14 @@ import scala.concurrent.duration._
 
 object BasicSocketWithDelayAndWAL {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("BasicSocketWithDelayAndWAL")
       .master("local[2]")
-      .config("spark.sql.streaming.checkpointLocation", "./tmp/checkpoints/socket_with_delay_and_wal")
+      .config(
+        "spark.sql.streaming.checkpointLocation",
+        "./tmp/checkpoints/socket_with_delay_and_wal"
+      )
       .getOrCreate()
 
     val lines = spark.readStream
@@ -24,16 +28,23 @@ object BasicSocketWithDelayAndWAL {
       .option("includeTimestamp", "true")
       .load()
 
-    val words = lines.select(explode(split(col("value"), " ")).alias("word"), col("timestamp"))
+    val words = lines.select(
+      explode(split(col("value"), " ")).alias("word"),
+      col("timestamp")
+    )
     val counts = words.groupBy("word").count()
 
     val query = counts.writeStream
       .outputMode("complete")
       .format("console")
-      .option("checkpointLocation", "./tmp/checkpoints/socket_with_delay_and_wal")
-      .foreachBatch { (batchDF: org.apache.spark.sql.DataFrame, batchId: Long) =>
-        Thread.sleep(500) // artificial delay
-        batchDF.show()
+      .option(
+        "checkpointLocation",
+        "./tmp/checkpoints/socket_with_delay_and_wal"
+      )
+      .foreachBatch {
+        (batchDF: org.apache.spark.sql.DataFrame, batchId: Long) =>
+          Thread.sleep(500) // artificial delay
+          batchDF.show()
       }
       .start()
 

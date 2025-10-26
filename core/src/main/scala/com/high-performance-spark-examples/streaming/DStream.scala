@@ -1,6 +1,5 @@
-/**
- * Streaming Pandas Example with the old DStream APIs.
- */
+/** Streaming Pandas Example with the old DStream APIs.
+  */
 package com.highperformancespark.examples.streaming
 
 import scala.reflect.ClassTag
@@ -17,14 +16,17 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 
 object DStreamExamples {
   def makeStreamingContext(sc: SparkContext) = {
-    //tag::ssc[]
+    // tag::ssc[]
     val batchInterval = Seconds(1)
     new StreamingContext(sc, batchInterval)
-    //end::ssc[]
+    // end::ssc[]
   }
 
-  def makeRecoverableStreamingContext(sc: SparkContext, checkpointDir: String) = {
-    //tag::sscRecover[]
+  def makeRecoverableStreamingContext(
+      sc: SparkContext,
+      checkpointDir: String
+  ) = {
+    // tag::sscRecover[]
     def createStreamingContext(): StreamingContext = {
       val batchInterval = Seconds(1)
       val ssc = new StreamingContext(sc, batchInterval)
@@ -33,17 +35,19 @@ object DStreamExamples {
       // And whatever mappings need to go on those streams
       ssc
     }
-    val ssc = StreamingContext.getOrCreate(checkpointDir,
-      createStreamingContext _)
+    val ssc =
+      StreamingContext.getOrCreate(checkpointDir, createStreamingContext _)
     // Do whatever work needs to be done regardless of state
     // Start context and run
     ssc.start()
-    //end::sscRecover[]
+    // end::sscRecover[]
   }
 
-  def fileAPIExample(ssc: StreamingContext, path: String):
-      DStream[(Long, String)] = {
-    //tag::file[]
+  def fileAPIExample(
+      ssc: StreamingContext,
+      path: String
+  ): DStream[(Long, String)] = {
+    // tag::file[]
     // You don't need to write the types of the InputDStream but it for illustration
     val inputDStream: InputDStream[(LongWritable, Text)] =
       ssc.fileStream[LongWritable, Text, TextInputFormat](path)
@@ -52,33 +56,33 @@ object DStreamExamples {
       (input._1.get(), input._2.toString())
     }
     val input: DStream[(Long, String)] = inputDStream.map(convert)
-    //end::file[]
+    // end::file[]
     input
   }
 
   def repartition(dstream: DStream[_]) = {
-    //tag::repartition[]
+    // tag::repartition[]
     dstream.repartition(20)
-    //end::repartition[]
+    // end::repartition[]
   }
 
-  //tag::repartitionWithTransform[]
+  // tag::repartitionWithTransform[]
   def dStreamRepartition[A: ClassTag](dstream: DStream[A]): DStream[A] = {
-    dstream.transform{rdd => rdd.repartition(20)}
+    dstream.transform { rdd => rdd.repartition(20) }
   }
-  //end::repartitionWithTransform[]
+  // end::repartitionWithTransform[]
 
   def simpleTextOut(target: String, dstream: DStream[_]) = {
-    //tag::simpleOut[]
+    // tag::simpleOut[]
     dstream.saveAsTextFiles(target)
-    //end::simpleOut[]
+    // end::simpleOut[]
   }
 
   def foreachSaveSequence(target: String, dstream: DStream[(Long, String)]) = {
-    //tag::foreachSave[]
-    dstream.foreachRDD{(rdd, window) =>
+    // tag::foreachSave[]
+    dstream.foreachRDD { (rdd, window) =>
       rdd.saveAsSequenceFile(target + window)
     }
-    //end::foreachSave[]
+    // end::foreachSave[]
   }
 }

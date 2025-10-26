@@ -1,6 +1,5 @@
-/**
- * Example UDFs
- */
+/** Example UDFs
+  */
 package com.highperformancespark.examples.dataframe
 
 import org.apache.spark.sql._
@@ -8,13 +7,13 @@ import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.types._
 
 object UDFs {
-  //tag::setupUDFs[]
+  // tag::setupUDFs[]
   def setupUDFs(sqlCtx: SQLContext) = {
     sqlCtx.udf.register("strLen", (s: String) => s.length())
   }
-  //end::setupUDFs[]
+  // end::setupUDFs[]
 
-  //tag::setupUDAFs[]
+  // tag::setupUDAFs[]
   def setupUDAFs(sqlCtx: SQLContext) = {
     class Avg extends UserDefinedAggregateFunction {
       // Input type
@@ -23,7 +22,7 @@ object UDFs {
 
       def bufferSchema: StructType = StructType(
         StructField("count", LongType) ::
-        StructField("sum", DoubleType) :: Nil
+          StructField("sum", DoubleType) :: Nil
       )
 
       // Return type
@@ -36,7 +35,7 @@ object UDFs {
         buffer(1) = 0.0
       }
 
-      def update(buffer: MutableAggregationBuffer,input: Row): Unit = {
+      def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
         buffer(0) = buffer.getAs[Long](0) + 1
         buffer(1) = buffer.getAs[Double](1) + input.getAs[Double](0)
       }
@@ -54,5 +53,5 @@ object UDFs {
     val avg = new Avg
     sqlCtx.udf.register("ourAvg", avg)
   }
-  //end::setupUDAFs[]
+  // end::setupUDAFs[]
 }

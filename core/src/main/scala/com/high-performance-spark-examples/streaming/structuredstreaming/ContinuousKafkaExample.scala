@@ -9,7 +9,8 @@ import org.apache.spark.sql.streaming.Trigger
 
 object ContinuousKafkaExample {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("ContinuousKafkaExample")
       .master("local[2]")
       .getOrCreate()

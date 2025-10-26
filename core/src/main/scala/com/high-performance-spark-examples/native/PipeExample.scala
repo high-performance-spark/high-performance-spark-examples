@@ -21,8 +21,11 @@ import org.apache.spark.SparkFiles
 import org.apache.spark.rdd._
 
 object PipeExample {
-  //tag::pipeExample[]
-  def lookupUserPRS(sc: SparkContext, input: RDD[Int]): RDD[(Int, List[String])] = {
+  // tag::pipeExample[]
+  def lookupUserPRS(
+      sc: SparkContext,
+      input: RDD[Int]
+  ): RDD[(Int, List[String])] = {
     // Copy our script to the worker nodes with sc.addFile
     // Add file requires absolute paths
     val distScriptName = "ghinfo.pl"
@@ -32,13 +35,14 @@ object PipeExample {
 
     // Pass enviroment variables to our worker
     val enviromentVars = Map("user" -> "apache", "repo" -> "spark")
-    val result = input.map(x => x.toString)
+    val result = input
+      .map(x => x.toString)
       .pipe(SparkFiles.get(distScriptName), enviromentVars)
     // Parse the results
-    result.map{record =>
+    result.map { record =>
       val elems: Array[String] = record.split(" ")
       (elems(0).toInt, elems.slice(1, elems.size).sorted.distinct.toList)
     }
   }
-  //end::pipeExample[]
+  // end::pipeExample[]
 }

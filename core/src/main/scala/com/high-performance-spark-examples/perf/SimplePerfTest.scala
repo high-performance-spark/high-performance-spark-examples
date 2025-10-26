@@ -28,9 +28,9 @@ import org.apache.spark.sql.types._
 import com.highperformancespark.examples.dataframe.RawPanda
 import com.highperformancespark.examples.tools._
 
-/**
- * A simple performance test to compare a simple sort between DataFrame, and RDD
- */
+/** A simple performance test to compare a simple sort between DataFrame, and
+  * RDD
+  */
 object SimplePerfTest {
   // $COVERAGE-OFF$
   def main(args: Array[String]) = {
@@ -42,11 +42,15 @@ object SimplePerfTest {
     run(sc, sparkSession, scalingFactor, size)
   }
 
-  def run(sc: SparkContext, session: SparkSession,
-    scalingFactor: Long, size: Int) = {
+  def run(
+      sc: SparkContext,
+      session: SparkSession,
+      scalingFactor: Long,
+      size: Int
+  ) = {
     import session.implicits._
-    val inputRDD = GenerateScalingData.generateFullGoldilocks(
-      sc, scalingFactor, size)
+    val inputRDD =
+      GenerateScalingData.generateFullGoldilocks(sc, scalingFactor, size)
     val pairRDD = inputRDD.map(p => (p.zip.toInt, p.attributes(0)))
     pairRDD.cache()
     pairRDD.count()
@@ -55,24 +59,32 @@ object SimplePerfTest {
     val df = inputRDD.toDF()
     val inputDataFrame = df.select(
       df("zip").cast(IntegerType),
-      df("attributes")(0).as("fuzzyness").cast(DoubleType))
+      df("attributes")(0).as("fuzzyness").cast(DoubleType)
+    )
     inputDataFrame.cache()
     inputDataFrame.count()
-    val dataFrameTimeings = 1.to(10).map(x => time(testOnDataFrame(inputDataFrame)))
+    val dataFrameTimeings =
+      1.to(10).map(x => time(testOnDataFrame(inputDataFrame)))
     println(rddTimeings.map(_._2).mkString(","))
     println(groupTimeings.map(_._2).mkString(","))
     println(dataFrameTimeings.map(_._2).mkString(","))
   }
 
   def testOnRDD(rdd: RDD[(Int, Double)]): Long = {
-    val kvc: RDD[(Int, (Double , Int))] = rdd.map{case (x, y) => (x, (y, 1))}
+    val kvc: RDD[(Int, (Double, Int))] = rdd.map { case (x, y) => (x, (y, 1)) }
     kvc.reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2)).count()
   }
 
   def groupOnRDD(rdd: RDD[(Int, Double)]) = {
-    rdd.groupByKey().mapValues{v =>
-      v.aggregate((0.0, 0))({case (x, y) => (x._1 + y, x._2 + 1)},
-        {case (x, y) => (x._1 + y._1, x._2 + y._2)})}.count()
+    rdd
+      .groupByKey()
+      .mapValues { v =>
+        v.aggregate((0.0, 0))(
+          { case (x, y) => (x._1 + y, x._2 + 1) },
+          { case (x, y) => (x._1 + y._1, x._2 + y._2) }
+        )
+      }
+      .count()
   }
 
   def testOnDataFrame(df: DataFrame) = {
@@ -81,7 +93,7 @@ object SimplePerfTest {
 
   def time[R](block: => R): (R, Long) = {
     val t0 = System.nanoTime()
-    val result = block    // call-by-name
+    val result = block // call-by-name
     val t1 = System.nanoTime()
     println(s"Time ${t1 - t0}ns")
     (result, t1 - t0)

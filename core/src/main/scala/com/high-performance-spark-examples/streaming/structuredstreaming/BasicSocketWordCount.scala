@@ -9,13 +9,14 @@ import org.apache.spark.sql.functions._
 
 object BasicSocketWordCount {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("BasicSocketWordCount")
       .master("local[2]")
       .getOrCreate()
 
     // Socket source: not replayable, not fault tolerant
-    //tag::streaming_ex_basic[]
+    // tag::streaming_ex_basic[]
     val lines = spark.readStream
       .format("socket")
       .option("host", "localhost")
@@ -31,6 +32,6 @@ object BasicSocketWordCount {
       .start()
 
     query.awaitTermination()
-    //end::streaming_ex_basic[]
+    // end::streaming_ex_basic[]
   }
 }

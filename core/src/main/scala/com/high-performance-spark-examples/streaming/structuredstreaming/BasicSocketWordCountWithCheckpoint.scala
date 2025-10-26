@@ -10,7 +10,8 @@ import org.apache.spark.sql.functions._
 
 object BasicSocketWordCountWithCheckpoint {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("BasicSocketWordCountWithCheckpoint")
       .master("local[2]")
       .getOrCreate()
@@ -27,7 +28,10 @@ object BasicSocketWordCountWithCheckpoint {
     val query = counts.writeStream
       .outputMode("complete")
       .format("console")
-      .option("checkpointLocation", "./tmp/checkpoints/basic_socket_wordcount") // Use a durable path in production
+      .option(
+        "checkpointLocation",
+        "./tmp/checkpoints/basic_socket_wordcount"
+      ) // Use a durable path in production
       .start()
 
     query.awaitTermination()

@@ -21,59 +21,59 @@ object GoldilocksMLlib {
   }
 
   def toLabeledPointDense(rdd: RDD[RawPanda]): RDD[LabeledPoint] = {
-    //tag::toLabeledPointDense[]
+    // tag::toLabeledPointDense[]
     rdd.map(rp =>
-      LabeledPoint(booleanToDouble(rp.happy),
-        Vectors.dense(rp.attributes)))
-    //end::toLabeledPointDense[]
+      LabeledPoint(booleanToDouble(rp.happy), Vectors.dense(rp.attributes))
+    )
+    // end::toLabeledPointDense[]
   }
 
-  //tag::toSparkVectorDense[]
+  // tag::toSparkVectorDense[]
   def toSparkVectorDense(input: Array[Double]) = {
     Vectors.dense(input)
   }
-  //end::toSparkVectorDense[]
+  // end::toSparkVectorDense[]
 
-  //tag::selectTopTen[]
-  def selectTopTenFeatures(rdd: RDD[LabeledPoint]):
-      (ChiSqSelectorModel, Array[Int], RDD[SparkVector]) = {
+  // tag::selectTopTen[]
+  def selectTopTenFeatures(
+      rdd: RDD[LabeledPoint]
+  ): (ChiSqSelectorModel, Array[Int], RDD[SparkVector]) = {
     val selector = new ChiSqSelector(10)
     val model = selector.fit(rdd)
     val topFeatures = model.selectedFeatures
     val vecs = rdd.map(_.features)
     (model, topFeatures, model.transform(vecs))
   }
-  //end::selectTopTen[]
+  // end::selectTopTen[]
 
-  //tag::keepLabeled[]
+  // tag::keepLabeled[]
   def selectAndKeepLabeled(rdd: RDD[LabeledPoint]): RDD[LabeledPoint] = {
     val selector = new ChiSqSelector(10)
     val model = selector.fit(rdd)
-    rdd.map{
-      case LabeledPoint(label, features) =>
-        LabeledPoint(label, model.transform(features))
+    rdd.map { case LabeledPoint(label, features) =>
+      LabeledPoint(label, model.transform(features))
     }
   }
-  //end::keepLabeled[]
+  // end::keepLabeled[]
 
-  //tag::createLabelLookup[]
+  // tag::createLabelLookup[]
   def createLabelLookup[T](rdd: RDD[T]): Map[T, Double] = {
     val distinctLabels: Array[T] = rdd.distinct().collect()
-    distinctLabels.zipWithIndex
-      .map{case (label, x) => (label, x.toDouble)}.toMap
+    distinctLabels.zipWithIndex.map { case (label, x) =>
+      (label, x.toDouble)
+    }.toMap
   }
-  //end::createLabelLookup[]
+  // end::createLabelLookup[]
 
-
-  //tag::hashingTFSimple[]
+  // tag::hashingTFSimple[]
   def hashingTf(rdd: RDD[String]): RDD[SparkVector] = {
     val ht = new HashingTF()
     val tokenized = rdd.map(_.split(" ").toIterable)
     ht.transform(tokenized)
   }
-  //end::hashingTFSimple[]
+  // end::hashingTFSimple[]
 
-  //tag::word2vecTrain[]
+  // tag::word2vecTrain[]
   def word2vecTrain(rdd: RDD[String]): Word2VecModel = {
     // Tokenize our data
     val tokenized = rdd.map(_.split(" ").toIterable)
@@ -81,91 +81,96 @@ object GoldilocksMLlib {
     val wv = new Word2Vec()
     wv.fit(tokenized)
   }
-  //end::word2vecTrain[]
+  // end::word2vecTrain[]
 
-
-  //tag::trainScaler[]
+  // tag::trainScaler[]
   // Trains a feature scaler and returns the scaler and scaled features
-  def trainScaler(rdd: RDD[SparkVector]): (StandardScalerModel, RDD[SparkVector]) = {
+  def trainScaler(
+      rdd: RDD[SparkVector]
+  ): (StandardScalerModel, RDD[SparkVector]) = {
     val scaler = new StandardScaler()
     val scalerModel = scaler.fit(rdd)
     (scalerModel, scalerModel.transform(rdd))
   }
-  //end::trainScaler[]
+  // end::trainScaler[]
 
-  //tag::hashingTFPreserve[]
+  // tag::hashingTFPreserve[]
   def toVectorPerserving(rdd: RDD[RawPanda]): RDD[(RawPanda, SparkVector)] = {
     val ht = new HashingTF()
-    rdd.map{panda =>
+    rdd.map { panda =>
       val textField = panda.pt
       val tokenizedTextField = textField.split(" ").toIterable
       (panda, ht.transform(tokenizedTextField))
     }
   }
-  //end::hashingTFPreserve[]
+  // end::hashingTFPreserve[]
 
-  //tag::hashingTFPreserveZip[]
+  // tag::hashingTFPreserveZip[]
   def hashingTFPreserveZip(rdd: RDD[RawPanda]): RDD[(RawPanda, SparkVector)] = {
     val ht = new HashingTF()
-    val tokenized = rdd.map{panda => panda.pt.split(" ").toIterable}
+    val tokenized = rdd.map { panda => panda.pt.split(" ").toIterable }
     val vecs = ht.transform(tokenized)
     rdd.zip(vecs)
   }
-  //end::hashingTFPreserveZip[]
+  // end::hashingTFPreserveZip[]
 
-  //tag::toLabeledPointWithHashing[]
+  // tag::toLabeledPointWithHashing[]
   def toLabeledPointWithHashing(rdd: RDD[RawPanda]): RDD[LabeledPoint] = {
     val ht = new HashingTF()
-    rdd.map{rp =>
+    rdd.map { rp =>
       val hashingVec = ht.transform(rp.pt)
       val combined = hashingVec.toArray ++ rp.attributes
-      LabeledPoint(booleanToDouble(rp.happy),
-        Vectors.dense(combined))
+      LabeledPoint(booleanToDouble(rp.happy), Vectors.dense(combined))
     }
   }
-  //end::toLabeledPointWithHashing[]
+  // end::toLabeledPointWithHashing[]
 
-  //tag::train[]
+  // tag::train[]
   def trainModel(rdd: RDD[LabeledPoint]): LogisticRegressionModel = {
     val lr = new LogisticRegressionWithLBFGS()
     val lrModel = lr.run(rdd)
     lrModel
   }
-  //end::train[]
+  // end::train[]
 
-  //tag::trainWithIntercept[]
-  def trainModelWithInterept(rdd: RDD[LabeledPoint]): LogisticRegressionModel = {
+  // tag::trainWithIntercept[]
+  def trainModelWithInterept(
+      rdd: RDD[LabeledPoint]
+  ): LogisticRegressionModel = {
     val lr = new LogisticRegressionWithLBFGS()
     lr.setIntercept(true)
     val lrModel = lr.run(rdd)
     lrModel
   }
-  //end::trainWithIntercept[]
+  // end::trainWithIntercept[]
 
-  //tag::predict[]
-  def predict(model: LogisticRegressionModel, rdd: RDD[SparkVector]): RDD[Double] = {
+  // tag::predict[]
+  def predict(
+      model: LogisticRegressionModel,
+      rdd: RDD[SparkVector]
+  ): RDD[Double] = {
     model.predict(rdd)
   }
-  //end::predict[]
+  // end::predict[]
 
-  //tag::save[]
+  // tag::save[]
   def save(sc: SparkContext, path: String, model: LogisticRegressionModel) = {
-    //tag::savePMML[]
+    // tag::savePMML[]
     // Save to PMML - remote path
     model.toPMML(sc, path + "/pmml")
     // Save to PMML local path
     model.toPMML(path + "/pmml")
-    //end::savePMML[]
-    //tag::saveInternal[]
+    // end::savePMML[]
+    // tag::saveInternal[]
     // Save to internal - remote path
     model.save(sc, path + "/internal")
-    //end::saveInternal[]
+    // end::saveInternal[]
   }
-  //end::save[]
+  // end::save[]
 
-  //tag::load[]
+  // tag::load[]
   def load(sc: SparkContext, path: String): LogisticRegressionModel = {
     LogisticRegressionModel.load(sc, path + "/internal")
   }
-  //end::load[]
+  // end::load[]
 }

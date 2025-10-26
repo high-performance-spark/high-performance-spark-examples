@@ -17,15 +17,15 @@ import com.highperformancespark.examples.dataframe._
 
 object SimplePipeline {
   def constructAndSetParams(df: DataFrame) = {
-    //tag::constructSetParams[]
+    // tag::constructSetParams[]
     val hashingTF = new HashingTF()
     hashingTF.setInputCol("input")
     hashingTF.setOutputCol("hashed_terms")
-    //end::constructSetParams[]
+    // end::constructSetParams[]
   }
 
   def constructSimpleTransformer(df: DataFrame) = {
-    //tag::simpleTransformer[]
+    // tag::simpleTransformer[]
     val hashingTF = new HashingTF()
     // We don't set the output column here so the default output column of
     // uid + "__output" is used.
@@ -34,20 +34,20 @@ object SimplePipeline {
     val transformed = hashingTF.transform(df)
     // Since we don't know what the uid is we can use the getOutputCol function
     val outputCol = hashingTF.getOutputCol
-    //end::simpleTransformer[]
+    // end::simpleTransformer[]
     (outputCol, transformed)
   }
 
   def constructVectorAssembler() = {
-    //tag::vectorAssembler[]
+    // tag::vectorAssembler[]
     val assembler = new VectorAssembler()
     assembler.setInputCols(Array("size", "zipcode"))
-    //end::vectorAssembler[]
+    // end::vectorAssembler[]
   }
 
   // Here is a simple tokenizer to hashingtf transformer manually chained
   def simpleTokenizerToHashing(df: DataFrame) = {
-    //tag::simpleTokenizerToHashing[]
+    // tag::simpleTokenizerToHashing[]
     val tokenizer = new Tokenizer()
     tokenizer.setInputCol("name")
     tokenizer.setOutputCol("tokenized_name")
@@ -56,53 +56,53 @@ object SimplePipeline {
     hashingTF.setInputCol("tokenized_name")
     hashingTF.setOutputCol("name_tf")
     hashingTF.transform(tokenizedData)
-    //end::simpleTokenizerToHashing[]
+    // end::simpleTokenizerToHashing[]
   }
 
   def constructSimpleEstimator(df: DataFrame) = {
-    //tag::simpleNaiveBayes[]
+    // tag::simpleNaiveBayes[]
     val nb = new NaiveBayes()
     nb.setLabelCol("happy")
     nb.setFeaturesCol("features")
     nb.setPredictionCol("prediction")
     val nbModel = nb.fit(df)
-    //end::simpleNaiveBayes[]
+    // end::simpleNaiveBayes[]
   }
 
   def stringIndexer(df: DataFrame) = {
-    //tag::stringIndexer[]
+    // tag::stringIndexer[]
     // Construct a simple string indexer
     val sb = new StringIndexer()
     sb.setInputCol("name")
     sb.setOutputCol("indexed_name")
     // Construct the model based on the input
     val sbModel = sb.fit(df)
-    //end::stringIndexer[]
+    // end::stringIndexer[]
   }
 
   def reverseStringIndexer(sbModel: StringIndexerModel) = {
-    //tag::indexToString[]
+    // tag::indexToString[]
     // Construct the inverse of the model to go from index-to-string
     // after prediction.
     val sbInverse = new IndexToString()
     sbInverse.setInputCol("prediction")
     sbInverse.setLabels(sbModel.labels)
-    //end::indexToString[]
+    // end::indexToString[]
     // Or if meta data is present
-    //tag::indexToStringMD[]
+    // tag::indexToStringMD[]
     // Construct the inverse of the model to go from
     // index-to-string after prediction.
     val sbInverseMD = new IndexToString()
     sbInverseMD.setInputCol("prediction")
-    //end::indexToStringMD[]
+    // end::indexToStringMD[]
   }
 
   def normalizer() = {
-    //tag::normalizer[]
+    // tag::normalizer[]
     val normalizer = new Normalizer()
     normalizer.setInputCol("features")
     normalizer.setOutputCol("normalized_features")
-    //end::normalizer[]
+    // end::normalizer[]
   }
 
   def paramSearch(df: DataFrame) = {
@@ -113,8 +113,7 @@ object SimplePipeline {
     hashingTF.setInputCol("tokenized_name")
     hashingTF.setOutputCol("name_tf")
     val assembler = new VectorAssembler()
-    assembler.setInputCols(Array("size", "zipcode", "name_tf",
-      "attributes"))
+    assembler.setInputCols(Array("size", "zipcode", "name_tf", "attributes"))
     val normalizer = new Normalizer()
     normalizer.setInputCol("features")
     normalizer.setOutputCol("normalized_features")
@@ -124,32 +123,32 @@ object SimplePipeline {
     nb.setPredictionCol("prediction")
     val pipeline = new Pipeline()
     pipeline.setStages(Array(tokenizer, hashingTF, assembler, normalizer, nb))
-    //tag::createSimpleParamGrid[]
+    // tag::createSimpleParamGrid[]
     // ParamGridBuilder constructs an Array of parameter combinations.
     val paramGrid: Array[ParamMap] = new ParamGridBuilder()
       .addGrid(nb.smoothing, Array(0.1, 0.5, 1.0, 2.0))
       .build()
-    //end::createSimpleParamGrid[]
-    //tag::runSimpleCVSearch[]
+    // end::createSimpleParamGrid[]
+    // tag::runSimpleCVSearch[]
     val cv = new CrossValidator()
       .setEstimator(pipeline)
       .setEstimatorParamMaps(paramGrid)
     val cvModel = cv.fit(df)
     val bestModel = cvModel.bestModel
-    //end::runSimpleCVSearch[]
-    //tag::complexParamSearch[]
+    // end::runSimpleCVSearch[]
+    // tag::complexParamSearch[]
     val complexParamGrid: Array[ParamMap] = new ParamGridBuilder()
       .addGrid(nb.smoothing, Array(0.1, 0.5, 1.0, 2.0))
       .addGrid(hashingTF.numFeatures, Array(1 << 18, 1 << 20))
       .addGrid(hashingTF.binary, Array(true, false))
       .addGrid(normalizer.p, Array(1.0, 1.5, 2.0))
       .build()
-    //end::complexParamSearch[]
+    // end::complexParamSearch[]
     bestModel
   }
 
   def buildSimplePipeline(df: DataFrame) = {
-    //tag::simplePipeline[]
+    // tag::simplePipeline[]
     val tokenizer = new Tokenizer()
     tokenizer.setInputCol("name")
     tokenizer.setOutputCol("tokenized_name")
@@ -157,29 +156,28 @@ object SimplePipeline {
     hashingTF.setInputCol("tokenized_name")
     hashingTF.setOutputCol("name_tf")
     val assembler = new VectorAssembler()
-    assembler.setInputCols(Array("size", "zipcode", "name_tf",
-      "attributes"))
+    assembler.setInputCols(Array("size", "zipcode", "name_tf", "attributes"))
     val nb = new NaiveBayes()
     nb.setLabelCol("happy")
     nb.setFeaturesCol("features")
     nb.setPredictionCol("prediction")
     val pipeline = new Pipeline()
     pipeline.setStages(Array(tokenizer, hashingTF, assembler, nb))
-    //end::simplePipeline[]
-    //tag::trainPipeline[]
+    // end::simplePipeline[]
+    // tag::trainPipeline[]
     val pipelineModel = pipeline.fit(df)
-    //end::trainPipeline[]
-    //tag::accessStages[]
+    // end::trainPipeline[]
+    // tag::accessStages[]
     val tokenizer2 = pipelineModel.stages(0).asInstanceOf[Tokenizer]
     val nbFit = pipelineModel.stages.last.asInstanceOf[NaiveBayesModel]
-    //end::accessStages[]
-    //tag::newPipeline[]
+    // end::accessStages[]
+    // tag::newPipeline[]
     val normalizer = new Normalizer()
     normalizer.setInputCol("features")
     normalizer.setOutputCol("normalized_features")
     nb.setFeaturesCol("normalized_features")
     pipeline.setStages(Array(tokenizer, hashingTF, assembler, normalizer, nb))
     val normalizedPipelineModel = pipelineModel.transform(df)
-    //end::newPipeline[]
+    // end::newPipeline[]
   }
 }

@@ -26,34 +26,37 @@ class HardCodedWordCountStage(override val uid: String) extends Transformer {
   }
 //end::basicPipelineSetup[]
 
-  //tag::basicTransformSchema[]
+  // tag::basicTransformSchema[]
   override def transformSchema(schema: StructType): StructType = {
     // Check that the input type is a string
     val idx = schema.fieldIndex("happy_pandas")
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
       throw new Exception(
-        s"Input type ${field.dataType} did not match input type StringType")
+        s"Input type ${field.dataType} did not match input type StringType"
+      )
     }
     // Add the return field
     schema.add(StructField("happy_panda_counts", IntegerType, false))
   }
-  //end::basicTransformSchema[]
+  // end::basicTransformSchema[]
 
-  //tag::transformFunction[]
+  // tag::transformFunction[]
   def transform(df: Dataset[_]): DataFrame = {
     val wordcount = udf { in: String => in.split(" ").size }
-    df.select(col("*"),
-      wordcount(df.col("happy_pandas")).as("happy_panda_counts"))
+    df.select(
+      col("*"),
+      wordcount(df.col("happy_pandas")).as("happy_panda_counts")
+    )
   }
-  //end::transformFunction[]
+  // end::transformFunction[]
 }
-
 
 //tag::paramTransformer[]
 class ConfigurableWordCount(override val uid: String) extends Transformer {
-  final val inputCol= new Param[String](this, "inputCol", "The input column")
-  final val outputCol = new Param[String](this, "outputCol", "The output column")
+  final val inputCol = new Param[String](this, "inputCol", "The input column")
+  final val outputCol =
+    new Param[String](this, "outputCol", "The output column")
 
   def setInputCol(value: String): this.type = set(inputCol, value)
 
@@ -71,7 +74,8 @@ class ConfigurableWordCount(override val uid: String) extends Transformer {
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
       throw new Exception(
-        s"Input type ${field.dataType} did not match input type StringType")
+        s"Input type ${field.dataType} did not match input type StringType"
+      )
     }
     // Add the return field
     schema.add(StructField($(outputCol), IntegerType, false))
@@ -84,15 +88,16 @@ class ConfigurableWordCount(override val uid: String) extends Transformer {
 }
 //end::paramTransformer[]
 
-
 //tag::simpleIndexer[]
 trait SimpleIndexerParams extends Params {
-  final val inputCol= new Param[String](this, "inputCol", "The input column")
-  final val outputCol = new Param[String](this, "outputCol", "The output column")
+  final val inputCol = new Param[String](this, "inputCol", "The input column")
+  final val outputCol =
+    new Param[String](this, "outputCol", "The output column")
 }
 
 class SimpleIndexer(override val uid: String)
-    extends Estimator[SimpleIndexerModel] with SimpleIndexerParams {
+    extends Estimator[SimpleIndexerModel]
+    with SimpleIndexerParams {
 
   def setInputCol(value: String) = set(inputCol, value)
 
@@ -110,7 +115,8 @@ class SimpleIndexer(override val uid: String)
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
       throw new Exception(
-        s"Input type ${field.dataType} did not match input type StringType")
+        s"Input type ${field.dataType} did not match input type StringType"
+      )
     }
     // Add the return field
     schema.add(StructField($(outputCol), IntegerType, false))
@@ -118,7 +124,9 @@ class SimpleIndexer(override val uid: String)
 
   override def fit(dataset: Dataset[_]): SimpleIndexerModel = {
     import dataset.sparkSession.implicits._
-    val words = dataset.select(dataset($(inputCol)).as[String]).distinct
+    val words = dataset
+      .select(dataset($(inputCol)).as[String])
+      .distinct
       .collect()
     // Construct the model
     val model = new SimpleIndexerModel(uid, words)
@@ -128,14 +136,16 @@ class SimpleIndexer(override val uid: String)
 }
 
 class SimpleIndexerModel(override val uid: String, words: Array[String])
-    extends Model[SimpleIndexerModel] with SimpleIndexerParams {
+    extends Model[SimpleIndexerModel]
+    with SimpleIndexerParams {
 
   override def copy(extra: ParamMap): SimpleIndexerModel = {
     defaultCopy(extra)
   }
 
-  private val labelToIndex: Map[String, Double] = words.zipWithIndex.
-    map{case (x, y) => (x, y.toDouble)}.toMap
+  private val labelToIndex: Map[String, Double] = words.zipWithIndex.map {
+    case (x, y) => (x, y.toDouble)
+  }.toMap
 
   override def transformSchema(schema: StructType): StructType = {
     // Check that the input type is a string
@@ -143,7 +153,8 @@ class SimpleIndexerModel(override val uid: String, words: Array[String])
     val field = schema.fields(idx)
     if (field.dataType != StringType) {
       throw new Exception(
-        s"Input type ${field.dataType} did not match input type StringType")
+        s"Input type ${field.dataType} did not match input type StringType"
+      )
     }
     // Add the return field
     schema.add(StructField($(outputCol), IntegerType, false))
@@ -151,8 +162,10 @@ class SimpleIndexerModel(override val uid: String, words: Array[String])
 
   override def transform(dataset: Dataset[_]): DataFrame = {
     val indexer = udf { label: String => labelToIndex(label) }
-    dataset.select(col("*"),
-      indexer(dataset($(inputCol)).cast(StringType)).as($(outputCol)))
+    dataset.select(
+      col("*"),
+      indexer(dataset($(inputCol)).cast(StringType)).as($(outputCol))
+    )
   }
 }
 //end::SimpleIndexer[]

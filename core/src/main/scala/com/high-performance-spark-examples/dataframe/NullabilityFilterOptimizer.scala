@@ -1,6 +1,5 @@
-/**
- * Extension for the SparkSession to allow us to plug in a custom optimizer
- */
+/** Extension for the SparkSession to allow us to plug in a custom optimizer
+  */
 
 package com.highperformancespark.examples.dataframe
 
@@ -13,16 +12,15 @@ import org.apache.spark.sql.catalyst.expressions.{And, IsNotNull}
 object NullabilityFilterOptimizer extends Rule[LogicalPlan] {
 
   def apply(plan: LogicalPlan): LogicalPlan = {
-    plan.transform {
-      case p @ Project(projectList, projChild) =>
-        val children = projectList.flatMap(_.children)
-        // If there are no null intolerant children don't worry about it
-        if (children.isEmpty) {
-          p
-        } else {
-          val filterCond = children.map(IsNotNull(_)).reduceLeft(And)
-          Project(projectList, Filter(filterCond, projChild))
-        }
+    plan.transform { case p @ Project(projectList, projChild) =>
+      val children = projectList.flatMap(_.children)
+      // If there are no null intolerant children don't worry about it
+      if (children.isEmpty) {
+        p
+      } else {
+        val filterCond = children.map(IsNotNull(_)).reduceLeft(And)
+        Project(projectList, Filter(filterCond, projChild))
+      }
     }
   }
 }

@@ -16,11 +16,12 @@ lazy val V = _root_.scalafix.sbt.BuildInfo
 
 ThisBuild / scalaVersion := "2.13.16"
 addCompilerPlugin(scalafixSemanticdb)
-scalacOptions ++= List(
+ThisBuild / scalacOptions ++= List(
   "-Yrangepos",
   "-P:semanticdb:synthetics:on"
 )
 
+ThisBuild / semanticdbEnabled := true
 
 name := "examples"
 
@@ -120,3 +121,6 @@ assemblyMergeStrategy in native := {
 assemblyMergeStrategy in core := {
       case x => MergeStrategy.first
 }
+
+// Typelevel scala format type checks
+ThisBuild / scalafixDependencies += "org.typelevel" %% "typelevel-scalafix" % "0.5.0"

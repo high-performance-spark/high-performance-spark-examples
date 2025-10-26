@@ -10,10 +10,14 @@ import org.apache.spark.sql.streaming.Trigger
 
 object RocksDBStateStoreExample {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("RocksDBStateStoreExample")
       .master("local[2]")
-      .config("spark.sql.streaming.stateStore.providerClass", "org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider")
+      .config(
+        "spark.sql.streaming.stateStore.providerClass",
+        "org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider"
+      )
       .getOrCreate()
 
     import spark.implicits._
@@ -22,7 +26,8 @@ object RocksDBStateStoreExample {
       .option("rowsPerSecond", 10)
       .load()
 
-    val agg = df.withWatermark("timestamp", "10 minutes")
+    val agg = df
+      .withWatermark("timestamp", "10 minutes")
       .groupBy(window(col("timestamp"), "5 minutes"))
       .count()
 

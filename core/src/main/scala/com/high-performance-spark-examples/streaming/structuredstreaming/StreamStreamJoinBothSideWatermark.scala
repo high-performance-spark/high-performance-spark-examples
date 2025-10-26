@@ -10,7 +10,8 @@ import org.apache.spark.sql.streaming.Trigger
 
 object StreamStreamJoinBothSideWatermark {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("StreamStreamJoinBothSideWatermark")
       .master("local[2]")
       .getOrCreate()
@@ -27,13 +28,18 @@ object StreamStreamJoinBothSideWatermark {
 
     val joined = left.join(
       right,
-      expr("left.timestamp >= right.timestamp - interval 5 minutes AND left.timestamp <= right.timestamp + interval 5 minutes AND left.key = right.key")
+      expr(
+        "left.timestamp >= right.timestamp - interval 5 minutes AND left.timestamp <= right.timestamp + interval 5 minutes AND left.key = right.key"
+      )
     )
 
     val query = joined.writeStream
       .outputMode("append")
       .format("console")
-      .option("checkpointLocation", "./tmp/checkpoints/stream_stream_join_both_side_watermark")
+      .option(
+        "checkpointLocation",
+        "./tmp/checkpoints/stream_stream_join_both_side_watermark"
+      )
       .start()
     query.awaitTermination()
   }

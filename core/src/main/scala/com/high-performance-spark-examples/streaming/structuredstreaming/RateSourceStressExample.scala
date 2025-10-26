@@ -10,7 +10,8 @@ import org.apache.spark.sql.streaming.Trigger
 
 object RateSourceStressExample {
   def main(args: Array[String]): Unit = {
-  val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("RateSourceStressExample")
       .master("local[2]")
       .getOrCreate()
@@ -21,7 +22,8 @@ object RateSourceStressExample {
       .option("rowsPerSecond", 20)
       .load()
 
-    val agg = df.selectExpr("value % 10 as bucket")
+    val agg = df
+      .selectExpr("value % 10 as bucket")
       .groupBy("bucket")
       .count()
 
