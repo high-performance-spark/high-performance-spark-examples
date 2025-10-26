@@ -1,6 +1,5 @@
 package com.highperformancespark.examples.structuredstreaming
 
-// tag::basic_ex_with_checkpoint[]
 // Basic socket wordcount with checkpointing
 // Non-replayable source: socket is not fault tolerant, may lose data if restarted
 // Checkpointing: use a durable path for production, e.g., HDFS or cloud storage
@@ -15,7 +14,10 @@ object BasicSocketWordCountWithCheckpoint {
       .appName("BasicSocketWordCountWithCheckpoint")
       .master("local[2]")
       .getOrCreate()
+    run(spark)
+  }
 
+  def run(spark: SparkSession): Unit = {
     val lines = spark.readStream
       .format("socket")
       .option("host", "localhost")
@@ -25,16 +27,17 @@ object BasicSocketWordCountWithCheckpoint {
     val words = lines.select(explode(split(col("value"), " ")).alias("word"))
     val counts = words.groupBy("word").count()
 
+    // tag::basic_ex_with_checkpoint[]
     val query = counts.writeStream
       .outputMode("complete")
       .format("console")
+    // Note: You can also set spark.sql.streaming.checkpointLocation on the SparkSession
       .option(
         "checkpointLocation",
-        "./tmp/checkpoints/basic_socket_wordcount"
+        "checkpoints/basic_socket_wordcount"
       ) // Use a durable path in production
       .start()
-
+    // end::basic_ex_with_checkpoint[]
     query.awaitTermination()
   }
 }
-// end::basic_ex_with_checkpoint[]

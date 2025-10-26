@@ -14,7 +14,10 @@ object BasicSocketWordCount {
       .appName("BasicSocketWordCount")
       .master("local[2]")
       .getOrCreate()
+    run(spark)
+  }
 
+  def run(spark: SparkSession) = {
     // Socket source: not replayable, not fault tolerant
     // tag::streaming_ex_basic[]
     val lines = spark.readStream

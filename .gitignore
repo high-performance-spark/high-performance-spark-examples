@@ -109,3 +109,11 @@ oldhash
 
 # ignore accel
 incubator-gluten/
+
+# checkpoints
+
+checkpoints/
+
+# native build artifacts
+native/src/libhigh-performance-spark-gluten-0.a
+native/src/cmake_install.cmake
