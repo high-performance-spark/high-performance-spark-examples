@@ -18,7 +18,10 @@ object GPUResourceProfileExample {
     //tag::gpuResourceProfileExample[]
     // Create a resource profile requesting 2 NVIDIA GPUs per executor and 1 per task
     val gpuResourceProfile = new ResourceProfileBuilder()
-      .require(new ExecutorResourceRequests().resource("gpu", 2))
+      .require(new ExecutorResourceRequests().resource(
+        "gpu", 2, vendor="nvidia",
+        discoveryScript="/opt/spark/bin/getGpusResources.sh" // See sample in Spark repo
+      ))
       .require(new TaskResourceRequests().resource("gpu", 1))
       .build()
 
