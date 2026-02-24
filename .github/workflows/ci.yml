@@ -266,4 +266,4 @@ jobs:
         uses: sbt/setup-sbt@v1
       - name: scala style
         run:
-          sbt scalafmtFilter
+          sbt scalafmtCheck

@@ -7,7 +7,8 @@ import org.apache.spark.TaskContext
 
 object GPUResourceProfileExample {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("GPUResourceProfileExample")
       .getOrCreate()
     run(spark)
@@ -15,24 +16,30 @@ object GPUResourceProfileExample {
 
   def run(spark: SparkSession) = {
     val sc = spark.sparkContext
-    //tag::gpuResourceProfileExample[]
+    // tag::gpuResourceProfileExample[]
     // Create a resource profile requesting 2 NVIDIA GPUs per executor and 1 per task
     val gpuResourceProfile = new ResourceProfileBuilder()
-      .require(new ExecutorResourceRequests().resource(
-        "gpu", 2, vendor="nvidia",
-        discoveryScript="/opt/spark/bin/getGpusResources.sh" // See sample in Spark repo
-      ))
+      .require(
+        new ExecutorResourceRequests().resource(
+          "gpu",
+          2,
+          vendor = "nvidia",
+          discoveryScript =
+            "/opt/spark/bin/getGpusResources.sh" // See sample in Spark repo
+        )
+      )
       .require(new TaskResourceRequests().resource("gpu", 1))
       .build()
 
     // Use resource profile to run on a machine with GPUs.
-    val rdd = sc.parallelize(1 to 4, 4)
+    val rdd = sc
+      .parallelize(1 to 4, 4)
       .withResources(gpuResourceProfile)
       .map { i =>
         // Do some special GPU stuff here my friend
         i
       }
-    //end::gpuResourceProfileExample[]
+    // end::gpuResourceProfileExample[]
 
     rdd.collect().foreach(println)
 

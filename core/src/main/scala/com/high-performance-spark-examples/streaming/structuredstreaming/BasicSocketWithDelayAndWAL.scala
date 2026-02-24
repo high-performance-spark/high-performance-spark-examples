@@ -19,8 +19,7 @@ object BasicSocketWithDelayAndWAL {
         "/tmp/checkpoints/socket_with_delay_and_wal"
       )
       // tag::streaming_ex_basic_with_delay_and_wal[]
-      .config("spark.streaming.receiver.writeAheadLog.enable",
-        "true")
+      .config("spark.streaming.receiver.writeAheadLog.enable", "true")
       .getOrCreate()
     // end::streaming_ex_basic_with_delay_and_wal[]
     run(spark)

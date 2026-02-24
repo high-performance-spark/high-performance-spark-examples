@@ -31,7 +31,7 @@ object BasicSocketWordCountWithCheckpoint {
     val query = counts.writeStream
       .outputMode("complete")
       .format("console")
-    // Note: You can also set spark.sql.streaming.checkpointLocation on the SparkSession
+      // Note: You can also set spark.sql.streaming.checkpointLocation on the SparkSession
       .option(
         "checkpointLocation",
         "checkpoints/basic_socket_wordcount"

@@ -29,7 +29,11 @@ object StreamStreamJoinBothSideWatermark {
     query.awaitTermination()
   }
 
-  def streamStreamJoinDF(spark: SparkSession, stream1: DataFrame, stream2: DataFrame): Dataset[Row] = {
+  def streamStreamJoinDF(
+      spark: SparkSession,
+      stream1: DataFrame,
+      stream2: DataFrame
+  ): Dataset[Row] = {
     // Note the watermarks don't need to be the same, by default Spark will pick the min.
     // tag::stream_stream_join_basic_both_side_watermark[]
     // We provide the streams aliases so we can select specific keys.
@@ -40,15 +44,19 @@ object StreamStreamJoinBothSideWatermark {
       right,
       expr(
         "left.timestamp >= right.timestamp - interval 5 seconds " +
-         " AND left.timestamp <= right.timestamp + interval 5 seconds " +
-         " AND left.key = right.key"
+          " AND left.timestamp <= right.timestamp + interval 5 seconds " +
+          " AND left.key = right.key"
       )
     )
     // end::stream_stream_join_basic_both_side_watermark[]
     joined
   }
 
-  def streamStreamJoin(spark: SparkSession, stream1: DataFrame, stream2: DataFrame): StreamingQuery = {
+  def streamStreamJoin(
+      spark: SparkSession,
+      stream1: DataFrame,
+      stream2: DataFrame
+  ): StreamingQuery = {
     val joined = streamStreamJoinDF(spark, stream1, stream2)
     // tag::ex_with_checkpoin_at_writet[]
     val writer = joined.writeStream
