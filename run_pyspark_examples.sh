@@ -43,6 +43,8 @@ function check_fail () {
 
 EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
 
+pip install setuptools
+
 # Iceberg JAR not yet available for Spark 4.
 if [ ! -f "${EXAMPLE_JAR}" ]; then
   rm ./core/src/main/scala/com/high-performance-spark-examples/dataframe/LoadSave.scala # temp hack no merge in Spark 3.
