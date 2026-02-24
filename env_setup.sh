@@ -9,7 +9,7 @@ SCALA_VERSION=${SCALA_VERSION:-"2.13"}
 HADOOP_VERSION="3"
 SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
-ICEBERG_VERSION=${ICEBERG_VERSION:-"1.10.0"}
+ICEBERG_VERSION=${ICEBERG_VERSION:-"1.10.1"}
 if [ ! -f "${SPARK_FILE}" ]; then
   SPARK_DIST_URL="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
   SPARK_ARCHIVE_DIST_URL="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
