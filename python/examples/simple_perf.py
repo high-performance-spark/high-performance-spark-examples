@@ -96,7 +96,7 @@ def run(sc, sqlCtx, scalingFactor, size):
     yay
     >>> session.stop()
     """
-    (input_df, input_rdd) = generate_scale_data(sqlCtx, scalingFactor, size)
+    input_df, input_rdd = generate_scale_data(sqlCtx, scalingFactor, size)
     input_rdd.cache().count()
     rddTimeings = timeit.repeat(
         stmt=lambda: runOnRDD(input_rdd),
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     scalingFactor = 1
     size = 1
     if len(sys.argv) > 2:
-        (scalingFactor, size) = parseArgs(sys.argv)
+        scalingFactor, size = parseArgs(sys.argv)
     session = SparkSession.builder.appName("SimplePythonPerf").getOrCreate()
     sc = session._sc
     run(sc, session, scalingFactor, size)

@@ -27,8 +27,7 @@ se_conf = {
 from spark_expectations.config.user_config import Constants as user_config
 
 spark.sql("DROP TABLE IF EXISTS local.magic_validation")
-spark.sql(
-    """
+spark.sql("""
 create table local.magic_validation (
     product_id STRING,
     table_name STRING,
@@ -44,8 +43,7 @@ create table local.magic_validation (
     is_active BOOLEAN,
     enable_error_drop_alert BOOLEAN,
     error_drop_threshold INT
-)"""
-)
+)""")
 # Reminder: addFile does not handle directories well.
 rule_file = "spark_expectations_sample_rules.json"
 sc.addFile(rule_file)

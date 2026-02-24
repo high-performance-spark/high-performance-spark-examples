@@ -165,7 +165,7 @@ def _test():
     import doctest
 
     globs = _setupTest()
-    (failure_count, test_count) = doctest.testmod(
+    failure_count, test_count = doctest.testmod(
         globs=globs, optionflags=doctest.ELLIPSIS
     )
     print("All tests done, stopping Spark context.")
