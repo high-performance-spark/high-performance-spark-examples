@@ -55,4 +55,4 @@ if [[ "$1" == *stream* || "$1" == *Stream* ]]; then
 fi
 
 echo "Using $(which spark-submit) to run $1"
-spark-submit  --class  $1 "$assembly_target"
+spark-submit  --class  "$1" "$assembly_target"
