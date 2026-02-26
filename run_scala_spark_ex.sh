@@ -6,7 +6,7 @@ source env_setup.sh
 set -ex
 set -o pipefail
 
-assembly_target=./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar
+assembly_target=./core/target/scala-2.13/core-assembly-0.0.2-SNAPSHOT.jar
 
 if [ ! -f  "$assembly_target" ]; then
   sbt assembly

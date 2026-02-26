@@ -27,7 +27,7 @@ name := "examples"
 
 publishMavenStyle := true
 
-version := "0.0.2"
+ThisBuild / version := "0.0.2-SNAPSHOT"
 resolvers ++= Seq(
   "JBoss Repository" at "https://repository.jboss.org/nexus/content/repositories/releases/",
   "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",

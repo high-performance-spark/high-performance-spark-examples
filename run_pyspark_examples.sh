@@ -41,7 +41,7 @@ function check_fail () {
   fi
 }
 
-EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
+EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.0.2-SNAPSHOT.jar"
 
 # Iceberg JAR not yet available for Spark 4.
 if [ ! -f "${EXAMPLE_JAR}" ]; then
