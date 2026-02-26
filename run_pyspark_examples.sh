@@ -13,7 +13,7 @@ if [ ! -d pyspark_venv ]; then
 fi
 
 source pyspark_venv/bin/activate
-pip install --upgrade setuptools<80
+pip install --upgrade "setuptools<80"
 python -c "import pkg_resources; print('pkg_resources is available')"
 pip install -r ./python/requirements.txt
 
