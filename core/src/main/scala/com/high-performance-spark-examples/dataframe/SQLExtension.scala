@@ -1,10 +1,12 @@
-/**
- * Extension for the SparkSession to allow us to plug in a custom optimizer
- */
+/** Extension for the SparkSession to allow us to plug in a custom optimizer
+  */
 
 package com.highperformancespark.examples.dataframe
 
-import org.apache.spark.sql.{SparkSessionExtensions, SparkSessionExtensionsProvider}
+import org.apache.spark.sql.{
+  SparkSessionExtensions,
+  SparkSessionExtensionsProvider
+}
 
 class SQLExtension extends SparkSessionExtensionsProvider {
   override def apply(extensions: SparkSessionExtensions): Unit = {

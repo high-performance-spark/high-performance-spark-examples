@@ -14,6 +14,8 @@ option(SBT "Set if invoked from sbt-jni" OFF)
 #
 project (high-performance-spark)
 enable_language(Fortran)
+enable_language(C)
+enable_language(CXX)
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH 0)
@@ -41,6 +43,9 @@ endif()
 #end::velox[]
 
 # Setup JNI
+if(DEFINED ENV{JAVA_HOME})
+  set(JAVA_HOME "$ENV{JAVA_HOME}" CACHE PATH "JAVA_HOME for JNI discovery")
+endif()
 find_package(JNI REQUIRED)
 if (JNI_FOUND)
     message (STATUS "JNI include directories: ${JNI_INCLUDE_DIRS}")

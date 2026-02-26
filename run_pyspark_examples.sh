@@ -13,6 +13,8 @@ if [ ! -d pyspark_venv ]; then
 fi
 
 source pyspark_venv/bin/activate
+pip install --upgrade "setuptools<80"
+python -c "import pkg_resources; print('pkg_resources is available')"
 pip install -r ./python/requirements.txt
 
 if [ ! -f pyspark_venv.tar.gz ]; then
@@ -25,8 +27,6 @@ PYSPARK_DRIVER_PYTHON=python
 export PYSPARK_DRIVER_PYTHON
 export PYTHON_PATH=./environment/bin/python
 #end::package_venv[]
-
-pip install setuptools
 
 # Some hack for our json magic
 cat se*.json > spark_expectations_sample_rules.json
@@ -41,7 +41,7 @@ function check_fail () {
   fi
 }
 
-EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
+EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.0.2-SNAPSHOT.jar"
 
 # Iceberg JAR not yet available for Spark 4.
 if [ ! -f "${EXAMPLE_JAR}" ]; then

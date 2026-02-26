@@ -1,9 +1,8 @@
-/**
- * Illustrates how to use Spark accumulators with the "new" V2 APIs.
- *
- * Note that most of these examples are "dangerous" in that they may
- * not return consistent results.
- */
+/** Illustrates how to use Spark accumulators with the "new" V2 APIs.
+  *
+  * Note that most of these examples are "dangerous" in that they may not return
+  * consistent results.
+  */
 package com.highperformancespark.examples.transformations
 
 import scala.collection.mutable.HashSet
@@ -14,31 +13,34 @@ import org.apache.spark.util.AccumulatorV2
 
 import com.highperformancespark.examples.dataframe.RawPanda
 object NewAccumulators {
-  /**
-   * Compute the total fuzzyness with an accumulator while generating
-   * an id and zip pair for sorting.
-   */
-  //tag::sumFuzzyAcc[]
-  def computeTotalFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]):
-      (RDD[(String, Long)], Double) = {
+
+  /** Compute the total fuzzyness with an accumulator while generating an id and
+    * zip pair for sorting.
+    */
+  // tag::sumFuzzyAcc[]
+  def computeTotalFuzzyNess(
+      sc: SparkContext,
+      rdd: RDD[RawPanda]
+  ): (RDD[(String, Long)], Double) = {
     // Create an named accumulator for doubles
     val acc = sc.doubleAccumulator("fuzzyNess")
-    val transformed = rdd.map{x => acc.add(x.attributes(0)); (x.zip, x.id)}
+    val transformed = rdd.map { x => acc.add(x.attributes(0)); (x.zip, x.id) }
     // accumulator still has zero value
     // Note: This example is dangerous since the transformation may be
     // evaluated multiple times.
     transformed.count() // force evaluation
     (transformed, acc.value)
   }
-  //end::sumFuzzyAcc[]
+  // end::sumFuzzyAcc[]
 
-  /**
-   * Compute the max fuzzyness with an accumulator while generating
-   * an id and zip pair for sorting.
-   */
-  //tag::maxFuzzyAcc[]
-  def computeMaxFuzzyNess(sc: SparkContext, rdd: RDD[RawPanda]):
-      (RDD[(String, Long)], Option[Double]) = {
+  /** Compute the max fuzzyness with an accumulator while generating an id and
+    * zip pair for sorting.
+    */
+  // tag::maxFuzzyAcc[]
+  def computeMaxFuzzyNess(
+      sc: SparkContext,
+      rdd: RDD[RawPanda]
+  ): (RDD[(String, Long)], Option[Double]) = {
     class MaxDoubleAccumulator extends AccumulatorV2[Double, Option[Double]] {
       // Here is the var we will accumulate our value in to.
       var currentVal: Option[Double] = None
@@ -71,7 +73,8 @@ object NewAccumulators {
         currentVal = Some(
           // If the value is present compare it to the new value - otherwise
           // just store the new value as the current max.
-          currentVal.map(acc => Math.max(acc, value)).getOrElse(value))
+          currentVal.map(acc => Math.max(acc, value)).getOrElse(value)
+        )
       }
 
       override def merge(other: AccumulatorV2[Double, Option[Double]]) = {
@@ -85,7 +88,9 @@ object NewAccumulators {
             // This should never happen, Spark will only call merge with
             // the correct type - but that won't stop someone else from calling
             // merge so throw an exception just in case.
-            throw new Exception("Unexpected merge with unsupported type" + other)
+            throw new Exception(
+              "Unexpected merge with unsupported type" + other
+            )
         }
       }
       // Return the accumulated value.
@@ -94,16 +99,16 @@ object NewAccumulators {
     // Create a new custom accumulator
     val acc = new MaxDoubleAccumulator()
     sc.register(acc)
-    val transformed = rdd.map{x => acc.add(x.attributes(0)); (x.zip, x.id)}
+    val transformed = rdd.map { x => acc.add(x.attributes(0)); (x.zip, x.id) }
     // accumulator still has None value.
     // Note: This example is dangerous since the transformation may be
     // evaluated multiple times.
     transformed.count() // force evaluation
     (transformed, acc.value)
   }
-  //end::maxFuzzyAcc[]
+  // end::maxFuzzyAcc[]
 
-  //tag::uniquePandaAcc[]
+  // tag::uniquePandaAcc[]
   def uniquePandas(sc: SparkContext, rdd: RDD[RawPanda]): HashSet[Long] = {
     class UniqParam extends AccumulatorV2[Long, HashSet[Long]] {
       var accValue: HashSet[Long] = new HashSet[Long]()
@@ -145,10 +150,10 @@ object NewAccumulators {
     val acc = new UniqParam()
     // Register with a name
     sc.register(acc, "Unique values")
-    val transformed = rdd.map{x => acc.add(x.id); (x.zip, x.id)}
+    val transformed = rdd.map { x => acc.add(x.id); (x.zip, x.id) }
     // accumulator still has Double.MinValue
     transformed.count() // force evaluation
     acc.value
   }
-  //end::uniquePandaAcc[]
+  // end::uniquePandaAcc[]
 }

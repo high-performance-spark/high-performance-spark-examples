@@ -3,17 +3,13 @@
 set -ex
 
 # Download Spark and iceberg if not present
-SPARK_MAJOR=${SPARK_MAJOR:-"3.5"}
-SPARK_VERSION=${SPARK_VERSION:-"${SPARK_MAJOR}.3"}
+SPARK_MAJOR=${SPARK_MAJOR:-"4.0"}
+SPARK_VERSION=${SPARK_VERSION:-"${SPARK_MAJOR}.0"}
 SCALA_VERSION=${SCALA_VERSION:-"2.13"}
 HADOOP_VERSION="3"
 SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
-SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3.tgz"
-if [ "$SCALA_VERSION" = "2.13" ]; then
-  SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop3-scala2.13.tgz"
-  SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}-scala2.13"
-fi
-ICEBERG_VERSION=${ICEBERG_VERSION:-"1.9.2"}
+SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
+ICEBERG_VERSION=${ICEBERG_VERSION:-"1.10.1"}
 if [ ! -f "${SPARK_FILE}" ]; then
   SPARK_DIST_URL="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
   SPARK_ARCHIVE_DIST_URL="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"

@@ -1,7 +1,7 @@
 spark-testing-base
-pandas
+pandas==2.2.0
 pyarrow
-pyspark==3.5.0
+pyspark==4.0.0
 pyspark-asyncactions
 pandera
 pandera[pyspark]

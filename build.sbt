@@ -14,19 +14,20 @@ organization := "com.highperformancespark"
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
-scalaVersion := "2.13.13"
+ThisBuild / scalaVersion := "2.13.16"
 addCompilerPlugin(scalafixSemanticdb)
-scalacOptions ++= List(
+ThisBuild / scalacOptions ++= List(
   "-Yrangepos",
   "-P:semanticdb:synthetics:on"
 )
 
+ThisBuild / semanticdbEnabled := true
 
 name := "examples"
 
 publishMavenStyle := true
 
-version := "0.0.1"
+ThisBuild / version := "0.0.2-SNAPSHOT"
 resolvers ++= Seq(
   "JBoss Repository" at "https://repository.jboss.org/nexus/content/repositories/releases/",
   "Cloudera Repository" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
@@ -67,10 +68,8 @@ val sparkTestingVersion = settingKey[String]("Spark testing base version without
 lazy val core = (project in file("core")) // regular scala code with @native methods
   .dependsOn(native % Runtime)
   .settings(javah / target := (native / nativeCompile / sourceDirectory).value / "include")
-  .settings(scalaVersion := "2.13.13")
   .settings(sbtJniCoreScope := Compile)
   .settings(
-    scalaVersion := "2.13.8",
     javacOptions ++= Seq("-source", "17", "-target", "17"),
     parallelExecution in Test := false,
     fork := true,
@@ -102,7 +101,6 @@ lazy val core = (project in file("core")) // regular scala code with @native met
 // JNI Magic!
 lazy val native = (project in file("native")) // native code and build script
   .settings(nativeCompile / sourceDirectory := sourceDirectory.value)
-  .settings(scalaVersion := "2.13.13")
   .enablePlugins(JniNative) // JniNative needs to be explicitly enabled
 
 //tag::xmlVersionConflict[]
@@ -123,3 +121,6 @@ assemblyMergeStrategy in native := {
 assemblyMergeStrategy in core := {
       case x => MergeStrategy.first
 }
+
+// Typelevel scala format type checks
+ThisBuild / scalafixDependencies += "org.typelevel" %% "typelevel-scalafix" % "0.5.0"
