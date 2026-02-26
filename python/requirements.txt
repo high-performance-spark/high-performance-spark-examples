@@ -1,5 +1,5 @@
 spark-testing-base
-pandas
+pandas==2.2.0
 pyarrow
 pyspark==4.0.0
 pyspark-asyncactions
