@@ -13,7 +13,7 @@ if [ ! -d pyspark_venv ]; then
 fi
 
 source pyspark_venv/bin/activate
-pip install setuptools
+pip install --upgrade setuptools
 pip install -r ./python/requirements.txt
 
 if [ ! -f pyspark_venv.tar.gz ]; then
@@ -26,8 +26,6 @@ PYSPARK_DRIVER_PYTHON=python
 export PYSPARK_DRIVER_PYTHON
 export PYTHON_PATH=./environment/bin/python
 #end::package_venv[]
-
-pip install setuptools
 
 # Some hack for our json magic
 cat se*.json > spark_expectations_sample_rules.json
