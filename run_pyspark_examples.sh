@@ -13,6 +13,7 @@ if [ ! -d pyspark_venv ]; then
 fi
 
 source pyspark_venv/bin/activate
+pip install setuptools
 pip install -r ./python/requirements.txt
 
 if [ ! -f pyspark_venv.tar.gz ]; then
@@ -42,8 +43,6 @@ function check_fail () {
 }
 
 EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
-
-pip install setuptools
 
 # Iceberg JAR not yet available for Spark 4.
 if [ ! -f "${EXAMPLE_JAR}" ]; then
