@@ -14,6 +14,7 @@ fi
 
 source pyspark_venv/bin/activate
 pip install --upgrade setuptools
+python -c "import pkg_resources; print('pkg_resources is available')"
 pip install -r ./python/requirements.txt
 
 if [ ! -f pyspark_venv.tar.gz ]; then
