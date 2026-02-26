@@ -8,27 +8,6 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming._
 
 object StreamStreamJoinBothSideWatermark {
-  def main(args: Array[String]): Unit = {
-    val spark = SparkSession
-      .builder()
-      .appName("StreamStreamJoinBothSideWatermark")
-      .master("local[2]")
-      .getOrCreate()
-  }
-
-  def run(spark: SparkSession): Unit = {
-    val left = spark.readStream
-      .format("memory")
-      .load()
-
-    val right = spark.readStream
-      .format("memory")
-      .load()
-
-    val query = streamStreamJoin(spark, left, right)
-    query.awaitTermination()
-  }
-
   def streamStreamJoinDF(
       spark: SparkSession,
       stream1: DataFrame,

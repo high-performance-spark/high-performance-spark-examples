@@ -1,6 +1,4 @@
 package com.highperformancespark.examples.structuredstreaming
-
-// tag::streaming_ex_continuous_kafka[]
 // Continuous mode Kafka example
 // Limitations: no aggregations/state, manual fault tolerance, Kafka is primary prod source/sink
 
@@ -15,6 +13,7 @@ object ContinuousKafkaExample {
       .master("local[2]")
       .getOrCreate()
 
+    // tag::streaming_ex_continuous_kafka[]
     val df = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
@@ -30,6 +29,6 @@ object ContinuousKafkaExample {
       .start()
 
     query.awaitTermination()
+    // end::streaming_ex_continuous_kafka[]
   }
 }
-// end::streaming_ex_continuous_kafka[]
