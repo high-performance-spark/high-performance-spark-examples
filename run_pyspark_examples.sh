@@ -19,13 +19,14 @@ if [ ! -f pyspark_venv.tar.gz ]; then
   venv-pack -o pyspark_venv.tar.gz
 fi
 
-
 # Set in local and client mode where the driver uses the Python present
 # (requires that you have activated the venv as we did above)
 PYSPARK_DRIVER_PYTHON=python
 export PYSPARK_DRIVER_PYTHON
 export PYTHON_PATH=./environment/bin/python
 #end::package_venv[]
+
+pip install setuptools
 
 # Some hack for our json magic
 cat se*.json > spark_expectations_sample_rules.json
@@ -41,8 +42,6 @@ function check_fail () {
 }
 
 EXAMPLE_JAR="./core/target/scala-2.13/core-assembly-0.1.0-SNAPSHOT.jar"
-
-pip install setuptools
 
 # Iceberg JAR not yet available for Spark 4.
 if [ ! -f "${EXAMPLE_JAR}" ]; then
