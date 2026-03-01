@@ -1,6 +1,12 @@
 
 name: spark-pipeline-ex
-storage: file:///home/holden/repos/high-performance-spark-examples/spark-pipeline-ex/pipeline-storage
+# Where should the steps output be stored, must be absolute (file:// for testing, but hdfs/sf for real)
+storage: file://tmp/pipeline-storage
 libraries:
   - glob:
-      include: transformations/**
+      # Can also use wildcard includes.
+      include: transformations/project_pipeline.py
+# Optional Spark configs
+configuration:
+  # Note: the values need to be strings, Spark side they get parsed.
+  spark.sql.shuffle.partitions: "2"
