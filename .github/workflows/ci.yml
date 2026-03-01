@@ -56,6 +56,32 @@ jobs:
         run: |
           cd python; tox
 
+  run-pipeline-example:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install -r python/requirements.txt
+          pip install "pyspark[pipelines]==4.1.1"
+
+      - name: Run pipeline example
+        run: ./run_pipeline_example.sh
+
   run-sql-examples:
     runs-on: ubuntu-latest
     steps:
@@ -167,7 +193,7 @@ jobs:
 
       - name: Setup comet
         run: |
-          cd accelerators; SPARK_MAJOR=3.5 ./setup_comet.sh
+          cd accelerators; SPARK_MAJOR=4.1 ./setup_comet.sh
 
       - name: Run comet
         run: |
