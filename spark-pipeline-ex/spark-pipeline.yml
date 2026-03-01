@@ -1,0 +1,6 @@
+
+name: spark-pipeline-ex
+storage: file:///home/holden/repos/high-performance-spark-examples/spark-pipeline-ex/pipeline-storage
+libraries:
+  - glob:
+      include: transformations/**
