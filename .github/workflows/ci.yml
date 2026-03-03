@@ -193,7 +193,9 @@ jobs:
 
       - name: Setup comet
         run: |
-          cd accelerators; SPARK_MAJOR=4.1 ./setup_comet.sh
+          export SPARK_MAJOR=4.0
+          cd accelerators
+          ./setup_comet.sh
 
       - name: Run comet
         run: |

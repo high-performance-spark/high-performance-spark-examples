@@ -2,7 +2,7 @@
 set -ex
 
 # If you change this update the workflow version too.
-SPARK_MAJOR=${SPARK_MAJOR:-3.5}
+SPARK_MAJOR=${SPARK_MAJOR:-4.0}
 SPARK_VERSION=${SPARK_MAJOR}.1
 export SPARK_MAJOR
 export SPARK_VERSION

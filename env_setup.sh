@@ -10,6 +10,7 @@ HADOOP_VERSION="3"
 SPARK_PATH="$(pwd)/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
 SPARK_FILE="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
 ICEBERG_VERSION=${ICEBERG_VERSION:-"1.10.1"}
+echo "Performing env setup for $SPARK_VERSION w/ $SCALA_VERSION"
 if [ ! -f "${SPARK_FILE}" ]; then
   SPARK_DIST_URL="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
   SPARK_ARCHIVE_DIST_URL="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_FILE}"
@@ -20,7 +21,7 @@ if [ ! -f "${SPARK_FILE}" ]; then
     (wget --quiet "$SPARK_DIST_URL" || wget --quiet "$SPARK_ARCHIVE_DIST_URL") &
   fi
 fi
-# Download Icberg if not present
+# Download Iceberg if not present
 ICEBERG_FILE="iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_VERSION}-${ICEBERG_VERSION}.jar"
 if [ ! -f "${ICEBERG_FILE}" ]; then
   wget --quiet "https://search.maven.org/remotecontent?filepath=org/apache/iceberg/iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_VERSION}/${ICEBERG_VERSION}/${ICEBERG_FILE}" -O "${ICEBERG_FILE}" &

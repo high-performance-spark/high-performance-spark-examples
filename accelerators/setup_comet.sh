@@ -6,6 +6,7 @@ source install_rust_if_needed.sh
 if command -v protoc >/dev/null 2>&1; then
   echo "protoc already installed"
 else
+  sudo apt-get update
   sudo apt-get install -y protobuf-compiler
 fi
 
