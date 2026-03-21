@@ -19,6 +19,7 @@ class JsonWindowedAggExampleFileIT extends AnyFunSuite {
     try f(spark) finally spark.stop()
   }
 
+  // tag::json_window[]
   test("file JSON source: sequential writes close windows via watermark (append mode)") {
     withSpark { spark =>
       import spark.implicits._
@@ -110,4 +111,5 @@ class JsonWindowedAggExampleFileIT extends AnyFunSuite {
       q.stop()
     }
   }
+  // end::json_window[]
 }
