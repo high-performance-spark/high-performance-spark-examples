@@ -270,6 +270,12 @@ object HappyPandas {
     miniPandas
   }
 
+  def simpleSqlExample(session: SparkSession): DataFrame = {
+    // tag::tableQuery[]
+    val tbl = session.table("pandas")
+    // end::pandasSQLQuery[]
+  }
+
   def startJDBCServer(hiveContext: SQLContext): Unit = {
     // tag::startJDBC[]
     hiveContext.setConf("hive.server2.thrift.port", "9090")
