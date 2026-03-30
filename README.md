@@ -29,6 +29,13 @@ e.g.
 
 `SPARK_EVENTLOG=true sbt test`
 
+Some are not the byproduct of tests but instead come from main:
+
+`
+sbt assembly
+${SPARK_HOME}/bin/spark-submit --name more  --class com.highperformancespark.examples.perf.SimplePerfTest --conf spark.eventLog.enabled=true ./core/target/scala-2.13/core-assembly-0.0.2-SNAPSHOT.jar
+`
+
 If you want to run just a specific test you can run [testOnly](https://www.scala-sbt.org/1.x/docs/Testing.html)
 
 Then to view the history server you'll want to launch it using the `${SPARK_HOME}/sbin/start-history-server.sh` then you [can go to your local history server](http://localhost:18080/)
