@@ -1,6 +1,5 @@
-/**
- * Show skipped stages for better understanding.
- */
+/** Show skipped stages for better understanding.
+  */
 package com.highperformancespark.examples
 
 import org.apache.spark._

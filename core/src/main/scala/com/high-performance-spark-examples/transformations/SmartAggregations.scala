@@ -9,9 +9,9 @@ class SmartAggregations {
     * where ReportCardMetrics is a case class with
     *
     * longestWord -> The longest word in all of the reports written by this
-    * instructor happyMentions -> The number of times this instructor was mentioned
-    * the word happy averageWords -> The average number of words per report card
-    * for this instructor
+    * instructor happyMentions -> The number of times this instructor was
+    * mentioned the word happy averageWords -> The average number of words per
+    * report card for this instructor
     */
   def calculateReportCardStatistics(
       rdd: RDD[(String, String)]
