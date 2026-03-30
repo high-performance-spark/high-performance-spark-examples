@@ -274,6 +274,7 @@ object HappyPandas {
     // tag::tableQuery[]
     val tbl = session.table("pandas")
     // end::pandasSQLQuery[]
+    tbl
   }
 
   def startJDBCServer(hiveContext: SQLContext): Unit = {
