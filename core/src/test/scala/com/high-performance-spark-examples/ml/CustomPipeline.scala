@@ -11,6 +11,8 @@ import org.scalatest.funsuite.AnyFunSuite
 case class TestRow(id: Int, inputColumn: String)
 
 class CustomPipelineSuite extends AnyFunSuite with DataFrameSuiteBase {
+  override def appName: String = "customPipelineSuite"
+
   val d = List(
     TestRow(0, "a"),
     TestRow(1, "b"),

@@ -14,6 +14,8 @@ import org.scalatestplus.scalacheck.Checkers
 class NativeExampleSuite extends AnyFunSuite
     with SharedSparkContext with Checkers with RDDComparisons {
 
+  override def appName: String = "nativeExampleSuite"
+
   test("local sum") {
     val input = Array(1, 2, 3)
     val sumMagic = new SumJNI()

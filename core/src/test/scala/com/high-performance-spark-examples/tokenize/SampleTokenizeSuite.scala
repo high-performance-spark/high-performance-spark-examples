@@ -11,6 +11,7 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class SampleTokenizeSuite extends AnyFunSuite with SharedSparkContext {
+  override def appName: String = "tokenizeTest"
   val input = List("hi holden", "I like coffee")
   val expected = List("hi", "holden", "I", "like", "coffee")
 

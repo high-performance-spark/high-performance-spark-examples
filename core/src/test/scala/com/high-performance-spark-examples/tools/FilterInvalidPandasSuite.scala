@@ -8,6 +8,7 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class FilterInvalidPandasSuite extends AnyFunSuite with SharedSparkContext {
+  override def appName: String = "filterInvalidPandasSuite"
   test("simple filter") {
     val invalidPandas = List(1L, 2L)
     val inputPandas = List(

@@ -8,6 +8,7 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class GeneratescalaingDataSuite extends AnyFunSuite with SharedSparkContext {
+  override def appName: String = "generatescalingdatasuite"
   // The number of entries depends somewhat on the partition split because we
   // zip multiple separate RDDs so its more of a "request"
   test("expected num entries") {

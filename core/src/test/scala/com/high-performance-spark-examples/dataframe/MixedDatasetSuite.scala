@@ -23,6 +23,8 @@ class MixedDatasetSuite extends AnyFunSuite
   with DatasetSuiteBase
   with RDDComparisons {
 
+  override def appName: String = "mixedDatasetSuite"
+
   val rawPandaList = List(
     RawPanda(10L, "94110", "giant", true, Array(1.0, 0.9, 20.0)),
     RawPanda(11L, "94110", "red", true, Array(1.0, 0.7, 30.0)))

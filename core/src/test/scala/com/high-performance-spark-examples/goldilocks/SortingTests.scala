@@ -1,4 +1,3 @@
-
 package com.highperformancespark.examples.goldilocks
 
 import scala.reflect.ClassTag
@@ -10,6 +9,8 @@ import org.scalatest.funsuite.AnyFunSuite
 
 
 class SortingTests extends AnyFunSuite with SharedSparkContext {
+
+  override def appName: String = "sortingTests"
 
   test("Test Sort by two keys"){
 

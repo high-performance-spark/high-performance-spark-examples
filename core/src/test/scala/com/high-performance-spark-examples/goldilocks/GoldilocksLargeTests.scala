@@ -17,6 +17,7 @@ import org.apache.spark.sql.SparkSession
 
 class GoldilocksLargeTests extends AnyFunSuite with SharedSparkContext{
 
+  override def appName: String = "goldlocksLargeTests"
 
   def testGoldilocksImplementations(
     data: DataFrame, targetRanks: List[Long],

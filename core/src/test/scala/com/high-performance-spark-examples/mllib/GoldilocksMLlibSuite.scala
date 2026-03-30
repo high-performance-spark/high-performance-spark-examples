@@ -10,6 +10,7 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class GoldilocksMLlibSuite extends AnyFunSuite with SharedSparkContext {
+  override def appName: String = "mllibSuite"
   val rps = List(
     RawPanda(1L, "94110", "giant", true, Array(0.0, 0.0)),
     RawPanda(2L, "94110", "giant", false, Array(0.0, 3.0)),

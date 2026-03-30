@@ -14,7 +14,7 @@ class QuantileOnlyArtisanalTest extends AnyFunSuite with BeforeAndAfterAll {
   @transient private var _sc: SparkContext = _
   def sc: SparkContext = _sc
 
-  val conf = new SparkConf().setMaster("local[4]").setAppName("test")
+  val conf = new SparkConf().setMaster("local[4]").setAppName("quantileOnlyTest")
 
   override def beforeAll() {
     _sc = new SparkContext(conf)

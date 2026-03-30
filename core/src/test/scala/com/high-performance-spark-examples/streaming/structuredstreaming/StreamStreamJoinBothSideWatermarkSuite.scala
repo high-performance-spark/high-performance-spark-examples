@@ -18,6 +18,8 @@ class StreamStreamJoinBothSideWatermarkSpec
     extends AnyFunSuite
     with DatasetSuiteBase {
 
+  override def appName: String = "streamstreamJoin"
+
   import spark.implicits._
 
   private def ts(secs: Long): Timestamp =

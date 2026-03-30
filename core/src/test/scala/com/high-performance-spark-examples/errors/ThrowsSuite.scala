@@ -4,6 +4,9 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class ThrowsSuite extends AnyFunSuite with SharedSparkContext {
+
+  override def appName: String = "throwsSuite"
+
   test("inner throw & outer throw should both throw SparkExceptions exceptions") {
     intercept[org.apache.spark.SparkException] {
       Throws.throwInner(sc)

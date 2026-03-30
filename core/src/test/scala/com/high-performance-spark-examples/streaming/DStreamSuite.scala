@@ -13,6 +13,7 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class DStreamExamplesSuite extends AnyFunSuite with SharedSparkContext {
+  override def appName: String = "dStreamSuite"
   test("simple set up") {
     val ssc = DStreamExamples.makeStreamingContext(sc)
     val inputStream = DStreamExamples.fileAPIExample(ssc, "./")

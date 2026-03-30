@@ -13,6 +13,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.expressions.aggregate._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
+//tag::legacySparkHiveImports[]
 import org.apache.spark.sql.hive.thriftserver._
 import org.apache.spark.sql.Encoders
 //end::legacySparkHiveImports[]

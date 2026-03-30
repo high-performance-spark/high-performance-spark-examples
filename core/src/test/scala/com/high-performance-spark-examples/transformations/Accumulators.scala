@@ -10,6 +10,9 @@ import com.holdenkarau.spark.testing._
 import org.scalatest.funsuite.AnyFunSuite
 
 class AccumulatorsTest extends AnyFunSuite with SharedSparkContext {
+
+  override def appName: String = "accumulatorTests"
+
   test("accumulator max should function") {
     val input = sc.parallelize(1.to(100)).map(x =>
       RawPanda(1L, "1", "red", true, Array(x.toDouble)))

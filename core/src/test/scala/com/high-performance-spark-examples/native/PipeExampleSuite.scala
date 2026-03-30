@@ -10,6 +10,8 @@ import org.scalatestplus.scalacheck.Checkers
 
 
 class PipeExampleSuite extends AnyFunSuite with SharedSparkContext with Checkers {
+  override def appName: String = "pipelineEx"
+
   ignore("commentors on a pr") {
     val rdd = sc.parallelize(List(12883))
     val expected = (12883, List("SparkQA", "srowen"))

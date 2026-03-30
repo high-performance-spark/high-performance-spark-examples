@@ -21,6 +21,8 @@ import org.scalatest.matchers.should.Matchers._
 case class MiniPanda(happy: Double, fuzzy: Double, old: Double)
 
 class SimpleNaiveBayesSuite extends AnyFunSuite with DataFrameSuiteBase {
+  override def appName: String = "simpleNaiveBayesSuite"
+
   val miniPandasList = List(
     MiniPanda(1.0, 1.0, 1.0),
     MiniPanda(1.0, 1.0, 0.0),

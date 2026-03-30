@@ -22,6 +22,8 @@ import org.scalatest.matchers.should.Matchers._
 
 class SQLExtensionTest extends AnyFunSuite with ScalaDataFrameSuiteBase {
 
+  override def appName: String = "sqlExtensionTest"
+
   val rawPandaList = List(
     RawPanda(10L, "94110", "giant", true, Array(1.0, 0.9)),
     RawPanda(11L, "94110", "red", true, Array(1.0, 0.9)))

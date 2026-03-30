@@ -7,6 +7,9 @@ import org.scalatest.funsuite.AnyFunSuite
 
 
 class JoinTest extends AnyFunSuite with SharedSparkContext {
+
+  override def appName: String = "joinTest"
+
   test("Hash join"){
     val keySet = "a, b, c, d, e, f, g".split(",")
     val smallRDD = sc.parallelize(keySet.map(letter => (letter, letter.hashCode)))

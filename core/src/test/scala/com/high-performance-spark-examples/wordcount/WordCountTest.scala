@@ -5,6 +5,7 @@ import com.holdenkarau.spark.testing.SharedSparkContext
 import org.scalatest.funsuite.AnyFunSuite
 
 class WordCountTest extends AnyFunSuite with SharedSparkContext {
+  override def appName: String = "wordcountSuite"
   test("word count with Stop Words Removed"){
     val wordRDD = sc.parallelize(Seq(
       "How happy was the panda? You ask.",
