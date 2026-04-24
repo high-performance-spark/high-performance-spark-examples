@@ -82,7 +82,7 @@ object HappyPandas {
     val jsonRDD = sc.textFile(path)
     // tag::loadPandaJsonRDD[]
     val df3 = session.read.json(session.createDataset(jsonRDD)(Encoders.STRING))
-    // end::loadPandaJSONRDD[]
+    // end::loadPandaJsonRDD[]
     df1
   }
 
