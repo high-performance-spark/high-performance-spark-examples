@@ -87,10 +87,10 @@ object HappyPandas {
   }
 
   def jsonLoadFromRDD(session: SparkSession, input: RDD[String]): DataFrame = {
-    // tag::loadPandaJSONRDD[]
+    // tag::loadPandaJSONRDDWithFilter[]
     val rdd: RDD[String] = input.filter(_.contains("panda"))
     val df = session.read.json(session.createDataset(rdd)(Encoders.STRING))
-    // end::loadPandaJSONRDD[]
+    // end::loadPandaJSONRDDWithFilter[]
     df
   }
 
