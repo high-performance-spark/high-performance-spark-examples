@@ -274,7 +274,7 @@ object HappyPandas {
   def simpleSqlExample(session: SparkSession): DataFrame = {
     // tag::tableQuery[]
     val tbl = session.table("pandas")
-    // end::pandasSQLQuery[]
+    // end::tableQuery[]
     tbl
   }
 
