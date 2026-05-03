@@ -1,4 +1,5 @@
-/** Extension for the SparkSession to allow us to plug in a custom optimizer
+/**
+ * Simple nullability rule optimizer.
   */
 
 package com.highperformancespark.examples.dataframe
@@ -9,6 +10,7 @@ import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.trees.TreePattern._
 import org.apache.spark.sql.catalyst.expressions.{And, IsNotNull}
 
+// tag::nullabilityRule[]
 object NullabilityFilterOptimizer extends Rule[LogicalPlan] {
 
   def apply(plan: LogicalPlan): LogicalPlan = {
@@ -24,3 +26,4 @@ object NullabilityFilterOptimizer extends Rule[LogicalPlan] {
     }
   }
 }
+// end::nullabilityRule[]
