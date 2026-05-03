@@ -26,10 +26,9 @@ object HappyPandas {
     // tag::createSparkSession[]
     val session = SparkSession
       .builder()
-      // .enableHiveSupport() -- try disabling this
       .getOrCreate()
     // Import the implicits, unlike in core Spark the implicits are defined
-    // on the context.
+    // on the session.
     import session.implicits._
     // end::createSparkSession[]
     session
